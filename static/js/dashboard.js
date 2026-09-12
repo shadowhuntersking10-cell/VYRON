@@ -464,12 +464,13 @@ async function renderSecurity() {
 
 const routes = {
   overview: renderOverview,
-  orders: renderOrders,
-  notifications: renderNotifications,
-  donations: renderDonations,
-  telegram: renderTelegram,
-  profile: renderProfile,
-  security: renderSecurity,
+    orders: renderOrders,
+    notifications: renderNotifications,
+    donations: renderDonations,
+    telegram: renderTelegram,
+    profile: renderProfile,
+    settings: renderProfile, // /dashboard/settings → account settings (profile/preferences)
+    security: renderSecurity,
 };
 
 (async () => {

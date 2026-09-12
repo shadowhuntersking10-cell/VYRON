@@ -690,7 +690,7 @@
     "welcome": "🎮 <b>VYRON</b> — O'YNA. SOTIB OL. DONAT QIL.\n\nXush kelibsiz, {name}!\nMini ilovani oching: o'yinlarni to'ldiring, raqamli mahsulotlar sotib oling va creatorlarga donat qiling.",
     "welcome_guest": "🎮 <b>VYRON</b> — O'YNA. SOTIB OL. DONAT QIL.\n\nXush kelibsiz! Quyidagi Mini ilovani oching — VYRON hisobingiz Telegram orqali avtomatik yaratiladi.\n\nHisobingiz bormi? Dashboardda link token oling va bu yerga /start <token> yuboring.",
     "open_app": "VYRONNI OCHISH",
-    "help_body": "🎮 VYRON bot buyruqlari:\n\n/start — asosiy menyu va Mini ilova tugmasi\n/start <token> — VYRON hisobini ulash (dashboarddan olingan bir martalik token)\n/orders — so'nggi buyurtmalaringiz\n/profile — VYRON profilingiz\n/support — qo'llab-quvvatlash\n/help — ushbu xabar",
+    "help_body": "🎮 VYRON bot buyruqlari:\n\n/start — asosiy menyu va Mini ilova tugmasi\n/start <token> — VYRON hisobini ulash (dashboarddan olingan bir martalik token)\n/games — o'yinlar va jonli narxlar\n/orders — so'nggi buyurtmalaringiz\n/profile — VYRON profilingiz\n/support — qo'llab-quvvatlash\n/help — ushbu xabar",
     "link_success": "Telegram hisobingiz endi VYRON hisobiga ulandi: {name}. Buyurtma xabarlari shu yerga keladi.",
     "no_orders": "Hozircha buyurtmalaringiz yo'q. Mini ilovani ochib birinchi buyurtmani bering!",
     "orders_title": "📦 So'nggi buyurtmalaringiz",
@@ -699,6 +699,10 @@
     "support_body": "🎧 Yordam kerakmi? Support sahifasini ochib ticket yarating — jamoamiz odatda bir necha soat ichida javob beradi.",
     "not_linked": "Bu Telegram hisobi hali VYRON foydalanuvchisiga ulanmagan.",
     "unknown": "Bu xabarni tushunmadim. /help orqali mavjud buyruqlarni ko'ring.",
-    "admin_panel": "Admin panel"
+    "admin_panel": "Admin panel",
+    "games_title": "🎮 VYRON o'yinlari",
+    "games_hint": "O'yinni tanlab jonli narxlarni ko'ring yoki Mini ilovada darhol sotib oling.",
+    "buy_in_app": "Mini ilovada sotib olish",
+    "back_to_games": "O'yinlar"
   }
 }

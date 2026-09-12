@@ -49,7 +49,7 @@ def _admin_keyboard(db, user: Optional[User], telegram_id: int, lang: str) -> li
 
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     tg_user = update.effective_user
-    if tg_user is None:
+    if tg_user is None or update.effective_message is None:
         return
     args = context.args or []
     db = _session()
@@ -63,20 +63,20 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 target = auth_service.consume_telegram_link_token(db, token)
                 telegram_service.link_account(db, target, _tg_user_adapter(tg_user))
                 lang = _lang(target)
-                await update.message.reply_text(
+                await update.effective_message.reply_text(
                     f"✅ {t('bot.link_success', lang, name=target.name or target.username)}",
                     reply_markup=_main_keyboard(db, target, tg_user.id, lang),
                 )
                 return
             except VyronError as exc:
                 lang = _lang(user)
-                await update.message.reply_text(f"⚠️ {exc!s}")
+                await update.effective_message.reply_text(f"⚠️ {exc!s}")
                 return
 
         if user is None:
             # Not linked yet — guest welcome; the Mini App provisions/links via initData.
             lang = "uz"
-            await update.message.reply_text(
+            await update.effective_message.reply_text(
                 t("bot.welcome_guest", lang),
                 reply_markup=_main_keyboard(db, None, tg_user.id, lang),
                 parse_mode=ParseMode.HTML,
@@ -84,7 +84,7 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             return
 
         lang = _lang(user)
-        await update.message.reply_text(
+        await update.effective_message.reply_text(
             t("bot.welcome", lang, name=user.name or user.username),
             reply_markup=_main_keyboard(db, user, tg_user.id, lang),
             parse_mode=ParseMode.HTML,
@@ -92,7 +92,7 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     except Exception as exc:
         db.rollback()
         log.error("bot /start failed", error=str(exc))
-        await update.message.reply_text(t("errors.INTERNAL_ERROR", "en"))
+        await update.effective_message.reply_text(t("errors.INTERNAL_ERROR", "en"))
     finally:
         db.close()
 
@@ -119,11 +119,13 @@ def _main_keyboard(db, user: Optional[User], telegram_id: int, lang: str) -> Inl
 
 
 async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.effective_message is None:
+        return
     db = _session()
     try:
         _, user = _context_user(db, update.effective_user.id)
         lang = _lang(user)
-        await update.message.reply_text(
+        await update.effective_message.reply_text(
             t("bot.help_body", lang),
             reply_markup=_main_keyboard(db, user, update.effective_user.id, lang),
         )
@@ -132,6 +134,8 @@ async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def cmd_orders(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.effective_message is None:
+        return
     db = _session()
     try:
         _, user = _context_user(db, update.effective_user.id)
@@ -143,7 +147,7 @@ async def cmd_orders(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             select(Order).where(Order.user_id == user.id).order_by(Order.created_at.desc()).limit(5)
         ).all()
         if not orders:
-            await update.message.reply_text(
+            await update.effective_message.reply_text(
                 t("bot.no_orders", lang),
                 reply_markup=_main_keyboard(db, user, update.effective_user.id, lang),
             )
@@ -151,7 +155,7 @@ async def cmd_orders(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         lines = [f"<b>{t('bot.orders_title', lang)}</b>", ""]
         for o in orders:
             lines.append(f"<code>{o.number}</code> — {o.status} — {o.total} {o.currency}")
-        await update.message.reply_html(
+        await update.effective_message.reply_html(
             "\n".join(lines),
             reply_markup=_main_keyboard(db, user, update.effective_user.id, lang),
         )
@@ -162,6 +166,8 @@ async def cmd_orders(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
 
 async def cmd_profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.effective_message is None:
+        return
     db = _session()
     try:
         _, user = _context_user(db, update.effective_user.id)
@@ -180,7 +186,7 @@ async def cmd_profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             + ("  🛡" if is_admin else "")
             + f"\n📦 {t('bot.orders_count', lang)}: {order_count}"
         )
-        await update.message.reply_html(text, reply_markup=_main_keyboard(db, user, update.effective_user.id, lang))
+        await update.effective_message.reply_html(text, reply_markup=_main_keyboard(db, user, update.effective_user.id, lang))
     except Exception as exc:
         log.error("bot /profile failed", error=str(exc))
     finally:
@@ -188,23 +194,118 @@ async def cmd_profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
 
 
 async def cmd_support(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if update.effective_message is None:
+        return
     db = _session()
     try:
         _, user = _context_user(db, update.effective_user.id)
         lang = _lang(user)
         rows = [[_open_button(f"🚀 {t('bot.open_app', lang)}")]]
         rows.append([InlineKeyboardButton(f"🎧 {t('nav.support', lang)}", url=f"{settings.public_base_url.rstrip('/')}/support")])
-        await update.message.reply_text(t("bot.support_body", lang), reply_markup=InlineKeyboardMarkup(rows))
+        await update.effective_message.reply_text(t("bot.support_body", lang), reply_markup=InlineKeyboardMarkup(rows))
     finally:
         db.close()
 
 
 async def _reply_not_linked(update: Update, db) -> None:
     lang = "uz"
-    await update.message.reply_text(
+    await update.effective_message.reply_text(
         f"{t('bot.not_linked', lang)}\n\n{t('telegram_page.link_instructions', lang)}",
         reply_markup=InlineKeyboardMarkup([[_open_button(f"🚀 {t('bot.open_app', lang)}")]]),
     )
+
+
+async def cmd_games(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Interactive games menu — same catalog data as the website (shared services)."""
+    if update.effective_message is None:
+        return
+    from vyron.db.models import Game
+
+    db = _session()
+    try:
+        _, user = _context_user(db, update.effective_user.id)
+        lang = _lang(user)
+        games = db.scalars(
+            select(Game).where(Game.status == "ACTIVE").order_by(Game.sort_order, Game.name).limit(14)
+        ).all()
+        if not games:
+            await update.effective_message.reply_text(t("games.empty", lang))
+            return
+        rows = []
+        pair = []
+        for g in games:
+            pair.append(InlineKeyboardButton(f"🎮 {g.name}", callback_data=f"game:{g.slug}"))
+            if len(pair) == 2:
+                rows.append(pair)
+                pair = []
+        if pair:
+            rows.append(pair)
+        rows.append([_open_button(f"🚀 {t('bot.open_app', lang)}")])
+        await update.effective_message.reply_text(
+            f"<b>{t('bot.games_title', lang)}</b>\n\n{t('bot.games_hint', lang)}",
+            reply_markup=InlineKeyboardMarkup(rows),
+            parse_mode=ParseMode.HTML,
+        )
+    except Exception as exc:
+        log.error("bot /games failed", error=str(exc))
+    finally:
+        db.close()
+
+
+async def on_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Callback menu: game → products with live prices → open Mini App to buy."""
+    query = update.callback_query
+    if query is None or query.message is None:
+        return
+    await query.answer()
+    data = query.data or ""
+
+    db = _session()
+    try:
+        _, user = _context_user(db, update.effective_user.id)
+        lang = _lang(user)
+
+        if data.startswith("game:"):
+            from vyron.db.models import Game, Product, ProductVariant
+
+            slug = data.split(":", 1)[1]
+            game = db.scalar(select(Game).where(Game.slug == slug))
+            if game is None:
+                await query.edit_message_text(t("errors.NOT_FOUND", lang))
+                return
+            products = db.scalars(select(Product).where(Product.game_id == game.id, Product.active.is_(True))).all()
+            lines = [f"<b>🎮 {game.name}</b>"]
+            for p in products[:8]:
+                variants = db.scalars(
+                    select(ProductVariant)
+                    .where(ProductVariant.product_id == p.id, ProductVariant.active.is_(True))
+                    .order_by(ProductVariant.sort_order)
+                    .limit(6)
+                ).all()
+                prices = " · ".join(f"{v.name}: {v.selling_price} {v.currency}" for v in variants)
+                lines.append(f"\n<b>{p.name}</b>\n{prices}" if prices else f"\n<b>{p.name}</b>")
+            keyboard = InlineKeyboardMarkup([
+                [_open_button(f"🚀 {t('bot.buy_in_app', lang)}")],
+                [InlineKeyboardButton(f"← {t('bot.back_to_games', lang)}", callback_data="games")],
+            ])
+            await query.edit_message_text("\n".join(lines)[:4000], reply_markup=keyboard, parse_mode=ParseMode.HTML)
+            return
+
+        if data == "games":
+            # re-render the games menu
+            await cmd_games(update, context)
+            return
+
+        if data == "orders":
+            await cmd_orders(update, context)
+        elif data == "profile":
+            await cmd_profile(update, context)
+        elif data == "support":
+            await cmd_support(update, context)
+    except Exception as exc:
+        log.error("bot callback failed", error=str(exc), data=data)
+    finally:
+        db.close()
 
 
 async def on_unknown(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -214,7 +315,7 @@ async def on_unknown(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     try:
         _, user = _context_user(db, update.effective_user.id)
         lang = _lang(user)
-        await update.message.reply_text(t("bot.unknown", lang))
+        await update.effective_message.reply_text(t("bot.unknown", lang))
     finally:
         db.close()
 
@@ -226,6 +327,7 @@ async def post_init(application) -> None:
         await application.bot.set_my_commands([
             BotCommand("start", "Start / Бошлаш"),
             BotCommand("help", "Help / Ёрдам"),
+            BotCommand("games", "Games / Ўйинлар"),
             BotCommand("orders", "Orders / Буюртмалар"),
             BotCommand("profile", "Profile / Профил"),
             BotCommand("support", "Support / Қўллаб-қувватлаш"),

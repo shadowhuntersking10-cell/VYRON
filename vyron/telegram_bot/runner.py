@@ -9,7 +9,7 @@ import threading
 from typing import Optional
 
 from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
+from telegram.ext import Application, CallbackQueryHandler, CommandHandler, MessageHandler, filters
 
 from vyron.config import settings
 from vyron.errors import TelegramNotConfiguredError
@@ -51,9 +51,11 @@ class BotRunner:
         )
         app.add_handler(CommandHandler("start", handlers.cmd_start))
         app.add_handler(CommandHandler("help", handlers.cmd_help))
+        app.add_handler(CommandHandler("games", handlers.cmd_games))
         app.add_handler(CommandHandler("orders", handlers.cmd_orders))
         app.add_handler(CommandHandler("profile", handlers.cmd_profile))
         app.add_handler(CommandHandler("support", handlers.cmd_support))
+        app.add_handler(CallbackQueryHandler(handlers.on_callback))
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handlers.on_unknown))
         return app
 

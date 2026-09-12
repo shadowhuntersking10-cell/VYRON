@@ -690,7 +690,7 @@
     "welcome": "🎮 <b>VYRON</b> — PLAY. BUY. DONATE.\n\nWelcome back, {name}!\nOpen the Mini App to top up games, buy digital goods and donate to creators.",
     "welcome_guest": "🎮 <b>VYRON</b> — PLAY. BUY. DONATE.\n\nWelcome! Open the Mini App below — your VYRON account is created automatically via Telegram.\n\nAlready have an account? In the dashboard generate a link token and send /start <token> here.",
     "open_app": "OPEN VYRON",
-    "help_body": "🎮 VYRON bot commands:\n\n/start — main menu & Mini App button\n/start <token> — link your VYRON account (one-time token from the dashboard)\n/orders — your latest orders\n/profile — your VYRON profile\n/support — contact support\n/help — this message",
+    "help_body": "🎮 VYRON bot commands:\n\n/start — main menu & Mini App button\n/start <token> — link your VYRON account (one-time token from the dashboard)\n/games — browse games & live prices\n/orders — your latest orders\n/profile — your VYRON profile\n/support — contact support\n/help — this message",
     "link_success": "Your Telegram is now linked to the account: {name}. You will receive order notifications here.",
     "no_orders": "You have no orders yet. Open the Mini App to place your first one!",
     "orders_title": "📦 Your latest orders",
@@ -699,6 +699,10 @@
     "support_body": "🎧 Need help? Open the support page to create a ticket — our team usually replies within a few hours.",
     "not_linked": "This Telegram account is not linked to a VYRON user yet.",
     "unknown": "I don't understand that message. Use /help to see available commands.",
-    "admin_panel": "Admin panel"
+    "admin_panel": "Admin panel",
+    "games_title": "🎮 VYRON games",
+    "games_hint": "Choose a game to see live prices, or open the Mini App to buy instantly.",
+    "buy_in_app": "Buy in Mini App",
+    "back_to_games": "Games"
   }
 }

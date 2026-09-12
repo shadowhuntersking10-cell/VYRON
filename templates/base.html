@@ -45,7 +45,7 @@
 
       <select id="lang-select" class="select lang-select" aria-label="{{ t('common.language') }}">
         {% for code in supported_languages %}
-          <option value="{{ code }}" {{ 'selected' if code == lang }}>{{ language_labels[code] }}</option>
+          <option value="{{ code }}" {{ 'selected' if code == lang }}>{{ language_labels[code].flag }} {{ language_labels[code].native }}</option>
         {% endfor %}
       </select>
 
