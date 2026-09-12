@@ -122,7 +122,7 @@ class CsrfError(VyronError):
 # --- Validation / resources ----------------------------------------------------------
 class ValidationError(VyronError):
     code = "VALIDATION_ERROR"
-    http_status = status.HTTP_422_UNPROCESSABLE_ENTITY
+    http_status = getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422)
     default_message = "Validation failed."
 
 
@@ -164,7 +164,7 @@ class WebhookVerificationError(VyronError):
 
 class CouponError(VyronError):
     code = "COUPON_INVALID"
-    http_status = status.HTTP_422_UNPROCESSABLE_ENTITY
+    http_status = getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422)
     default_message = "Coupon is not valid for this order."
 
 
@@ -265,7 +265,7 @@ def install_error_handlers(app: FastAPI) -> None:
         for err in exc.errors()[:20]:
             details.append({"field": ".".join(str(loc) for loc in err.get("loc", [])), "issue": err.get("msg", "")})
         return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422),
             content={
                 "success": False,
                 "error": {"code": "VALIDATION_ERROR", "message": "Validation failed.", "details": details},
