@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav.promotions') }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="section-head">
+    <div>
+      <h1 class="section-title">{{ t('promotions.title') }}</h1>
+      <div class="section-sub">{{ t('promotions.subtitle') }}</div>
+    </div>
+  </div>
+
+  {% if listings %}
+  <h2 class="fw-800 mb-2">⭐ {{ t('promotions.active') }}</h2>
+  <div class="grid grid-4 mb-3">
+    {% for listing in listings %}
+    <a class="card card-hover listing-card" href="/marketplace/listing/{{ listing.id }}">
+      <span class="promoted-flag">⭐ {{ t('seller.promoted') }}</span>
+      <div class="thumb">{% if listing.images %}<img src="{{ listing.images[0] }}" alt="" loading="lazy">{% else %}🛍️{% endif %}</div>
+      <div class="name truncate mt-1 fw-800">{{ listing.title }}</div>
+      <div class="meta row spread mt-1"><span class="price">{{ listing.price }} {{ listing.currency }}</span></div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if products %}
+  <h2 class="fw-800 mb-2">🔥 {{ t('home.popular_products') }}</h2>
+  <div class="grid grid-4">
+    {% for product in products %}
+    <a class="card card-hover product-card" href="/products/{{ product.slug }}">
+      <div class="thumb">{% if product.image_url %}<img src="{{ product.image_url }}" alt="" loading="lazy">{% else %}🕹️{% endif %}</div>
+      <div class="name truncate">{{ product.name }}</div>
+      <div class="meta">
+        <span class="price">{% if product.from_price %}{{ product.from_price }} {{ product.currency }}{% endif %}</span>
+        <span class="badge">{{ t('products.type_' + product.type) }}</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if not listings and not products %}
+  <div class="card empty-state"><div class="icon">🎁</div><b>{{ t('promotions.empty') }}</b></div>
+  {% endif %}
+</div>
+{% endblock %}

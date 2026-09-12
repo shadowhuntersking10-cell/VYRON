@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ t('products.title') }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="section-head">
+    <div>
+      <h1 class="section-title">{{ t('products.title') }}</h1>
+      <div class="section-sub">{{ t('products.subtitle') }}</div>
+    </div>
+  </div>
+
+  <div class="row row-wrap gap-sm mb-3 scroll-x" style="padding-bottom:0.4rem">
+    <a class="chip {{ 'active' if not active_game }}" href="/products">{{ t('common.all') }}</a>
+    {% for game in games %}
+      <a class="chip {{ 'active' if active_game and active_game.id == game.id }}" href="/products?game={{ game.slug }}">{{ game.name }}</a>
+    {% endfor %}
+  </div>
+
+  {% if products %}
+  <div class="grid grid-4">
+    {% for product in products %}
+    <a class="card card-hover product-card" href="/products/{{ product.slug }}">
+      <div class="thumb">
+        {% if product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">{% else %}🕹️{% endif %}
+      </div>
+      <div class="name truncate">{{ product.name }}</div>
+      <div class="text-mute fs-xs">{{ product.game.name if product.game else '' }}</div>
+      <div class="meta">
+        <div>
+          {% if product.from_price %}<span class="price-from">{{ t('common.from') }}</span><span class="price">{{ product.from_price }} {{ product.currency }}</span>{% endif %}
+        </div>
+        <span class="badge">{{ t('products.type_' + product.type) }}</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card empty-state">
+    <div class="icon">🔍</div>
+    <b>{{ t('common.no_results') }}</b>
+    <span>{{ t('products.empty') }}</span>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

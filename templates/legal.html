@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ t('legal.' + legal_doc + '_title') if legal_doc != 'refund' else t('legal.refund_title') }}{% endblock %}
+
+{% block content %}
+<div class="container-narrow">
+  <div class="card prose">
+    <h1 class="section-title mb-1">
+      {% if legal_doc == 'terms' %}{{ t('legal.terms_title') }}
+      {% elif legal_doc == 'privacy' %}{{ t('legal.privacy_title') }}
+      {% else %}{{ t('legal.refund_title') }}{% endif %}
+    </h1>
+    <div class="text-mute fs-xs mb-3">{{ t('legal.last_updated', date='2026-01-01') }}</div>
+
+    {% if legal_doc == 'terms' %}
+    <h2>1. {{ t('nav.terms') }}</h2>
+    <p>{{ t('legal.about_p1') }}</p>
+    <h2>2. {{ t('marketplace.title') }}</h2>
+    <p>{{ t('marketplace.safety_notice') }} {{ t('seller.sensitive_note') }}</p>
+    <h2>3. {{ t('checkout.title') }}</h2>
+    <p>{{ t('checkout.fee_notice') }} {{ t('checkout.secure_note') }}</p>
+    <h2>4. {{ t('nav.donate') }}</h2>
+    <p>{{ t('donate.subtitle') }}</p>
+    {% elif legal_doc == 'privacy' %}
+    <h2>1. {{ t('legal.privacy_title') }}</h2>
+    <p>{{ t('legal.about_p2') }}</p>
+    <h2>2. {{ t('dashboard.security') }}</h2>
+    <ul>
+      <li>Argon2id</li>
+      <li>HTTP-only · SameSite · Secure</li>
+      <li>Fernet (AES-128-CBC + HMAC-SHA256)</li>
+    </ul>
+    <h2>3. Telegram</h2>
+    <p>{{ t('telegram_page.notifications_note') }}</p>
+    {% else %}
+    <h2>1. {{ t('legal.refund_title') }}</h2>
+    <p>{{ t('orders.failed_notice') }}</p>
+    <h2>2. {{ t('orders.request_refund') }}</h2>
+    <p>{{ t('orders.review_notice') }}</p>
+    <h2>3. {{ t('marketplace.title') }}</h2>
+    <p>{{ t('seller.holding_notice', hours=72) }}</p>
+    {% endif %}
+
+    <div class="soft-divider"></div>
+    <p class="fs-sm text-mute">{{ t('legal.contact', email='support@vyron.app') }}</p>
+  </div>
+</div>
+{% endblock %}

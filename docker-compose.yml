@@ -1,0 +1,59 @@
+# VYRON — full stack: app + MySQL 8 + Redis 7
+# Usage:
+#   cp .env.example .env   # fill SESSION_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD, providers…
+#   docker compose up -d --build
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-vyron_root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-vyron}
+      MYSQL_USER: ${MYSQL_USER:-vyron}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-vyron_dev_password}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${MYSQL_ROOT_PASSWORD:-vyron_root_password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      # Service discovery inside the compose network overrides host-local URLs
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-vyron}:${MYSQL_PASSWORD:-vyron_dev_password}@mysql:3306/${MYSQL_DATABASE:-vyron}?charset=utf8mb4
+      REDIS_URL: redis://redis:6379/0
+      VYRON_HOST: 0.0.0.0
+      VYRON_PORT: "8000"
+    ports:
+      - "${VYRON_PORT:-8000}:8000"
+    volumes:
+      - uploads_data:/app/uploads
+
+volumes:
+  mysql_data:
+  redis_data:
+  uploads_data:

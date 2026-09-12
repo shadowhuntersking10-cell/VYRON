@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav.marketplace') }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="section-head">
+    <div>
+      <h1 class="section-title">{{ t('marketplace.title') }}</h1>
+      <div class="section-sub">{{ t('marketplace.subtitle') }}</div>
+    </div>
+    <a class="btn btn-sm" href="/seller">🏪 {{ t('seller.become_seller') }}</a>
+  </div>
+
+  <div class="row row-wrap gap-sm mb-3">
+    <input id="mq-search" class="input" style="max-width:260px" type="search" placeholder="{{ t('common.search_placeholder') }}">
+    <select id="mq-sort" class="select" style="width:auto">
+      <option value="newest">{{ t('marketplace.sort_newest') }}</option>
+      <option value="price_asc">{{ t('marketplace.sort_price_asc') }}</option>
+      <option value="price_desc">{{ t('marketplace.sort_price_desc') }}</option>
+    </select>
+    <select id="mq-game" class="select" style="width:auto">
+      <option value="">{{ t('common.all') }}</option>
+      {% for game in games %}<option value="{{ game.id }}">{{ game.name }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <div id="listing-grid" class="grid grid-4">
+    {% for listing in listings %}
+    <a class="card card-hover listing-card" href="/marketplace/listing/{{ listing.id }}">
+      {% if listing.is_promoted %}<span class="promoted-flag">⭐ {{ t('seller.promoted') }}</span>{% endif %}
+      <div class="thumb">
+        {% if listing.images %}<img src="{{ listing.images[0] }}" alt="{{ listing.title }}" loading="lazy">{% else %}🛍️{% endif %}
+      </div>
+      <div class="name truncate mt-1 fw-800">{{ listing.title }}</div>
+      <div class="text-mute fs-xs truncate">{{ t('marketplace.seller') }}: {{ listing.seller.display_name if listing.seller else '' }}</div>
+      <div class="meta row spread mt-1">
+        <span class="price">{{ listing.price }} {{ listing.currency }}</span>
+        <span class="badge badge-gold">{{ t('marketplace.delivery_type_' + listing.delivery_type) }}</span>
+      </div>
+    </a>
+    {% else %}
+    <div class="card empty-state" style="grid-column:1/-1">
+      <div class="icon">🛍️</div>
+      <b>{{ t('marketplace.empty') }}</b>
+      <span>{{ t('marketplace.safety_notice') }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  <div id="mq-pagination" class="pagination"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/marketplace.js"></script>
+{% endblock %}

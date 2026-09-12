@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav.admin_panel') }}{% endblock %}
+{% block body_class %}admin-body{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="panel-layout" style="grid-template-columns:220px 1fr">
+    <nav class="card side-nav" aria-label="admin" style="font-size:0.88rem">
+      <a href="/admin" data-s="dashboard" class="{{ 'active' if section == 'dashboard' }}">📊 {{ t('admin.dashboard') }}</a>
+      <a href="/admin/revenue" data-s="revenue" class="{{ 'active' if section == 'revenue' }}">💹 {{ t('admin.revenue') }}</a>
+      <a href="/admin/orders" data-s="orders" class="{{ 'active' if section == 'orders' }}">📦 {{ t('admin.orders') }}</a>
+      <a href="/admin/users" data-s="users" class="{{ 'active' if section == 'users' }}">👥 {{ t('admin.users') }}</a>
+      <a href="/admin/games" data-s="games" class="{{ 'active' if section == 'games' }}">🎮 {{ t('admin.games') }}</a>
+      <a href="/admin/products" data-s="products" class="{{ 'active' if section == 'products' }}">🕹️ {{ t('admin.products') }}</a>
+      <a href="/admin/payments" data-s="payments" class="{{ 'active' if section == 'payments' }}">💳 {{ t('admin.payments') }}</a>
+      <a href="/admin/refunds" data-s="refunds" class="{{ 'active' if section == 'refunds' }}">↩️ {{ t('admin.refunds') }}</a>
+      <a href="/admin/suppliers" data-s="suppliers" class="{{ 'active' if section == 'suppliers' }}">🚚 {{ t('admin.suppliers') }}</a>
+      <a href="/admin/sellers" data-s="sellers" class="{{ 'active' if section == 'sellers' }}">🏪 {{ t('admin.sellers') }}</a>
+      <a href="/admin/listings" data-s="listings" class="{{ 'active' if section == 'listings' }}">🏷️ {{ t('admin.listings') }}</a>
+      <a href="/admin/payouts" data-s="payouts" class="{{ 'active' if section == 'payouts' }}">🏦 {{ t('admin.payouts') }}</a>
+      <a href="/admin/donations" data-s="donations" class="{{ 'active' if section == 'donations' }}">💝 {{ t('nav.donate') }}</a>
+      <a href="/admin/coupons" data-s="coupons" class="{{ 'active' if section == 'coupons' }}">🎟️ {{ t('admin.coupons') }}</a>
+      <a href="/admin/promotions" data-s="promotions" class="{{ 'active' if section == 'promotions' }}">⭐ {{ t('admin.promotions') }}</a>
+      <a href="/admin/support" data-s="support" class="{{ 'active' if section == 'support' }}">✉️ {{ t('admin.support') }}</a>
+      <a href="/admin/fraud" data-s="fraud" class="{{ 'active' if section == 'fraud' }}">🛡️ {{ t('admin.fraud') }}</a>
+      <a href="/admin/webhooks" data-s="webhooks" class="{{ 'active' if section == 'webhooks' }}">🪝 {{ t('admin.webhooks') }}</a>
+      <a href="/admin/notifications" data-s="notifications" class="{{ 'active' if section == 'notifications' }}">🔔 {{ t('admin.notifications') }}</a>
+      <a href="/admin/telegram" data-s="telegram" class="{{ 'active' if section == 'telegram' }}">✈️ {{ t('admin.telegram') }}</a>
+      <a href="/admin/audit" data-s="audit" class="{{ 'active' if section == 'audit' }}">📜 {{ t('admin.audit_logs') }}</a>
+      <a href="/admin/settings" data-s="settings" class="{{ 'active' if section == 'settings' }}">⚙️ {{ t('admin.settings') }}</a>
+    </nav>
+
+    <div id="admin-root" data-section="{{ section }}">
+      <div class="loading-overlay"><span class="spinner"></span>{{ t('common.loading') }}</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/admin.js"></script>
+{% endblock %}

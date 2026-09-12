@@ -1,0 +1,7 @@
+# VYRON — development & test dependencies
+-r requirements.txt
+pytest>=8.2,<9.0
+pytest-asyncio>=0.23,<0.25
+ruff>=0.4
+mypy>=1.10
+playwright>=1.44

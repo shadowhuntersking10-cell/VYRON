@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ t('cart.title') }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="section-title mb-3">{{ t('checkout.title') }}</h1>
+
+  <div class="checkout-layout">
+    <div class="stack">
+      <div class="card">
+        <h2 class="fw-800 mb-2">🛒 {{ t('cart.items') }}</h2>
+        <div id="cart-lines" class="stack" style="gap:0.2rem"></div>
+      </div>
+
+      <div class="card">
+        <h2 class="fw-800 mb-2">💳 {{ t('checkout.payment_method') }}</h2>
+        <div id="providers" class="stack" style="gap:0.6rem">
+          <div class="loading-overlay"><span class="spinner"></span></div>
+        </div>
+        <p class="field-hint mt-2">🔒 {{ t('checkout.secure_note') }} {{ t('checkout.fee_notice') }}</p>
+      </div>
+    </div>
+
+    <aside class="stack" style="position:sticky;top:84px">
+      <div class="card">
+        <h3 class="fw-800 mb-2">{{ t('checkout.order_summary') }}</h3>
+        <div class="summary-line"><span>{{ t('cart.subtotal') }}</span><span id="sum-subtotal">—</span></div>
+        <div class="summary-line" id="row-discount" style="display:none"><span>{{ t('cart.discount') }}</span><span class="discount" id="sum-discount">—</span></div>
+        <div class="summary-line"><span>{{ t('cart.service_fee') }}</span><span id="sum-fee">—</span></div>
+        <div class="summary-line total"><span>{{ t('cart.total') }}</span><span id="sum-total">—</span></div>
+
+        <div class="soft-divider"></div>
+        <div class="row gap-sm">
+          <input id="coupon-input" class="input" placeholder="{{ t('cart.coupon_code') }}" style="text-transform:uppercase">
+          <button id="coupon-apply" class="btn btn-sm">{{ t('common.apply') }}</button>
+        </div>
+        <div id="coupon-state" class="field-hint mt-1"></div>
+
+        <div class="soft-divider"></div>
+        <div class="field">
+          <label class="field-label" for="order-notes">{{ t('common.optional') }}</label>
+          <input id="order-notes" class="input" maxlength="200" placeholder="…">
+        </div>
+
+        <button id="place-order" class="btn btn-primary btn-block btn-lg" disabled>{{ t('checkout.place_order') }}</button>
+        <a href="/products" class="btn btn-ghost btn-block mt-1">{{ t('cart.continue_shopping') }}</a>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/checkout.js"></script>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% set creator = page_data.user %}
+{% set page = page_data.page %}
+{% block title %}{{ t('donate.support') }} @{{ creator.username }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="donate-hero">
+    <div class="card creator-card">
+      <div class="creator-avatar">
+        {% if creator.avatar_url %}<img src="{{ creator.avatar_url }}" alt="">{% else %}{{ (creator.name or creator.username)[:1] | upper }}{% endif %}
+      </div>
+      <h1 style="font-size:1.2rem;font-weight:800">{{ page.title or creator.name }}</h1>
+      <div class="text-mute fs-sm">@{{ creator.username }}</div>
+      {% if page.description %}<p class="text-soft fs-sm mt-2">{{ page.description }}</p>{% endif %}
+
+      <div class="soft-divider"></div>
+      <div class="price" style="font-size:1.6rem">{{ page_data.raised }} {{ page.currency }}</div>
+      <div class="text-mute fs-xs">{{ t('donate.raised_total') }} · {{ page_data.count }} ❤️</div>
+      {% if page.goal_amount %}
+      <div class="progress mt-2"><span style="width:{{ [(page_data.raised | float / page.goal_amount | float * 100) | round | int, 100] | min }}%"></span></div>
+      <div class="field-hint mt-1">{{ t('donate.goal') }}: {{ page.goal_amount }} {{ page.currency }}</div>
+      {% endif %}
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <h2 class="fw-800 mb-2">💝 {{ t('donate.donate_now') }}</h2>
+
+        <div class="amount-grid mb-2" id="amount-grid">
+          {% for amount in [1, 3, 5, 10, 20, 50, 100] %}
+          <button class="btn amount-btn" data-amount="{{ amount }}">{{ amount }} $</button>
+          {% endfor %}
+          <button class="btn amount-btn" data-amount="custom">…</button>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="amount">{{ t('donate.amount') }} ({{ page.currency }}) *</label>
+          <input id="amount" class="input" type="number" min="1" step="0.01" placeholder="0.00" inputmode="decimal">
+          <span class="field-hint">{{ t('donate.min_amount', min='1.00 ' + page.currency) }}</span>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="donor-name">{{ t('donate.your_name') }}</label>
+          <input id="donor-name" class="input" maxlength="120" value="{{ user.name if user else '' }}" placeholder="{{ t('common.optional') }}">
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="donor-message">{{ t('donate.message') }}</label>
+          <textarea id="donor-message" class="textarea" maxlength="500" placeholder="{{ t('common.optional') }}" style="min-height:80px"></textarea>
+        </div>
+
+        <label class="row mb-2" style="cursor:pointer;gap:0.7rem">
+          <span class="switch"><input id="anonymous" type="checkbox"><span class="track"></span></span>
+          <span class="fs-sm">{{ t('donate.anonymous') }}</span>
+        </label>
+
+        <div class="card-inset mb-2" id="fee-box" style="display:none">
+          <div class="summary-line"><span>{{ t('donate.amount') }}</span><span id="fee-gross">—</span></div>
+          <div class="summary-line"><span>{{ t('admin.stream_DONATION_FEE') }} ({{ fee_pct }}%)</span><span id="fee-amount">—</span></div>
+          <div class="summary-line total" style="font-size:1rem"><span>{{ t('donate.support') }}</span><span id="fee-net">—</span></div>
+        </div>
+
+        <button id="donate-btn" class="btn btn-primary btn-block btn-lg" disabled>💝 {{ t('donate.donate_now') }}</button>
+        <p class="field-hint mt-2 text-center">🔒 {{ t('checkout.secure_note') }}</p>
+      </div>
+
+      {% if page_data.recent %}
+      <div class="card">
+        <h3 class="fw-800 mb-2">{{ t('donate.recent') }}</h3>
+        {% for donation in page_data.recent[:8] %}
+        <div class="supporter-row">
+          <div>
+            <b>{{ t('donate.anonymous_label') if donation.anonymous else (donation.donor_name or 'Supporter') }}</b>
+            {% if donation.message %}<div class="text-mute fs-xs">“{{ donation.message[:80] }}”</div>{% endif %}
+          </div>
+          <span class="price">{{ donation.amount }} {{ donation.currency }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if page_data.top_supporters %}
+      <div class="card">
+        <h3 class="fw-800 mb-2">🏆 {{ t('donate.top_supporters') }}</h3>
+        {% for supporter in page_data.top_supporters %}
+        <div class="supporter-row"><span>{{ loop.index }}. {{ supporter.name }}</span><b class="price">{{ supporter.total }} {{ page.currency }}</b></div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script id="donate-data" type="application/json">{{ {'username': creator.username, 'currency': page.currency, 'fee_pct': fee_pct | string, 'fee_fixed': fee_fixed | string} | tojson }}</script>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/donate.js"></script>
+{% endblock %}

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="{{ lang }}" data-theme-pref="{{ theme }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="description" content="{% block meta_description %}VYRON — {{ t('common.tagline') }}{% endblock %}">
+  <title>{% block title %}{{ site_name }}{% endblock %} · {{ t('common.tagline') }}</title>
+  <link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/css/vyron.css">
+  <script>
+    /* theme boot — before first paint to avoid flashes */
+    (function () {
+      var pref = document.documentElement.dataset.themePref || "system";
+      try { pref = localStorage.getItem("vyron_theme") || pref; } catch (e) {}
+      var dark = pref === "dark" || (pref === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+    })();
+  </script>
+  {% block head %}{% endblock %}
+</head>
+<body data-user="{{ '1' if user else '0' }}" class="{% block body_class %}{% endblock %}">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="/" class="logo" aria-label="{{ site_name }}">
+      <span class="logo-mark">V</span>
+      <span>{{ site_name }}<span class="logo-tag">{{ t('common.tagline') }}</span></span>
+    </a>
+
+    <nav class="main-nav" id="main-nav" aria-label="main">
+      {% set path = request.url.path %}
+      <a href="/" class="{{ 'active' if path == '/' }}">{{ t('nav.home') }}</a>
+      <a href="/games" class="{{ 'active' if path.startswith('/games') }}">{{ t('nav.games') }}</a>
+      <a href="/products" class="{{ 'active' if path.startswith('/products') }}">{{ t('products.title') }}</a>
+      <a href="/marketplace" class="{{ 'active' if path.startswith('/marketplace') or path.startswith('/sellers') }}">{{ t('nav.marketplace') }}</a>
+      <a href="/donations" class="{{ 'active' if path.startswith('/donat') }}">{{ t('nav.donate') }}</a>
+      <a href="/promotions" class="{{ 'active' if path == '/promotions' }}">{{ t('nav.promotions') }}</a>
+      <a href="/support" class="{{ 'active' if path.startswith('/support') }}">{{ t('nav.support') }}</a>
+    </nav>
+
+    <div class="header-actions">
+      <input id="site-search" class="input desktop-only" style="width:190px" type="search"
+             placeholder="{{ t('common.search_placeholder') }}" aria-label="{{ t('common.search') }}">
+
+      <select id="lang-select" class="select lang-select" aria-label="{{ t('common.language') }}">
+        {% for code in supported_languages %}
+          <option value="{{ code }}" {{ 'selected' if code == lang }}>{{ language_labels[code] }}</option>
+        {% endfor %}
+      </select>
+
+      <button id="theme-toggle" class="icon-btn" aria-label="{{ t('common.theme') }}" title="{{ t('common.theme') }}">🌓</button>
+
+      {% if user %}
+        <a href="/checkout" class="icon-btn" aria-label="{{ t('cart.title') }}">🛒<span id="cart-dot" class="dot hidden">0</span></a>
+        <a href="/dashboard/notifications" class="icon-btn" aria-label="{{ t('dashboard.notifications') }}">🔔<span id="bell-dot" class="dot hidden">0</span></a>
+        <div class="menu-wrap">
+          <button class="avatar-btn" id="user-menu-btn" aria-haspopup="true" aria-expanded="false">
+            {% if user.avatar_url %}<img src="{{ user.avatar_url }}" alt="" style="width:100%;height:100%;object-fit:cover">{% else %}{{ (user.name or user.username)[:1] | upper }}{% endif %}
+          </button>
+          <div class="dropdown" id="user-menu" role="menu">
+            <a href="/dashboard">👤 {{ t('nav.dashboard') }}</a>
+            <a href="/dashboard/orders">📦 {{ t('nav.my_orders') }}</a>
+            <a href="/dashboard/donations">💝 {{ t('nav.donate') }}</a>
+            <a href="/seller">🏪 {{ t('nav.seller_area') }}</a>
+            {% if user.role in ['SUPPORT', 'MODERATOR', 'FINANCE', 'ADMIN', 'SUPER_ADMIN'] %}
+              <a href="/admin">🛡️ {{ t('nav.admin_panel') }}</a>
+            {% endif %}
+            <div class="sep"></div>
+            <button id="logout-btn">🚪 {{ t('nav.logout') }}</button>
+          </div>
+        </div>
+      {% else %}
+        <a href="/login" class="btn btn-sm desktop-only">{{ t('nav.login') }}</a>
+        <a href="/register" class="btn btn-sm btn-primary">{{ t('nav.register') }}</a>
+      {% endif %}
+
+      <button id="burger" class="icon-btn burger" aria-label="{{ t('nav.menu') }}">☰</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="logo mb-1"><span class="logo-mark">V</span><span>{{ site_name }}</span></div>
+        <p class="text-mute fs-sm" style="max-width:320px">{{ t('footer.about_text') }}</p>
+      </div>
+      <div>
+        <div class="footer-title">{{ t('footer.quick_links') }}</div>
+        <div class="footer-links">
+          <a href="/games">{{ t('nav.games') }}</a>
+          <a href="/marketplace">{{ t('nav.marketplace') }}</a>
+          <a href="/donations">{{ t('nav.donate') }}</a>
+          <a href="/promotions">{{ t('nav.promotions') }}</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-title">{{ t('footer.legal') }}</div>
+        <div class="footer-links">
+          <a href="/about">{{ t('nav.about') }}</a>
+          <a href="/terms">{{ t('nav.terms') }}</a>
+          <a href="/privacy">{{ t('nav.privacy') }}</a>
+          <a href="/refund-policy">{{ t('nav.refund_policy') }}</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-title">{{ t('footer.get_help') }}</div>
+        <div class="footer-links">
+          <a href="/support">{{ t('nav.support') }}</a>
+          <a href="/miniapp">{{ t('telegram_page.open_miniapp') }}</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© {{ current_year }} {{ site_name }}. {{ t('footer.rights') }}</span>
+      <span>{{ t('footer.made') }}</span>
+    </div>
+  </div>
+</footer>
+
+<script id="i18n-bundle" type="application/json">{{ i18n_bundle | safe }}</script>
+<script type="module" src="/static/js/core.js"></script>
+<script type="module">
+  import { post, toast, t } from "/static/js/core.js";
+  document.getElementById("logout-btn")?.addEventListener("click", async () => {
+    try { await post("/api/auth/logout"); } catch (e) { /* ignore */ }
+    window.location.href = "/";
+  });
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

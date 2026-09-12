@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav.login') }}{% endblock %}
+
+{% block content %}
+<div class="container-narrow auth-wrap">
+  <div class="card auth-card">
+    <h1 class="auth-title">{{ t('auth.login_title') }}</h1>
+    <p class="auth-sub">{{ t('auth.login_subtitle') }}</p>
+    <form id="login-form" novalidate>
+      <div class="field">
+        <label class="field-label" for="email">{{ t('auth.email') }}</label>
+        <input id="email" class="input" type="email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label class="field-label" for="password">{{ t('auth.password') }}</label>
+        <input id="password" class="input" type="password" autocomplete="current-password" required>
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" type="submit">{{ t('nav.login') }}</button>
+    </form>
+    <div class="row spread mt-2 fs-sm">
+      <a href="/forgot-password">{{ t('auth.forgot_password') }}</a>
+      <a href="/register">{{ t('auth.register_cta') }}</a>
+    </div>
+  </div>
+</div>
+<script id="auth-next" type="application/json">{{ {'next': next_url} | tojson }}</script>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/auth.js"></script>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ t('search.title') }}{% endblock %}
+
+{% block content %}
+<div class="container-narrow">
+  <h1 class="section-title mb-2">{{ t('search.title') }}</h1>
+  <input id="search-input" class="input mb-3" type="search" value="{{ query }}" placeholder="{{ t('search.placeholder') }}" autofocus>
+  <div id="search-results" class="stack"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/search.js"></script>
+{% endblock %}

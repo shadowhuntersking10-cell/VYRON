@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}{{ listing.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="checkout-layout">
+    <div class="stack">
+      <div class="card">
+        <div class="card-inset" style="aspect-ratio:16/9;display:grid;place-items:center;font-size:3.5rem;overflow:hidden">
+          {% if listing.images %}<img id="main-image" src="{{ listing.images[0] }}" alt="{{ listing.title }}" style="width:100%;height:100%;object-fit:cover;border-radius:14px">{% else %}🛍️{% endif %}
+        </div>
+        {% if listing.images | length > 1 %}
+        <div class="row gap-sm mt-2 scroll-x">
+          {% for image in listing.images %}
+          <img src="{{ image }}" alt="" class="thumb-pick" data-src="{{ image }}"
+               style="width:74px;height:56px;object-fit:cover;border-radius:10px;cursor:pointer;border:2px solid {{ 'var(--vyron-blue)' if loop.first else 'transparent' }}">
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <h1 style="font-size:1.4rem;font-weight:800">{{ listing.title }}</h1>
+        <div class="row gap-sm mt-1 row-wrap">
+          <span class="badge badge-gold">{{ t('marketplace.delivery_type_' + listing.delivery_type) }}</span>
+          {% if listing.game %}<a class="badge" href="/products?game={{ listing.game.id }}">🎮 {{ listing.game.name }}</a>{% endif %}
+          <span class="badge badge-gray">👁 {{ listing.views }}</span>
+        </div>
+        {% if listing.description %}<p class="text-soft mt-2" style="white-space:pre-line">{{ listing.description }}</p>{% endif %}
+        <div class="soft-divider"></div>
+        <p class="field-hint">🛡️ {{ t('marketplace.safety_notice') }}</p>
+        <p class="field-hint mt-1">🔐 {{ t('marketplace.details_reveal_note') }}</p>
+      </div>
+    </div>
+
+    <aside class="stack">
+      <div class="card">
+        <div class="price" style="font-size:1.8rem">{{ listing.price }} {{ listing.currency }}</div>
+        <button id="buy-listing" class="btn btn-primary btn-block btn-lg mt-2">⚡ {{ t('marketplace.buy_now') }}</button>
+        <p class="field-hint mt-2 text-center">🔒 {{ t('checkout.secure_note') }}</p>
+      </div>
+
+      {% if seller %}
+      <div class="card">
+        <h3 class="fw-800 mb-2">{{ t('marketplace.seller') }}</h3>
+        <a class="row" href="/sellers/{{ seller.username }}" style="gap:0.8rem">
+          <div class="avatar-btn" style="width:48px;height:48px;flex-shrink:0">
+            {% if seller.avatar_url %}<img src="{{ seller.avatar_url }}" alt="" style="width:100%;height:100%;object-fit:cover">{% else %}{{ (seller.display_name or seller.username)[:1] | upper }}{% endif %}
+          </div>
+          <div>
+            <div class="fw-800">{{ seller.display_name }}</div>
+            <div class="text-mute fs-xs">@{{ seller.username }}</div>
+          </div>
+        </a>
+        <div class="soft-divider"></div>
+        <div class="summary-line"><span>⭐ {{ t('marketplace.rating') }}</span><b>{{ seller.rating }}</b></div>
+        <div class="summary-line"><span>✅ {{ t('marketplace.completed_orders') }}</span><b>{{ seller.completed_orders }}</b></div>
+        <div class="summary-line">
+          <span>{{ t('marketplace.verified') }}</span>
+          {% if seller.verification_status == 'VERIFIED' %}<span class="badge badge-green">✓</span>{% else %}<span class="badge badge-gray">—</span>{% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </aside>
+  </div>
+
+  {% if similar %}
+  <section class="section">
+    <div class="section-head"><h2 class="section-title">{{ t('marketplace.listings') }}</h2></div>
+    <div class="grid grid-4">
+      {% for item in similar %}
+      <a class="card card-hover listing-card" href="/marketplace/listing/{{ item.id }}">
+        <div class="thumb">{% if item.images %}<img src="{{ item.images[0] }}" alt="" loading="lazy">{% else %}🛍️{% endif %}</div>
+        <div class="name truncate mt-1 fw-800">{{ item.title }}</div>
+        <div class="meta row spread mt-1"><span class="price">{{ item.price }} {{ item.currency }}</span></div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+
+<script id="listing-data" type="application/json">{{ {'id': listing.id} | tojson }}</script>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/listing.js"></script>
+{% endblock %}

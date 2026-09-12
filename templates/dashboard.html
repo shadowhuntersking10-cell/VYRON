@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav.dashboard') }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="panel-layout">
+    <nav class="card side-nav" aria-label="dashboard">
+      <a href="/dashboard" data-section="overview" class="{{ 'active' if section == 'overview' }}">📊 {{ t('dashboard.overview') }}</a>
+      <a href="/dashboard/orders" data-section="orders" class="{{ 'active' if section == 'orders' }}">📦 {{ t('nav.my_orders') }}</a>
+      <a href="/dashboard/notifications" data-section="notifications" class="{{ 'active' if section == 'notifications' }}">🔔 {{ t('dashboard.notifications') }}</a>
+      <a href="/dashboard/donations" data-section="donations" class="{{ 'active' if section == 'donations' }}">💝 {{ t('donate.your_page') }}</a>
+      <a href="/dashboard/telegram" data-section="telegram" class="{{ 'active' if section == 'telegram' }}">✈️ {{ t('dashboard.telegram') }}</a>
+      <a href="/dashboard/profile" data-section="profile" class="{{ 'active' if section == 'profile' }}">👤 {{ t('dashboard.profile') }}</a>
+      <a href="/dashboard/security" data-section="security" class="{{ 'active' if section == 'security' }}">🔐 {{ t('dashboard.security') }}</a>
+      <a href="/seller">🏪 {{ t('nav.seller_area') }}</a>
+    </nav>
+
+    <div id="dash-root" data-section="{{ section }}">
+      <div class="loading-overlay"><span class="spinner"></span>{{ t('common.loading') }}</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/dashboard.js"></script>
+{% endblock %}

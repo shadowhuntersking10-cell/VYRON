@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav.support') }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="section-head">
+    <div>
+      <h1 class="section-title">{{ t('support.title') }}</h1>
+      <div class="section-sub">{{ t('support.subtitle') }}</div>
+    </div>
+  </div>
+
+  <div class="checkout-layout">
+    <div class="stack">
+      {% if user %}
+      <div class="card">
+        <h2 class="fw-800 mb-2">✉️ {{ t('support.new_ticket') }}</h2>
+        <form id="ticket-form" class="stack">
+          <div class="field">
+            <label class="field-label" for="ticket-subject">{{ t('support.subject') }} *</label>
+            <input id="ticket-subject" class="input" maxlength="200" required>
+          </div>
+          <div class="field">
+            <label class="field-label" for="ticket-message">{{ t('support.message') }} *</label>
+            <textarea id="ticket-message" class="textarea" maxlength="5000" required></textarea>
+          </div>
+          <div class="field">
+            <label class="field-label" for="ticket-priority">{{ t('common.status') }}</label>
+            <select id="ticket-priority" class="select">
+              <option value="LOW">LOW</option>
+              <option value="NORMAL" selected>NORMAL</option>
+              <option value="HIGH">HIGH</option>
+              <option value="URGENT">URGENT</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" type="submit">{{ t('support.send') }}</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 class="fw-800 mb-2">🗂 {{ t('support.my_tickets') }}</h2>
+        <div id="ticket-list" class="stack" style="gap:0.6rem">
+          {% for ticket in tickets %}
+          <a class="card-inset row spread" href="/support?ticket={{ ticket.id }}" style="text-decoration:none;color:inherit">
+            <div>
+              <b class="fs-sm">{{ ticket.subject }}</b>
+              <div class="text-mute fs-xs mono">{{ ticket.number }}</div>
+            </div>
+            <span class="status-pill st-{{ ticket.status }}">{{ t('support.status_' + ticket.status) }}</span>
+          </a>
+          {% else %}
+          <div class="empty-state"><div class="icon">🎫</div><b>{{ t('support.empty') }}</b></div>
+          {% endfor %}
+        </div>
+      </div>
+      {% else %}
+      <div class="card empty-state">
+        <div class="icon">🔐</div>
+        <b>{{ t('checkout.login_required') }}</b>
+        <a class="btn btn-primary mt-2" href="/login?next=/support">{{ t('nav.login') }}</a>
+      </div>
+      {% endif %}
+    </div>
+
+    <aside class="stack">
+      <div class="card">
+        <h3 class="fw-800 mb-2">❓ {{ t('support.faq_title') }}</h3>
+        <div class="stack" style="gap:0.8rem">
+          <div><b class="fs-sm">{{ t('orders.review_notice') }}</b></div>
+          <div class="text-soft fs-sm">{{ t('marketplace.details_reveal_note') }}</div>
+          <div class="text-soft fs-sm">{{ t('seller.holding_notice', hours=72) }}</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 class="fw-800 mb-1">💬 {{ t('support.contact_alt') }}</h3>
+        <a class="btn btn-block mt-1" href="/miniapp">📱 {{ t('telegram_page.open_miniapp') }}</a>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="ticket-modal">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <div class="modal-title" id="ticket-modal-title"></div>
+      <button class="modal-close" data-close>✕</button>
+    </div>
+    <div class="chat-box" id="ticket-chat"></div>
+    <form id="ticket-reply-form" class="row mt-2" style="align-items:end">
+      <div class="field" style="flex:1;margin:0">
+        <textarea id="ticket-reply" class="textarea" style="min-height:60px" maxlength="5000" placeholder="{{ t('support.reply') }}"></textarea>
+      </div>
+      <button class="btn btn-primary" type="submit">{{ t('support.send') }}</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/support.js"></script>
+{% endblock %}

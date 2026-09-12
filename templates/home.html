@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav.home') }}{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero-inner">
+    <div>
+      <span class="badge mb-2">🚀 {{ t('home.hero_badge') }}</span>
+      <h1 class="hero-title"><span class="accent">{{ t('home.hero_title') }}</span></h1>
+      <p class="hero-sub">{{ t('home.hero_subtitle') }}</p>
+      <div class="hero-cta">
+        <a href="/games" class="btn btn-primary btn-lg">🎮 {{ t('home.hero_cta_games') }}</a>
+        <a href="/donations" class="btn btn-lg">💝 {{ t('home.hero_cta_donate') }}</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><b>{{ stats.games }}</b><span>{{ t('home.stats_games') }}</span></div>
+        <div class="hero-stat"><b>{{ stats.sellers }}</b><span>{{ t('home.stats_sellers') }}</span></div>
+        <div class="hero-stat"><b>{{ stats.donations }}</b><span>{{ t('home.stats_orders') }}</span></div>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <span class="float-chip c1">⚡ {{ t('products.type_TOPUP') }}</span>
+      <span class="float-chip c2">🛡️ {{ t('checkout.secure_note') }}</span>
+      <span class="float-chip c3">💎 {{ t('marketplace.title') }}</span>
+    </div>
+  </div>
+</section>
+
+<div class="container stack" style="gap:2.5rem">
+  {% if featured_games %}
+  <section>
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">{{ t('home.featured_games') }}</h2>
+        <div class="section-sub">{{ t('games.subtitle') }}</div>
+      </div>
+      <a class="section-link" href="/games">{{ t('common.see_all') }} →</a>
+    </div>
+    <div class="grid grid-4">
+      {% for game in featured_games %}
+      <a class="card card-hover game-card" href="/games/{{ game.slug }}">
+        <div class="glow"></div>
+        <div class="thumb">
+          {% if game.logo_url %}<img src="{{ game.logo_url }}" alt="{{ game.name }}" loading="lazy">{% else %}🎮{% endif %}
+        </div>
+        <div class="body">
+          <div class="name">{{ game.name }}</div>
+          <div class="count">{{ t('games.top_up') }}</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if featured_products %}
+  <section>
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">{{ t('home.popular_products') }}</h2>
+        <div class="section-sub">{{ t('products.subtitle') }}</div>
+      </div>
+      <a class="section-link" href="/products">{{ t('common.see_all') }} →</a>
+    </div>
+    <div class="grid grid-4">
+      {% for product in featured_products %}
+      <a class="card card-hover product-card" href="/products/{{ product.slug }}">
+        <div class="thumb">
+          {% if product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">{% else %}🕹️{% endif %}
+        </div>
+        <div class="name truncate">{{ product.name }}</div>
+        <div class="text-mute fs-xs">{{ product.game.name if product.game else t('products.title') }}</div>
+        <div class="meta">
+          <div>
+            {% if product.from_price %}<span class="price-from">{{ t('common.from') }}</span><span class="price">{{ product.from_price }} {{ product.currency }}</span>{% endif %}
+          </div>
+          <span class="badge">{{ t('products.type_' + product.type) }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if promoted_listings %}
+  <section>
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">{{ t('home.marketplace_highlights') }}</h2>
+        <div class="section-sub">{{ t('marketplace.subtitle') }}</div>
+      </div>
+      <a class="section-link" href="/marketplace">{{ t('common.see_all') }} →</a>
+    </div>
+    <div class="grid grid-4">
+      {% for listing in promoted_listings %}
+      <a class="card card-hover listing-card" href="/marketplace/listing/{{ listing.id }}">
+        <span class="promoted-flag">⭐ {{ t('seller.promoted') }}</span>
+        <div class="thumb">
+          {% if listing.images %}<img src="{{ listing.images[0] }}" alt="{{ listing.title }}" loading="lazy">{% else %}🛍️{% endif %}
+        </div>
+        <div class="name truncate mt-1 fw-800">{{ listing.title }}</div>
+        <div class="meta row spread mt-1">
+          <span class="price">{{ listing.price }} {{ listing.currency }}</span>
+          <span class="badge badge-gold">{{ t('marketplace.delivery_type_' + listing.delivery_type) }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="card">
+    <div class="row spread row-wrap" style="gap:1.5rem">
+      <div style="max-width:520px">
+        <h2 class="section-title">{{ t('home.donation_title') }}</h2>
+        <p class="text-soft mt-1">{{ t('home.donation_text') }}</p>
+        <a href="/donations" class="btn btn-primary mt-2">💝 {{ t('home.donation_cta') }}</a>
+      </div>
+      <div class="grid grid-3" style="flex:1;min-width:260px">
+        {% for creator in top_creators %}
+        <a class="card card-inset card-hover text-center" href="/donate/{{ creator.username }}" style="box-shadow:none">
+          <div class="creator-avatar" style="width:56px;height:56px;font-size:1.3rem">
+            {% if creator.avatar_url %}<img src="{{ creator.avatar_url }}" alt="">{% else %}{{ (creator.name or creator.username)[:1] | upper }}{% endif %}
+          </div>
+          <div class="fw-800 truncate">{{ creator.title or creator.name }}</div>
+          <div class="text-mute fs-xs">@{{ creator.username }}</div>
+          <div class="price mt-1">{{ creator.raised }} {{ creator.currency }}</div>
+        </a>
+        {% else %}
+        <div class="empty-state" style="grid-column:1/-1;padding:1rem">
+          <b>{{ t('donate.empty') }}</b>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2 class="section-title">{{ t('home.why_title') }}</h2></div>
+    <div class="grid grid-3">
+      <div class="card">
+        <div style="font-size:1.8rem">⚡</div>
+        <h3 class="fw-800 mt-1">{{ t('home.why_1_title') }}</h3>
+        <p class="text-soft fs-sm mt-1">{{ t('home.why_1_text') }}</p>
+      </div>
+      <div class="card">
+        <div style="font-size:1.8rem">🛡️</div>
+        <h3 class="fw-800 mt-1">{{ t('home.why_2_title') }}</h3>
+        <p class="text-soft fs-sm mt-1">{{ t('home.why_2_text') }}</p>
+      </div>
+      <div class="card">
+        <div style="font-size:1.8rem">🤝</div>
+        <h3 class="fw-800 mt-1">{{ t('home.why_3_title') }}</h3>
+        <p class="text-soft fs-sm mt-1">{{ t('home.why_3_text') }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card text-center" style="padding-block:2.5rem">
+    <h2 class="section-title">{{ t('home.cta_title') }}</h2>
+    <p class="text-soft mt-1">{{ t('home.cta_text') }}</p>
+    <div class="row mt-2" style="justify-content:center">
+      {% if user %}
+        <a href="/games" class="btn btn-primary btn-lg">{{ t('home.cta_button') }}</a>
+      {% else %}
+        <a href="/register" class="btn btn-primary btn-lg">{{ t('home.cta_button') }}</a>
+        <a href="/login" class="btn btn-lg">{{ t('nav.login') }}</a>
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

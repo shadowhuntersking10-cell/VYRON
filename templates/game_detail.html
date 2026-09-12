@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ game.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="card mb-3" style="padding:0;overflow:hidden">
+    <div style="height:180px;background:linear-gradient(135deg, {{ game.accent_color or '#1e3a8a' }} 0%, #3b82f6 60%, #7c3aed 130%);position:relative">
+      {% if game.banner_url %}<img src="{{ game.banner_url }}" alt="" style="width:100%;height:100%;object-fit:cover;opacity:0.85">{% endif %}
+    </div>
+    <div class="row" style="padding:1.2rem;gap:1rem;margin-top:-46px;position:relative">
+      <div class="card" style="width:84px;height:84px;padding:0;overflow:hidden;border-radius:20px;display:grid;place-items:center;font-size:2rem;flex-shrink:0">
+        {% if game.logo_url %}<img src="{{ game.logo_url }}" alt="{{ game.name }}" style="width:100%;height:100%;object-fit:cover">{% else %}🎮{% endif %}
+      </div>
+      <div>
+        <h1 style="font-size:1.5rem;font-weight:800">{{ game.name }}</h1>
+        {% if game.description %}<p class="text-soft fs-sm mt-1" style="max-width:640px">{{ game.description }}</p>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <h2 class="section-title">{{ t('games.products_for', game=game.name) }}</h2>
+  </div>
+
+  {% if products %}
+  <div class="grid grid-4">
+    {% for product in products %}
+    <a class="card card-hover product-card" href="/products/{{ product.slug }}">
+      <div class="thumb">
+        {% if product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">{% else %}🕹️{% endif %}
+      </div>
+      <div class="name truncate">{{ product.name }}</div>
+      <div class="meta">
+        <div>
+          {% if product.from_price %}<span class="price-from">{{ t('common.from') }}</span><span class="price">{{ product.from_price }} {{ product.currency }}</span>{% endif %}
+        </div>
+        <span class="badge">{{ t('products.type_' + product.type) }}</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card empty-state">
+    <div class="icon">📦</div>
+    <b>{{ t('products.empty') }}</b>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

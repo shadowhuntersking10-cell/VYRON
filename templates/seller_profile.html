@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ seller.display_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="card mb-3">
+    <div class="row" style="gap:1.2rem;flex-wrap:wrap">
+      <div class="creator-avatar" style="margin:0">
+        {% if seller.avatar_url %}<img src="{{ seller.avatar_url }}" alt="">{% else %}{{ (seller.display_name or seller.username)[:1] | upper }}{% endif %}
+      </div>
+      <div style="flex:1;min-width:220px">
+        <div class="row gap-sm">
+          <h1 style="font-size:1.4rem;font-weight:800">{{ seller.display_name }}</h1>
+          {% if seller.verification_status == 'VERIFIED' %}<span class="badge badge-green">✓ {{ t('marketplace.verified') }}</span>{% endif %}
+        </div>
+        <div class="text-mute fs-sm">@{{ seller.username }} · {{ t('marketplace.member_since') }} {{ seller.member_since[:10] if seller.member_since else '' }}</div>
+        {% if seller.description %}<p class="text-soft mt-1" style="max-width:640px">{{ seller.description }}</p>{% endif %}
+      </div>
+      <div class="row" style="gap:1.6rem">
+        <div class="hero-stat text-center"><b>⭐ {{ seller.rating }}</b><span>{{ t('marketplace.rating') }}</span></div>
+        <div class="hero-stat text-center"><b>{{ seller.completed_orders }}</b><span>{{ t('marketplace.completed_orders') }}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-head"><h2 class="section-title">{{ t('marketplace.listings') }}</h2></div>
+  {% if listings %}
+  <div class="grid grid-4">
+    {% for listing in listings %}
+    <a class="card card-hover listing-card" href="/marketplace/listing/{{ listing.id }}">
+      {% if listing.is_promoted %}<span class="promoted-flag">⭐</span>{% endif %}
+      <div class="thumb">{% if listing.images %}<img src="{{ listing.images[0] }}" alt="" loading="lazy">{% else %}🛍️{% endif %}</div>
+      <div class="name truncate mt-1 fw-800">{{ listing.title }}</div>
+      <div class="meta row spread mt-1">
+        <span class="price">{{ listing.price }} {{ listing.currency }}</span>
+        <span class="badge badge-gold">{{ t('marketplace.delivery_type_' + listing.delivery_type) }}</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card empty-state"><div class="icon">🛍️</div><b>{{ t('seller.no_listings') }}</b></div>
+  {% endif %}
+</div>
+{% endblock %}

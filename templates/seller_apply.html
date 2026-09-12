@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ t('seller.become_seller') }}{% endblock %}
+
+{% block content %}
+<div class="container-narrow auth-wrap">
+  <div class="card auth-card">
+    <div class="text-center" style="font-size:2.6rem">🏪</div>
+    <h1 class="auth-title text-center">{{ t('seller.become_seller') }}</h1>
+    <p class="auth-sub text-center">{{ t('seller.become_seller_text') }}</p>
+    <form id="seller-apply-form">
+      <div class="field">
+        <label class="field-label" for="display-name">{{ t('seller.title') }}</label>
+        <input id="display-name" class="input" maxlength="120" value="{{ user.name }}" required>
+      </div>
+      <div class="field">
+        <label class="field-label" for="seller-desc">{{ t('seller.listing_description') }} ({{ t('common.optional') }})</label>
+        <textarea id="seller-desc" class="textarea" maxlength="2000"></textarea>
+      </div>
+      <p class="field-hint mb-2">🛡️ {{ t('seller.sensitive_note') }}</p>
+      <button class="btn btn-primary btn-block btn-lg" type="submit">{{ t('seller.apply') }}</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+  import { post, qs, toast, t } from "/static/js/core.js";
+  qs("#seller-apply-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    try {
+      await post("/api/seller/apply", {
+        display_name: qs("#display-name").value.trim(),
+        description: qs("#seller-desc").value.trim(),
+      });
+      toast(t("toast.saved"), "success");
+      setTimeout(() => { window.location.href = "/seller"; }, 800);
+    } catch (error) {
+      toast(error.message, "error");
+    }
+  });
+</script>
+{% endblock %}

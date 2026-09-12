@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav.register') }}{% endblock %}
+
+{% block content %}
+<div class="container-narrow auth-wrap">
+  <div class="card auth-card">
+    <h1 class="auth-title">{{ t('auth.register_title') }}</h1>
+    <p class="auth-sub">{{ t('auth.register_subtitle') }}</p>
+    <form id="register-form" novalidate>
+      <div class="field">
+        <label class="field-label" for="name">{{ t('auth.name') }}</label>
+        <input id="name" class="input" maxlength="120" autocomplete="name" required>
+      </div>
+      <div class="field">
+        <label class="field-label" for="username">{{ t('auth.username') }}</label>
+        <input id="username" class="input" minlength="3" maxlength="30" pattern="[a-zA-Z0-9_]+" autocomplete="username" required>
+        <span class="field-hint">a-z, 0-9, _ · 3-30</span>
+      </div>
+      <div class="field">
+        <label class="field-label" for="email">{{ t('auth.email') }}</label>
+        <input id="email" class="input" type="email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label class="field-label" for="phone">{{ t('auth.phone') }} ({{ t('common.optional') }})</label>
+        <input id="phone" class="input" type="tel" maxlength="32" autocomplete="tel">
+      </div>
+      <div class="field">
+        <label class="field-label" for="password">{{ t('auth.password') }}</label>
+        <input id="password" class="input" type="password" minlength="8" autocomplete="new-password" required>
+        <span class="field-hint">{{ t('auth.password_rules') }}</span>
+      </div>
+      <div class="field">
+        <label class="field-label" for="confirm-password">{{ t('auth.confirm_password') }}</label>
+        <input id="confirm-password" class="input" type="password" minlength="8" autocomplete="new-password" required>
+        <span class="field-error" id="match-error"></span>
+      </div>
+      <label class="row mb-2 fs-sm" style="gap:0.6rem;cursor:pointer">
+        <input id="agree-terms" type="checkbox" required style="accent-color:var(--vyron-blue)">
+        <span>{{ t('auth.agree_terms') }} — <a href="/terms">{{ t('nav.terms') }}</a>, <a href="/privacy">{{ t('nav.privacy') }}</a></span>
+      </label>
+      <button class="btn btn-primary btn-block btn-lg" type="submit">{{ t('nav.register') }}</button>
+    </form>
+    <div class="auth-switch">{{ t('auth.have_account') }} <a href="/login">{{ t('auth.login_cta') }}</a></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/auth.js"></script>
+{% endblock %}

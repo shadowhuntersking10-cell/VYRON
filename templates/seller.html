@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav.seller_area') }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="panel-layout">
+    <nav class="card side-nav" aria-label="seller">
+      <a href="/seller" data-section="overview" class="{{ 'active' if section == 'overview' }}">📊 {{ t('dashboard.overview') }}</a>
+      <a href="/seller/listings" data-section="listings" class="{{ 'active' if section == 'listings' }}">🏷️ {{ t('seller.listings') }}</a>
+      <a href="/seller/orders" data-section="orders" class="{{ 'active' if section == 'orders' }}">📦 {{ t('seller.orders') }}</a>
+      <a href="/seller/balance" data-section="balance" class="{{ 'active' if section == 'balance' }}">💰 {{ t('seller.balance') }}</a>
+      <a href="/seller/payouts" data-section="payouts" class="{{ 'active' if section == 'payouts' }}">🏦 {{ t('seller.payouts') }}</a>
+      <a href="/seller/promote" data-section="promote" class="{{ 'active' if section == 'promote' }}">⭐ {{ t('seller.promote') }}</a>
+      <a href="/seller/premium" data-section="premium" class="{{ 'active' if section == 'premium' }}">💎 {{ t('seller.premium_title') }}</a>
+      <a href="/seller/settings" data-section="settings" class="{{ 'active' if section == 'settings' }}">⚙️ {{ t('seller.settings') }}</a>
+      <a href="/dashboard">← {{ t('nav.dashboard') }}</a>
+    </nav>
+
+    <div id="seller-root" data-section="{{ section }}">
+      <div class="loading-overlay"><span class="spinner"></span>{{ t('common.loading') }}</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/seller.js"></script>
+{% endblock %}

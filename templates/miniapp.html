@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="{{ lang }}" data-theme-pref="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>VYRON Mini App</title>
+  <link rel="stylesheet" href="/static/css/vyron.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    (function () {
+      var dark = true;
+      try {
+        var tg = window.Telegram && window.Telegram.WebApp;
+        if (tg && tg.colorScheme) dark = tg.colorScheme === "dark";
+      } catch (e) {}
+      document.documentElement.dataset.theme = dark ? "dark" : "light";
+    })();
+  </script>
+  <style>
+    body { background: var(--bg); }
+    .ma-header {
+      position: sticky; top: 0; z-index: 50;
+      padding: calc(0.7rem + env(safe-area-inset-top)) 1rem 0.7rem;
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .ma-view { display: none; padding: 1rem 1rem 2rem; }
+    .ma-view.active { display: block; }
+    .ma-games { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+    .ma-game {
+      border-radius: 18px; overflow: hidden; background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: 6px 6px 16px var(--shadow-dark), -6px -6px 16px var(--shadow-light);
+    }
+    .ma-game .thumb { aspect-ratio: 1/1; display: grid; place-items: center; font-size: 2.4rem; background: var(--surface-3); overflow: hidden; }
+    .ma-game .thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .ma-game .body { padding: 0.6rem 0.8rem; }
+    .ma-variants { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+    .ma-variant { font-size: 0.8rem; padding: 0.4rem 0.7rem; }
+    .ma-variant.selected { background: linear-gradient(135deg, var(--vyron-blue), var(--vyron-blue-deep)); color: #fff; }
+  </style>
+</head>
+<body class="miniapp-body">
+
+<div class="ma-header">
+  <span class="logo-mark">V</span>
+  <b>VYRON</b>
+  <span id="ma-user" class="fs-xs text-mute" style="margin-left:auto"></span>
+</div>
+
+<main>
+  <section class="ma-view active" id="view-home">
+    <div id="ma-boot" class="loading-overlay"><span class="spinner"></span></div>
+    <div id="ma-home" class="hidden">
+      <h2 class="fw-800" id="ma-greeting"></h2>
+      <div class="admin-kpis mt-2" style="grid-template-columns:1fr 1fr">
+        <div class="card stat-card"><span class="label" data-i18n="home.stats_games"></span><span class="value" id="ma-stat-games">—</span></div>
+        <div class="card stat-card"><span class="label" data-i18n="orders.title"></span><span class="value" id="ma-stat-orders">—</span></div>
+      </div>
+      <div id="ma-admin-zone" class="hidden mt-2">
+        <a class="btn btn-block btn-gold" href="/admin" target="_blank">🛡️ <span data-i18n="miniapp.admin_panel"></span></a>
+      </div>
+      <h3 class="fw-800 mt-3" data-i18n="home.featured_games"></h3>
+      <div class="ma-games mt-1" id="ma-featured"></div>
+      <a class="btn btn-block mt-3" id="ma-open-full" href="/" target="_blank">🌐 <span data-i18n="miniapp.open_full"></span></a>
+    </div>
+  </section>
+
+  <section class="ma-view" id="view-games">
+    <input id="ma-search" class="input mb-2" type="search" data-i18n-placeholder="common.search_placeholder">
+    <div id="ma-games-list" class="stack" style="gap:0.7rem"></div>
+  </section>
+
+  <section class="ma-view" id="view-orders">
+    <div id="ma-orders" class="stack" style="gap:0.7rem"></div>
+  </section>
+
+  <section class="ma-view" id="view-profile">
+    <div id="ma-profile"></div>
+  </section>
+</main>
+
+<nav class="bottom-nav">
+  <button data-view="home" class="active"><span class="ico">🏠</span><span data-i18n="miniapp.home"></span></button>
+  <button data-view="games"><span class="ico">🎮</span><span data-i18n="miniapp.games"></span></button>
+  <button data-view="orders"><span class="ico">📦</span><span data-i18n="miniapp.orders"></span></button>
+  <button data-view="profile"><span class="ico">👤</span><span data-i18n="miniapp.profile"></span></button>
+</nav>
+
+<script id="i18n-bundle" type="application/json">{{ i18n_bundle | safe }}</script>
+<script type="module" src="/static/js/core.js"></script>
+<script type="module" src="/static/js/miniapp.js"></script>
+</body>
+</html>

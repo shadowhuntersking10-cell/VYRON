@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="checkout-layout">
+    <div class="stack">
+      <div class="card">
+        <div class="row" style="gap:1.4rem;align-items:start;flex-wrap:wrap">
+          <div class="card-inset" style="width:min(320px,100%);aspect-ratio:16/10;display:grid;place-items:center;font-size:3rem;overflow:hidden;flex-shrink:0">
+            {% if product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.name }}" style="width:100%;height:100%;object-fit:cover;border-radius:14px">{% else %}🕹️{% endif %}
+          </div>
+          <div style="flex:1;min-width:240px">
+            <span class="badge mb-1">{{ t('products.type_' + product.type) }}</span>
+            <h1 style="font-size:1.5rem;font-weight:800">{{ product.name }}</h1>
+            {% if product.game %}
+              <a class="text-mute fs-sm" href="/games/{{ product.game.slug }}">🎮 {{ product.game.name }}</a>
+            {% endif %}
+            {% if product.description %}
+              <p class="text-soft mt-2" style="white-space:pre-line">{{ product.description }}</p>
+            {% endif %}
+            <p class="text-mute fs-xs mt-2">ℹ️ {{ t('products.delivery_info') }}</p>
+          </div>
+        </div>
+      </div>
+
+      {% if product.variants %}
+      <div class="card">
+        <h2 class="fw-800 mb-2">{{ t('products.variants') }}</h2>
+        <div class="stack" id="variant-list" style="gap:0.6rem">
+          {% for variant in product.variants %}
+          <button class="provider-option variant-option {{ 'selected' if loop.first }}" data-variant="{{ variant.id }}"
+                  data-price="{{ variant.selling_price }}" data-currency="{{ variant.currency }}"
+                  data-stock="{{ variant.stock }}" data-name="{{ variant.name }}"
+                  {{ 'disabled' if not variant.in_stock }} style="{{ 'opacity:0.5' if not variant.in_stock }}">
+            <input type="radio" name="variant" {{ 'checked' if loop.first }} {{ 'disabled' if not variant.in_stock }}>
+            <div style="flex:1;text-align:left">
+              <div class="fw-800">{{ variant.name }}</div>
+              <div class="fs-xs text-mute">
+                {% if variant.in_stock %}{{ t('products.in_stock') }}: {{ variant.stock }}{% else %}{{ t('products.out_of_stock') }}{% endif %}
+              </div>
+            </div>
+            <div class="price">{{ variant.selling_price }} {{ variant.currency }}</div>
+          </button>
+          {% endfor %}
+        </div>
+
+        {% if product.required_fields %}
+        <div class="soft-divider"></div>
+        <h3 class="fw-800 mb-1">{{ t('checkout.player_info') }}</h3>
+        <p class="field-hint mb-2">{{ t('checkout.player_info_hint') }}</p>
+        <div id="required-fields" class="stack">
+          {% for field in product.required_fields %}
+          <div class="field">
+            <label class="field-label" for="rf-{{ field.key }}">
+              {{ field.label }}{% if field.required %} *{% endif %}
+            </label>
+            <input class="input" id="rf-{{ field.key }}" data-key="{{ field.key }}"
+                   data-required="{{ '1' if field.required else '0' }}"
+                   {% if field.pattern %}pattern="{{ field.pattern }}"{% endif %}
+                   placeholder="{{ field.placeholder or '' }}" autocomplete="off">
+            {% if field.help %}<span class="field-hint">{{ field.help }}</span>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="soft-divider"></div>
+        <div class="row row-wrap">
+          <div class="qty-stepper">
+            <button id="qty-minus" aria-label="−">−</button>
+            <input id="qty" class="input" type="number" value="1" min="1" max="99" aria-label="{{ t('cart.quantity') }}">
+            <button id="qty-plus" aria-label="+">+</button>
+          </div>
+          <button id="add-to-cart" class="btn">🛒 {{ t('products.add_to_cart') }}</button>
+          <button id="buy-now" class="btn btn-primary">⚡ {{ t('products.buy_now') }}</button>
+        </div>
+      </div>
+      {% else %}
+      <div class="card empty-state"><div class="icon">📦</div><b>{{ t('products.empty') }}</b></div>
+      {% endif %}
+    </div>
+
+    <aside class="stack">
+      <div class="card">
+        <h3 class="fw-800 mb-2">{{ t('checkout.order_summary') }}</h3>
+        <div class="summary-line"><span id="sum-variant">—</span><span id="sum-price" class="price">—</span></div>
+        <div class="summary-line"><span>{{ t('cart.quantity') }}</span><span id="sum-qty">1</span></div>
+        <div class="summary-line total"><span>{{ t('cart.total') }}</span><span id="sum-total">—</span></div>
+        <p class="field-hint mt-2">🔒 {{ t('checkout.secure_note') }}</p>
+      </div>
+    </aside>
+  </div>
+
+  {% if related %}
+  <section class="section">
+    <div class="section-head"><h2 class="section-title">{{ t('products.related') }}</h2></div>
+    <div class="grid grid-4">
+      {% for item in related %}
+      <a class="card card-hover product-card" href="/products/{{ item.slug }}">
+        <div class="thumb">{% if item.image_url %}<img src="{{ item.image_url }}" alt="{{ item.name }}" loading="lazy">{% else %}🕹️{% endif %}</div>
+        <div class="name truncate">{{ item.name }}</div>
+        <div class="meta"><span class="price">{% if item.from_price %}{{ item.from_price }} {{ item.currency }}{% endif %}</span></div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+
+<script id="product-data" type="application/json">{{ {'id': product.id, 'slug': product.slug, 'name': product.name} | tojson }}</script>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="/static/js/product.js"></script>
+{% endblock %}

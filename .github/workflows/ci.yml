@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "arena/**"]
+  pull_request:
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: vyron_test
+          MYSQL_USER: vyron
+          MYSQL_PASSWORD: vyron_dev_password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=3s
+          --health-retries=5
+
+    env:
+      DATABASE_URL: mysql+pymysql://vyron:vyron_dev_password@127.0.0.1:3306/vyron_test?charset=utf8mb4
+      REDIS_URL: redis://127.0.0.1:6379/0
+      SESSION_SECRET: ci-session-secret-0123456789abcdef0123456789abcdef
+      ADMIN_EMAIL: ci-admin@vyron.test
+      ADMIN_PASSWORD: CiAdmin!2026
+      SEED_DEMO_DATA: "0"
+      AUTO_MIGRATE_ON_START: "0"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Ruff lint
+        run: ruff check vyron tests main.py
+
+      - name: Apply migrations (alembic upgrade head)
+        run: alembic upgrade head
+
+      - name: Pytest (70 tests against real MySQL + Redis)
+        run: pytest tests/ -q
