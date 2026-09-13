@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero soft-out">
+  <div class="hero-txt">
+    <h1>{{ t('home.hero_title') }}</h1>
+    <p class="muted">{{ t('home.hero_sub') }}</p>
+    <div class="row gap">
+      <a class="btn btn-primary" href="/games">🎮 {{ t('home.cta_games') }}</a>
+      <a class="btn" href="/marketplace">🛍 {{ t('home.cta_market') }}</a>
+    </div>
+  </div>
+  <div class="hero-art" aria-hidden="true"><div class="orb"></div><div class="orb o2"></div></div>
+</section>
+<section><div class="sec-head"><h2>🎮 {{ t('home.featured') }}</h2><a href="/games">{{ t('home.view_all') }} →</a></div>
+<div class="grid cards" id="featGames">
+{% for g in games %}<a class="card soft-out" href="/games/{{ g.slug }}"><div class="glogo">{{ g.title[:2] }}</div><b>{{ g.title }}</b></a>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}
+</div></section>
+<section><div class="sec-head"><h2>🛍 {{ t('home.market') }}</h2><a href="/marketplace">{{ t('home.view_all') }} →</a></div>
+<div class="grid cards">
+{% for l in listings %}<a class="card soft-out" href="/marketplace/{{ l.id }}"><b>{{ l.title }}</b><span class="price">{{ l.price }} {{ l.currency }}</span></a>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}
+</div></section>
+<section class="duo">
+<div><div class="sec-head"><h2>💙 {{ t('home.donate') }}</h2><a href="/donations">{{ t('home.view_all') }} →</a></div>
+<div class="grid cards">{% for p in profiles %}<a class="card soft-out" href="/donations/{{ p.username }}"><b>@{{ p.username }}</b><span class="muted">{{ p.current_amount }}/{{ p.goal_amount }} {{ p.currency }}</span></a>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}</div></div>
+<div><div class="sec-head"><h2>🏷 {{ t('home.promo') }}</h2><a href="/promotions">{{ t('home.view_all') }} →</a></div>
+<div class="stack">{% for p in promos %}<a class="card soft-out" href="/promotions"><b>{{ p.title }}</b></a>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}</div></div>
+</section>
+{% endblock %}

@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+
+# Env / secrets - NEVER commit
+.env
+.env.*
+!.env.example
+
+# Databases (local dev fallback)
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads (local dev)
+uploads/
+static/uploads/
+media/
+
+# Logs
+*.log
+logs/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Mypy / ruff
+.mypy_cache/
+.ruff_cache/
+
+# Node (not used, safety)
+node_modules/
+
+# Alembic local
+*.pyc

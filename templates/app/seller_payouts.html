@@ -1,0 +1,6 @@
+{% extends "app/_layout.html" %}
+{% block app %}<h1>💸 Payouts</h1>
+<section class="card soft-out"><h2>Request payout</h2>
+<form id="payoutForm" class="row gap"><input class="input soft-in" name="amount" type="number" min="1" placeholder="Amount" required><input class="input soft-in" name="method" placeholder="Method (card/...)"><button class="btn btn-primary">Request</button></form></section>
+<div id="payoutList" class="stack"></div>{% endblock %}
+{% block scripts %}<script src="/static/js/seller.js"></script>{% endblock %}

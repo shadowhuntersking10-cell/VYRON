@@ -1,0 +1,34 @@
+{
+  "app": { "name": "VYRON", "tagline": "Games & digital marketplace" },
+  "nav": {
+    "home": "Home", "games": "Games", "marketplace": "Market",
+    "donations": "Donations", "promotions": "Promotions", "support": "Support",
+    "orders": "Orders", "profile": "Profile", "admin": "Admin",
+    "login": "Log in", "register": "Sign up", "logout": "Log out",
+    "dashboard": "Dashboard", "wallet": "Wallet", "favorites": "Favorites",
+    "notifications": "Notifications", "settings": "Settings", "security": "Security"
+  },
+  "home": {
+    "hero_title": "Top-ups for your favourite games",
+    "hero_sub": "Top-ups, gift cards, marketplace and donations — all in one place.",
+    "cta_games": "Browse games", "cta_market": "Open market",
+    "featured": "Featured games", "popular": "Popular products",
+    "market": "Marketplace picks", "donate": "Support creators",
+    "promo": "Promotions", "view_all": "View all"
+  },
+  "checkout": {
+    "title": "Checkout", "step_product": "Product", "step_info": "Details",
+    "step_summary": "Summary", "step_payment": "Payment", "step_done": "Done",
+    "total": "Total", "discount": "Discount", "service_fee": "Service fee",
+    "pay": "Pay now", "provider_nc": "Payment provider not configured"
+  },
+  "order": { "status": "Status", "timeline": "Order timeline", "empty": "No orders yet" },
+  "common": {
+    "search": "Search...", "loading": "Loading...", "error": "Something went wrong",
+    "empty": "Nothing here yet", "retry": "Retry", "save": "Save",
+    "cancel": "Cancel", "delete": "Delete", "edit": "Edit",
+    "buy": "Buy", "details": "Details", "back": "Back"
+  },
+  "miniapp": { "welcome": "Welcome to VYRON 🎮" },
+  "footer": { "about": "About", "terms": "Terms", "privacy": "Privacy", "refund": "Refund policy" }
+}

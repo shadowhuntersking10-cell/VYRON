@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}500 — VYRON{% endblock %}
+{% block content %}
+<div class="empty-state soft-out">
+  <div class="empty-ico">⚠️</div>
+  <h1>500</h1>
+  <p class="muted">{{ t('common.error') }}. {{ t('common.retry') }}.</p>
+  <a class="btn btn-primary" href="/">{{ t('common.back') }}</a>
+</div>
+{% endblock %}

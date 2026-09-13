@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav.register') }} — VYRON{% endblock %}
+{% block content %}
+<section class="card soft-out narrow"><h1>📝 {{ t('nav.register') }}</h1>
+<form id="regForm" class="stack">
+<input class="input soft-in" name="email" type="email" placeholder="Email">
+<input class="input soft-in" name="username" placeholder="Username" minlength="3">
+<input class="input soft-in" name="password" type="password" placeholder="Password (min 8)" required minlength="8">
+<div id="regErr" class="alert err" hidden></div>
+<button class="btn btn-primary">{{ t('nav.register') }}</button>
+</form><p class="muted"><a href="/auth/login">{{ t('nav.login') }}</a></p></section>
+{% endblock %}
+{% block scripts %}<script src="/static/js/auth.js"></script>{% endblock %}

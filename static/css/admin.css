@@ -1,0 +1,18 @@
+/* Admin panel */
+.admin { display: grid; grid-template-columns: 230px 1fr; gap: 20px; align-items: start; }
+.aside { padding: 14px; position: sticky; top: 90px; max-height: calc(100vh - 110px); overflow-y: auto; }
+.alogo { display: block; font-weight: 800; font-size: 17px; color: var(--ink); margin-bottom: 10px; }
+#adminNav { display: flex; flex-direction: column; }
+#adminNav a { padding: 9px 12px; border-radius: 10px; color: var(--ink); font-weight: 500; font-size: 14px; }
+#adminNav a:hover, #adminNav a.on { background: var(--accent-soft); }
+.amain { min-width: 0; }
+.metric { padding: 16px; }
+.metric b { font-size: 24px; display: block; }
+.metric span { color: var(--muted); font-size: 13px; }
+.pill { padding: 3px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; background: var(--accent-soft); color: var(--accent); }
+.pill.green { background: rgba(22,163,74,.15); color: #16a34a; }
+.pill.red { background: rgba(220,38,38,.12); color: #dc2626; }
+.pill.amber { background: rgba(217,119,6,.15); color: #d97706; }
+.modal { position: fixed; inset: 0; background: rgba(7,20,38,.55); display: grid; place-items: center; z-index: 300; padding: 20px; }
+.modal-box { max-width: 560px; width: 100%; padding: 24px; max-height: 90vh; overflow-y: auto; }
+@media (max-width: 900px) { .admin { grid-template-columns: 1fr; } .aside { position: static; max-height: none; } #adminNav { flex-direction: row; flex-wrap: wrap; } }

@@ -1,0 +1,8 @@
+{% extends "app/_layout.html" %}
+{% block app %}<h1>👤 {{ t('nav.profile') }}</h1>
+<form id="profileForm" class="card soft-out stack">
+<input class="input soft-in" name="full_name" placeholder="Full name">
+<input class="input soft-in" name="username" placeholder="Username">
+<button class="btn btn-primary">{{ t('common.save') }}</button>
+</form>{% endblock %}
+{% block scripts %}<script src="/static/js/dashboard.js"></script>{% endblock %}

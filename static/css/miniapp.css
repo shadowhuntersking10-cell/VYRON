@@ -1,0 +1,32 @@
+/* Telegram Mini App: mobile-first, safe-area, bottom nav */
+* { box-sizing: border-box; }
+:root { --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; font-family: -apple-system, "Segoe UI", system-ui, sans-serif; background: var(--bg, #071426); color: var(--ink, #eaf1fb); padding-top: var(--sat); }
+#app { max-width: 520px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+.m-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; position: sticky; top: 0; z-index: 10;
+  background: var(--surface, #0b1f3a); border-bottom: 1px solid var(--border, rgba(255,255,255,.08)); }
+.brand-mark { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center;
+  background: linear-gradient(135deg, #2563eb, #60a5fa); color: #fff; font-weight: 900; }
+.muted { color: var(--muted, #93a5c4); font-size: 13px; margin-left: auto; }
+#mMain { flex: 1; padding: 14px 14px 90px; display: flex; flex-direction: column; gap: 12px; }
+.m-card { background: var(--surface, #0b1f3a); border-radius: 16px; padding: 16px;
+  border: 1px solid var(--border, rgba(255,255,255,.08)); box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+.m-card h3 { margin: 0 0 6px; font-size: 16px; }
+.m-row { display: flex; gap: 10px; align-items: center; }
+.m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.m-btn { display: block; width: 100%; padding: 14px; border: 0; border-radius: 14px; font-size: 16px; font-weight: 700;
+  background: linear-gradient(135deg, #2563eb, #3b82f6); color: #fff; cursor: pointer; text-align: center; }
+.m-btn.sec { background: var(--surface-2, #102a4c); color: var(--ink, #fff); border: 1px solid var(--border, rgba(255,255,255,.1)); }
+.m-in { width: 100%; padding: 13px; border-radius: 12px; border: 1px solid var(--border, rgba(255,255,255,.12));
+  background: var(--surface-2, #102a4c); color: inherit; font-size: 15px; margin-bottom: 10px; }
+.m-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 520px;
+  display: grid; grid-template-columns: repeat(5, 1fr); background: var(--surface, #0b1f3a);
+  border-top: 1px solid var(--border, rgba(255,255,255,.08)); padding-bottom: var(--sab); z-index: 20; }
+.m-nav button { background: none; border: 0; color: var(--muted, #93a5c4); padding: 10px 4px calc(10px + var(--sab));
+  font-size: 20px; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; min-height: 60px; }
+.m-nav button span { font-size: 11px; }
+.m-nav button.on { color: #60a5fa; }
+.m-skel { height: 96px; border-radius: 16px; background: var(--surface, #0b1f3a); opacity: .7; animation: p 1.2s infinite; }
+@keyframes p { 50% { opacity: .4; } }
+.m-price { color: #60a5fa; font-weight: 800; }
+.m-badge { font-size: 12px; padding: 3px 10px; border-radius: 99px; background: rgba(96,165,250,.15); color: #60a5fa; font-weight: 700; }

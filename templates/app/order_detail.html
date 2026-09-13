@@ -1,0 +1,4 @@
+{% extends "app/_layout.html" %}
+{% block app %}<div class="page-head"><a href="/app/orders">← {{ t('common.back') }}</a></div>
+<h1>🧾 {{ public_id }}</h1><div id="orderDetail" data-id="{{ public_id }}"><div class="skeleton soft-in"></div></div>{% endblock %}
+{% block scripts %}<script src="/static/js/dashboard.js"></script>{% endblock %}

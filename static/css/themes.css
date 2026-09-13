@@ -1,0 +1,54 @@
+/* VYRON themes: deep navy dark + light blue-gray. System-aware. */
+:root {
+  --navy-950: #071426;
+  --navy-900: #0b1f3a;
+  --navy-800: #102a4c;
+  --blue-600: #2563eb;
+  --blue-400: #60a5fa;
+  --blue-100: #dbeafe;
+  --radius: 18px;
+  --radius-sm: 12px;
+  --font: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+[data-theme="light"] {
+  --bg: #eef3fa;
+  --surface: #ffffff;
+  --surface-2: #e6edf7;
+  --ink: #0b1f3a;
+  --muted: #5b6b84;
+  --accent: #2563eb;
+  --accent-soft: #dbeafe;
+  --shadow-d: rgba(11, 31, 58, 0.14);
+  --shadow-l: rgba(255, 255, 255, 0.9);
+  --border: rgba(11, 31, 58, 0.08);
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --bg: #071426;
+  --surface: #0b1f3a;
+  --surface-2: #102a4c;
+  --ink: #eaf1fb;
+  --muted: #93a5c4;
+  --accent: #60a5fa;
+  --accent-soft: #102a4c;
+  --shadow-d: rgba(0, 0, 0, 0.5);
+  --shadow-l: rgba(96, 165, 250, 0.07);
+  --border: rgba(219, 234, 254, 0.1);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  [data-theme="system"] {
+    --bg: #eef3fa; --surface: #ffffff; --surface-2: #e6edf7;
+    --ink: #0b1f3a; --muted: #5b6b84; --accent: #2563eb; --accent-soft: #dbeafe;
+    --shadow-d: rgba(11, 31, 58, 0.14); --shadow-l: rgba(255, 255, 255, 0.9);
+    --border: rgba(11, 31, 58, 0.08); color-scheme: light;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"] {
+    --bg: #071426; --surface: #0b1f3a; --surface-2: #102a4c;
+    --ink: #eaf1fb; --muted: #93a5c4; --accent: #60a5fa; --accent-soft: #102a4c;
+    --shadow-d: rgba(0, 0, 0, 0.5); --shadow-l: rgba(96, 165, 250, 0.07);
+    --border: rgba(219, 234, 254, 0.1); color-scheme: dark;
+  }
+}

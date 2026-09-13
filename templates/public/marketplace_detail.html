@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ listing.title }} — VYRON{% endblock %}
+{% block content %}
+<div class="page-head"><a href="/marketplace">← {{ t('common.back') }}</a></div>
+<section class="soft-out card-lg" id="listingBox" data-listing="{{ listing.id }}">
+<h1>{{ listing.title }}</h1><p class="muted">{{ listing.description or '' }}</p>
+<div class="price big">{{ listing.price }} {{ listing.currency }}</div>
+{% if seller %}<p>🏪 <a href="/api/marketplace/sellers/{{ seller.id }}">{{ seller.shop_name }}</a> {% if seller.is_verified %}✔{% endif %}</p>{% endif %}
+<div class="row gap"><a class="btn btn-primary" href="/checkout?listing_id={{ listing.id }}">🛒 {{ t('common.buy') }}</a>
+<button class="btn" id="favBtn" data-kind="listing" data-id="{{ listing.id }}">♡</button></div>
+</section>
+<section><h2>⭐ Reviews</h2><div id="reviews" class="stack"></div>
+<form id="reviewForm" class="card soft-out" hidden><h3>Write a review</h3>
+<input type="hidden" name="listing_id" value="{{ listing.id }}">
+<input class="input soft-in" name="order_id" placeholder="Order ID (must be completed)" required>
+<select class="select soft-in" name="rating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select>
+<textarea class="input soft-in" name="comment" placeholder="Comment"></textarea>
+<button class="btn btn-primary">{{ t('common.save') }}</button></form></section>
+{% endblock %}
+{% block scripts %}<script src="/static/js/listing.js"></script>{% endblock %}

@@ -1,0 +1,34 @@
+{
+  "app": { "name": "VYRON", "tagline": "O'yinlar va raqamli bozor" },
+  "nav": {
+    "home": "Bosh sahifa", "games": "O'yinlar", "marketplace": "Market",
+    "donations": "Donatlar", "promotions": "Aksiyalar", "support": "Yordam",
+    "orders": "Buyurtmalar", "profile": "Profil", "admin": "Admin",
+    "login": "Kirish", "register": "Ro'yxatdan o'tish", "logout": "Chiqish",
+    "dashboard": "Kabinet", "wallet": "Hamyon", "favorites": "Sevimlilar",
+    "notifications": "Bildirishnomalar", "settings": "Sozlamalar", "security": "Xavfsizlik"
+  },
+  "home": {
+    "hero_title": "Sevimli o'yinlaringiz uchun to'lovlar",
+    "hero_sub": "Top-up'lar, gift kartalar, market va donatlar — barchasi bir joyda.",
+    "cta_games": "O'yinlarni ko'rish", "cta_market": "Marketga o'tish",
+    "featured": "Mashhur o'yinlar", "popular": "Ommabop mahsulotlar",
+    "market": "Market tanlovlari", "donate": "Qo'llab-quvvatlash",
+    "promo": "Aksiyalar", "view_all": "Barchasi"
+  },
+  "checkout": {
+    "title": "To'lov", "step_product": "Mahsulot", "step_info": "Ma'lumotlar",
+    "step_summary": "Buyurtma", "step_payment": "To'lov", "step_done": "Tayyor",
+    "total": "Jami", "discount": "Chegirma", "service_fee": "Xizmat haqi",
+    "pay": "To'lash", "provider_nc": "To'lov provayderi sozlanmagan"
+  },
+  "order": { "status": "Holat", "timeline": "Buyurtma tarixi", "empty": "Hali buyurtmalar yo'q" },
+  "common": {
+    "search": "Qidirish...", "loading": "Yuklanmoqda...", "error": "Xatolik yuz berdi",
+    "empty": "Hozircha bo'sh", "retry": "Qayta urinish", "save": "Saqlash",
+    "cancel": "Bekor qilish", "delete": "O'chirish", "edit": "Tahrirlash",
+    "buy": "Sotib olish", "details": "Batafsil", "back": "Orqaga"
+  },
+  "miniapp": { "welcome": "VYRON'ga xush kelibsiz 🎮" },
+  "footer": { "about": "Biz haqimizda", "terms": "Foydalanish shartlari", "privacy": "Maxfiylik", "refund": "Qaytarish siyosati" }
+}

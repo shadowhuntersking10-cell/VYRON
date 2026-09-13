@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}@{{ profile.username }} — VYRON{% endblock %}
+{% block content %}
+<div class="page-head"><a href="/donations">← {{ t('common.back') }}</a></div>
+<section class="soft-out card-lg" id="donBox" data-username="{{ profile.username }}">
+<h1>@{{ profile.username }}</h1><p class="muted">{{ profile.bio or '' }}</p>
+{% if profile.goal_title %}<p>🎯 {{ profile.goal_title }}: {{ profile.current_amount }}/{{ profile.goal_amount }} {{ profile.currency }}</p>
+<div class="progress soft-in"><div class="bar" style="width:{{ (profile.current_amount / profile.goal_amount * 100) if profile.goal_amount else 0 }}%"></div></div>{% endif %}
+<form id="donForm" class="row gap wrap">
+<input class="input soft-in" name="amount" type="number" min="1000" step="100" placeholder="Amount" required>
+<input class="input soft-in" name="message" maxlength="200" placeholder="Message (optional)">
+<label class="chk"><input type="checkbox" name="anonymous"> Anonymous</label>
+<button class="btn btn-primary">💙 Donate</button>
+</form><p class="muted" id="donFee"></p><div id="donResult"></div>
+</section>
+<section class="duo"><div><h2>Recent supporters</h2><div id="donRecent" class="stack"></div></div>
+<div><h2>Top supporters</h2><div id="donTop" class="stack"></div></div></section>
+{% endblock %}
+{% block scripts %}<script src="/static/js/donation.js"></script>{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block head %}<link rel="stylesheet" href="/static/css/admin.css">{% endblock %}
+{% block content %}
+<div class="admin">
+<aside class="aside soft-out">
+<a class="alogo" href="/admin">🛠 VYRON Admin</a>
+<nav id="adminNav">
+<a href="/admin/dashboard" data-s="dashboard">📊 Dashboard</a>
+<a href="/admin/users" data-s="users">👥 Users</a>
+<a href="/admin/games" data-s="games">🎮 Games</a>
+<a href="/admin/products" data-s="products">📦 Products</a>
+<a href="/admin/orders" data-s="orders">🧾 Orders</a>
+<a href="/admin/payments" data-s="payments">💳 Payments</a>
+<a href="/admin/suppliers" data-s="suppliers">🔌 Suppliers</a>
+<a href="/admin/marketplace" data-s="marketplace">🛍 Marketplace</a>
+<a href="/admin/sellers" data-s="sellers">🏪 Sellers</a>
+<a href="/admin/donations" data-s="donations">💙 Donations</a>
+<a href="/admin/promotions" data-s="promotions">🏷 Promotions</a>
+<a href="/admin/coupons" data-s="coupons">🎟 Coupons</a>
+<a href="/admin/payouts" data-s="payouts">💸 Payouts</a>
+<a href="/admin/revenue" data-s="revenue">📈 Revenue</a>
+<a href="/admin/support" data-s="support">🆘 Support</a>
+<a href="/admin/fraud" data-s="fraud">🕵 Fraud</a>
+<a href="/admin/notifications" data-s="notifications">📣 Notifications</a>
+<a href="/admin/telegram" data-s="telegram">✈️ Telegram</a>
+<a href="/admin/audit" data-s="audit">📜 Audit Logs</a>
+<a href="/admin/settings" data-s="settings">⚙️ Settings</a>
+</nav>
+</aside>
+<div class="amain">{% block admin %}{% endblock %}</div>
+</div>
+{% endblock %}
+{% block scripts %}<script>window.ADMIN_SECTION="{{ section or 'dashboard' }}";</script><script src="/static/js/admin.js"></script>{% endblock %}

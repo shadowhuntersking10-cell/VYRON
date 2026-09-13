@@ -1,0 +1,8 @@
+{% extends "app/_layout.html" %}
+{% block app %}<h1>⚙️ {{ t('nav.settings') }}</h1>
+<section class="card soft-out stack">
+<label>Language <select id="setLang" class="select soft-in"><option value="uz">O'zbek</option><option value="en">English</option><option value="ru">Русский</option></select></label>
+<label>Theme <select id="setTheme" class="select soft-in"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+<button class="btn btn-primary" id="setSave">{{ t('common.save') }}</button>
+</section>{% endblock %}
+{% block scripts %}<script src="/static/js/dashboard.js"></script>{% endblock %}

@@ -1,0 +1,34 @@
+{
+  "app": { "name": "VYRON", "tagline": "Игры и цифровой маркет" },
+  "nav": {
+    "home": "Главная", "games": "Игры", "marketplace": "Маркет",
+    "donations": "Донаты", "promotions": "Акции", "support": "Поддержка",
+    "orders": "Заказы", "profile": "Профиль", "admin": "Админ",
+    "login": "Войти", "register": "Регистрация", "logout": "Выйти",
+    "dashboard": "Кабинет", "wallet": "Кошелёк", "favorites": "Избранное",
+    "notifications": "Уведомления", "settings": "Настройки", "security": "Безопасность"
+  },
+  "home": {
+    "hero_title": "Пополнения для любимых игр",
+    "hero_sub": "Топ-апы, гифт-карты, маркет и донаты — всё в одном месте.",
+    "cta_games": "Смотреть игры", "cta_market": "Открыть маркет",
+    "featured": "Популярные игры", "popular": "Популярные товары",
+    "market": "Выбор маркета", "donate": "Поддержать",
+    "promo": "Акции", "view_all": "Все"
+  },
+  "checkout": {
+    "title": "Оформление", "step_product": "Товар", "step_info": "Данные",
+    "step_summary": "Заказ", "step_payment": "Оплата", "step_done": "Готово",
+    "total": "Итого", "discount": "Скидка", "service_fee": "Сервисный сбор",
+    "pay": "Оплатить", "provider_nc": "Платёжный провайдер не настроен"
+  },
+  "order": { "status": "Статус", "timeline": "История заказа", "empty": "Заказов пока нет" },
+  "common": {
+    "search": "Поиск...", "loading": "Загрузка...", "error": "Что-то пошло не так",
+    "empty": "Пока пусто", "retry": "Повторить", "save": "Сохранить",
+    "cancel": "Отмена", "delete": "Удалить", "edit": "Изменить",
+    "buy": "Купить", "details": "Подробнее", "back": "Назад"
+  },
+  "miniapp": { "welcome": "Добро пожаловать в VYRON 🎮" },
+  "footer": { "about": "О нас", "terms": "Условия", "privacy": "Конфиденциальность", "refund": "Возвраты" }
+}

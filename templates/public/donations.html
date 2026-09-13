@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav.donations') }} — VYRON{% endblock %}
+{% block content %}
+<h1>💙 {{ t('nav.donations') }}</h1>
+<div class="grid cards">
+{% for p in profiles %}<a class="card soft-out" href="/donations/{{ p.username }}"><b>@{{ p.username }}</b><span class="muted">{{ p.bio[:80] if p.bio else '' }}</span><span class="price">{{ p.current_amount }}/{{ p.goal_amount }} {{ p.currency }}</span></a>{% else %}<div class="empty-state soft-in"><div class="empty-ico">💙</div><p>{{ t('common.empty') }}</p></div>{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ t('checkout.title') }} — VYRON{% endblock %}
+{% block content %}
+<h1>🧾 {{ t('checkout.title') }}</h1>
+<ol class="steps soft-out" id="steps">
+<li class="on">1. {{ t('checkout.step_product') }}</li><li>2. {{ t('checkout.step_info') }}</li><li>3. {{ t('checkout.step_payment') }}</li><li>4. {{ t('checkout.step_done') }}</li>
+</ol>
+<div class="duo">
+<section class="card soft-out" id="coMain"><div id="coQuote"><div class="skeleton soft-in"></div></div>
+<div id="coFields"></div>
+<div class="row gap"><input id="couponIn" class="input soft-in" placeholder="Coupon code"><button class="btn" id="couponBtn">Apply</button></div>
+<div id="providerBox"><h3>{{ t('checkout.step_payment') }}</h3><div id="providers" class="row gap"></div></div>
+<button class="btn btn-primary big" id="payBtn">💳 {{ t('checkout.pay') }}</button>
+<div id="coError" class="alert err" hidden></div></section>
+<aside class="card soft-out" id="coSummary"><h3>{{ t('checkout.step_summary') }}</h3><div id="sumBody"><p class="muted">{{ t('common.loading') }}</p></div></aside>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/checkout.js"></script>{% endblock %}

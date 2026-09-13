@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — VYRON{% endblock %}
+{% block content %}
+<div class="page-head"><a href="/games/{{ game.slug if game else '' }}">← {{ t('common.back') }}</a></div>
+<section class="soft-out card-lg" id="productBox" data-product="{{ product.id }}">
+<h1>{{ product.name }}</h1><p class="muted">{{ product.description or '' }}</p>
+<div class="price big">{{ product.selling_price }} {{ product.currency }}</div>
+<a class="btn btn-primary" href="/checkout?product_id={{ product.id }}">🛒 {{ t('common.buy') }}</a>
+</section>
+{% endblock %}

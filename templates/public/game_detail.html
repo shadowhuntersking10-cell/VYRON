@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ game.title }} — VYRON{% endblock %}
+{% block content %}
+<div class="page-head"><a href="/games">← {{ t('common.back') }}</a></div>
+<section class="soft-out card-lg"><div class="glogo xl">{{ game.title[:2] }}</div>
+<h1>{{ game.title }}</h1><p class="muted">{{ game.description or '' }}</p></section>
+<h2>📦 {{ t('checkout.step_product') }}</h2>
+<div class="grid cards">
+{% for p in products %}<a class="card soft-out" href="/products/{{ p.id }}"><b>{{ p.name }}</b><span class="price">{{ p.selling_price }} {{ p.currency }}</span></a>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav.marketplace') }} — VYRON{% endblock %}
+{% block content %}
+<h1>🛍 {{ t('nav.marketplace') }}</h1>
+<div class="toolbar soft-out">
+  <input id="mktQ" class="input soft-in" placeholder="{{ t('common.search') }}">
+  <select id="mktSort" class="select soft-in"><option value="new">New</option><option value="price_asc">↑ Price</option><option value="price_desc">↓ Price</option></select>
+  <a class="btn btn-sm" href="/app/seller">+ Sell</a>
+</div>
+<div id="mktList" class="grid cards"><div class="skeleton soft-in"></div><div class="skeleton soft-in"></div><div class="skeleton soft-in"></div></div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/marketplace.js"></script>{% endblock %}

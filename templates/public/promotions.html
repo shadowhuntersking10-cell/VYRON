@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}{{ t('nav.promotions') }} — VYRON{% endblock %}
+{% block content %}
+<h1>🏷 {{ t('nav.promotions') }}</h1>
+<div class="grid cards">{% for p in promos %}<div class="card soft-out"><b>{{ p.title }}</b><span class="muted">{{ p.description[:120] if p.description else '' }}</span></div>{% else %}<div class="empty-state soft-in"><div class="empty-ico">🏷</div><p>{{ t('common.empty') }}</p></div>{% endfor %}</div>
+{% endblock %}

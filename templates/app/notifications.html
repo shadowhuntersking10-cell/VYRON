@@ -1,0 +1,5 @@
+{% extends "app/_layout.html" %}
+{% block app %}<h1>🔔 {{ t('nav.notifications') }}</h1>
+<div class="row gap"><button class="btn btn-sm" id="readAll">Mark all read</button></div>
+<div id="noteList" class="stack"><div class="skeleton soft-in"></div></div>{% endblock %}
+{% block scripts %}<script src="/static/js/dashboard.js"></script>{% endblock %}

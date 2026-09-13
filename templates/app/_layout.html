@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dash">
+<aside class="side soft-out">
+<a href="/app">📊 {{ t('nav.dashboard') }}</a>
+<a href="/app/orders">🧾 {{ t('nav.orders') }}</a>
+<a href="/app/wallet">👛 {{ t('nav.wallet') }}</a>
+<a href="/app/favorites">♡ {{ t('nav.favorites') }}</a>
+<a href="/app/notifications">🔔 {{ t('nav.notifications') }}</a>
+<a href="/app/seller">🏪 Seller</a>
+<a href="/app/profile">👤 {{ t('nav.profile') }}</a>
+<a href="/app/security">🔐 {{ t('nav.security') }}</a>
+<a href="/app/settings">⚙️ {{ t('nav.settings') }}</a>
+</aside>
+<div class="dash-main">{% block app %}{% endblock %}</div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" data-theme="system">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>{% block title %}VYRON — {{ t('app.tagline') }}{% endblock %}</title>
+<link rel="stylesheet" href="/static/css/themes.css">
+<link rel="stylesheet" href="/static/css/main.css">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('vyron_theme')||'system';}catch(e){}</script>
+{% block head %}{% endblock %}
+</head>
+<body>
+<div id="announce"></div>
+<header class="topbar soft-out">
+  <div class="wrap topbar-in">
+    <a class="brand" href="/"><span class="brand-mark">V</span><span class="brand-name">VYRON</span></a>
+    <nav class="nav" id="mainNav">
+      <a href="/" data-i18n="nav.home">{{ t('nav.home') }}</a>
+      <a href="/games" data-i18n="nav.games">{{ t('nav.games') }}</a>
+      <a href="/marketplace" data-i18n="nav.marketplace">{{ t('nav.marketplace') }}</a>
+      <a href="/donations" data-i18n="nav.donations">{{ t('nav.donations') }}</a>
+      <a href="/promotions" data-i18n="nav.promotions">{{ t('nav.promotions') }}</a>
+      <a href="/support" data-i18n="nav.support">{{ t('nav.support') }}</a>
+    </nav>
+    <div class="top-actions">
+      <div class="searchbox soft-in">
+        <input id="globalSearch" data-i18n-ph="common.search" placeholder="{{ t('common.search') }}" autocomplete="off">
+        <div id="searchResults" class="search-results soft-out" hidden></div>
+      </div>
+      <select id="langSel" class="select soft-in" aria-label="language">
+        <option value="uz">O'zbek</option><option value="en">EN</option><option value="ru">RU</option>
+      </select>
+      <button id="themeBtn" class="iconbtn soft-out" title="theme">◐</button>
+      <span id="authArea"></span>
+      {% if is_admin %}<a class="btn btn-sm" href="/admin">🛠 {{ t('nav.admin') }}</a>{% endif %}
+    </div>
+    <button class="iconbtn burger soft-out" id="burger" aria-label="menu">☰</button>
+  </div>
+</header>
+<main class="wrap main">
+  {% block content %}{% endblock %}
+</main>
+<footer class="footer">
+  <div class="wrap foot-grid">
+    <div><div class="brand"><span class="brand-mark">V</span><span class="brand-name">VYRON</span></div>
+      <p class="muted">{{ t('app.tagline') }}</p></div>
+    <div class="foot-links">
+      <a href="/about">{{ t('footer.about') }}</a><a href="/terms">{{ t('footer.terms') }}</a>
+      <a href="/privacy">{{ t('footer.privacy') }}</a><a href="/refund">{{ t('footer.refund') }}</a>
+    </div>
+    <div class="muted">© 2026 VYRON</div>
+  </div>
+</footer>
+<div id="toasts"></div>
+<script>window.VYRON_LANG="{{ lang }}";window.IS_ADMIN={{ 'true' if is_admin else 'false' }};</script>
+<script src="/static/js/i18n.js"></script>
+<script src="/static/js/theme.js"></script>
+<script src="/static/js/app.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
