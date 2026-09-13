@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-vyron_root_secret}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-vyron}
+      MYSQL_USER: ${MYSQL_USER:-vyron}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-vyron_secret}
+    volumes:
+      - vyron_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      DATABASE_URL: mysql+asyncmy://${MYSQL_USER:-vyron}:${MYSQL_PASSWORD:-vyron_secret}@db:3306/${MYSQL_DATABASE:-vyron}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:8000}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      SECRET_KEY: ${SECRET_KEY:-change-me}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    volumes:
+      - vyron_uploads:/app/uploads
+
+volumes:
+  vyron_mysql:
+  vyron_uploads:

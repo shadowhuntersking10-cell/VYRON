@@ -70,6 +70,10 @@ async def init_database() -> None:
         raise RuntimeError(f"Database unreachable: {detail}")
     await create_all_tables()
 
+    from app.database import ensure_schema  # noqa: PLC0415
+
+    await ensure_schema()
+
     from app.database import get_session_factory  # noqa: PLC0415
     from app.seed import seed_all  # noqa: PLC0415
 

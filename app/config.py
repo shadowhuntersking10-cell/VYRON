@@ -43,6 +43,7 @@ class Settings(BaseSettings):
 
     # ---- Telegram ----
     TELEGRAM_BOT_TOKEN: str = ""
+    TELEGRAM_BOT_USERNAME: str = ""
     TELEGRAM_WEBAPP_URL: str = ""
     ADMIN_TELEGRAM_IDS: str = ""
     TELEGRAM_AUTH_MAX_AGE_SECONDS: int = 86400

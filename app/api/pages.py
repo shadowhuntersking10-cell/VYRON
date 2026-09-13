@@ -80,7 +80,28 @@ async def marketplace_detail(request: Request, listing_id: int, db: AsyncSession
     if not listing or listing.status == "deleted":
         return templates.TemplateResponse(request, "errors/404.html", await _ctx(request, db), status_code=404)
     seller = await db.get(Seller, listing.seller_id)
-    return templates.TemplateResponse(request, "public/marketplace_detail.html", await _ctx(request, db, listing=listing, seller=seller))
+    from app.models import ListingImage as _LI
+    gallery = (await db.execute(select(_LI).where(_LI.listing_id == listing.id)
+                                .order_by(_LI.sort_order))).scalars().all()
+    return templates.TemplateResponse(request, "public/marketplace_detail.html", await _ctx(request, db, listing=listing, seller=seller, gallery=list(gallery)))
+
+
+@router.get("/seller/{username}", response_class=HTMLResponse)
+async def seller_shop_by_username(request: Request, username: str, db: AsyncSession = Depends(get_db)):
+    """Public mini-shop page addressed by the seller's account username."""
+    from app.models import MarketplaceListing as _L
+    from app.models import Review as _R
+    from app.models import User as _U
+    user = (await db.execute(select(_U).where(_U.username == username))).scalars().first()
+    seller = None
+    if user:
+        seller = (await db.execute(select(Seller).where(Seller.user_id == user.id))).scalars().first()
+    if not seller or not seller.is_active:
+        return templates.TemplateResponse(request, "errors/404.html", await _ctx(request, db), status_code=404)
+    listings = (await db.execute(select(_L).where(_L.seller_id == seller.id, _L.status == "active").order_by(_L.id.desc()).limit(24))).scalars().all()
+    reviews = (await db.execute(select(_R).where(_R.seller_id == seller.id).order_by(_R.id.desc()).limit(20))).scalars().all()
+    return templates.TemplateResponse(request, "public/seller_profile.html", await _ctx(
+        request, db, seller=seller, listings=list(listings), reviews=list(reviews), shop_username=user.username))
 
 
 @router.get("/sellers/{seller_id}", response_class=HTMLResponse)
@@ -133,8 +154,29 @@ for _path, _tpl in [
     ("/refund", "public/refund.html"),
     ("/auth/login", "auth/login.html"),
     ("/auth/register", "auth/register.html"),
+    ("/login", "auth/login.html"),
+    ("/register", "auth/register.html"),
+    ("/forgot-password", "auth/login.html"),
+    ("/reset-password", "auth/login.html"),
+    ("/verify-email", "auth/verify.html"),
+    ("/logout", "auth/logout.html"),
 ]:
     router.add_api_route(_path, _page(_tpl), response_class=HTMLResponse, methods=["GET"])
+
+
+@router.get("/profile", response_class=HTMLResponse)
+async def profile_alias() -> RedirectResponse:
+    return RedirectResponse("/app/profile", status_code=302)
+
+
+@router.get("/security", response_class=HTMLResponse)
+async def security_alias() -> RedirectResponse:
+    return RedirectResponse("/app/security", status_code=302)
+
+
+@router.get("/orders", response_class=HTMLResponse)
+async def orders_alias() -> RedirectResponse:
+    return RedirectResponse("/app/orders", status_code=302)
 
 
 # ---------- checkout ----------
@@ -176,7 +218,7 @@ async def admin_index(request: Request, db: AsyncSession = Depends(get_db)):
 
 @router.get("/admin/{section}", response_class=HTMLResponse)
 async def admin_section(request: Request, section: str, db: AsyncSession = Depends(get_db)):
-    allowed = {"dashboard", "users", "games", "categories", "products", "variants", "orders", "payments", "suppliers",
+    allowed = {"dashboard", "users", "games", "categories", "products", "pricing", "variants", "orders", "payments", "suppliers",
                "marketplace", "sellers", "donations", "promotions", "coupons", "payouts",
                "revenue", "wallets", "support", "fraud", "notifications", "telegram", "media", "audit", "settings"}
     if section not in allowed:

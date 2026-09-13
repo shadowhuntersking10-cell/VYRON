@@ -2,7 +2,7 @@
 {% block app %}<h1>🔐 {{ t('nav.security') }}</h1>
 <form id="pwForm" class="card soft-out stack">
 <input class="input soft-in" name="old_password" type="password" placeholder="Current password" required>
-<input class="input soft-in" name="new_password" type="password" placeholder="New password (min 8)" required minlength="8">
+<input class="input soft-in" name="new_password" type="password" placeholder="New password (min 10, 3 of: a-z A-Z 0-9 symbol)" required minlength="10" autocomplete="new-password">
 <button class="btn btn-primary">{{ t('common.save') }}</button>
 </form>{% endblock %}
 {% block scripts %}<script src="/static/js/dashboard.js"></script>{% endblock %}

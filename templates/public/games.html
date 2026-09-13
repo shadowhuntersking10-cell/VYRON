@@ -3,6 +3,6 @@
 {% block content %}
 <h1>🎮 {{ t('nav.games') }}</h1>
 <div class="grid cards" id="gamesGrid">
-{% for g in games %}<a class="card soft-out game-card" href="/games/{{ g.slug }}">{% if g.logo_url %}<img class="pimg" src="{{ g.logo_url }}" alt="{{ g.title }}">{% else %}<div class="glogo">{{ g.title[:2] }}</div>{% endif %}<b>{{ g.title }}</b><span class="muted">{{ g.description[:80] if g.description else '' }}</span></a>{% else %}<div class="empty-state soft-in"><div class="empty-ico">🎮</div><p>{{ t('common.empty') }}</p></div>{% endfor %}
+{% for g in games %}<a class="card soft-out game-card" style="border-top-color:{{ g.accent_color or '#2E5AAC' }}" href="/games/{{ g.slug }}">{% if g.logo_url %}<img class="pimg" src="{{ g.logo_url }}" alt="{{ g.title }} logo">{% else %}<div class="glogo" style="background:{{ g.accent_color or '#2E5AAC' }}">{{ g.title[:2] }}</div>{% endif %}<b>{{ g.title }}</b><span class="muted">{{ g.description[:80] if g.description else '' }}</span></a>{% else %}<div class="empty-state soft-in"><div class="empty-ico">🎮</div><p>{{ t('common.empty') }}</p></div>{% endfor %}
 </div>
 {% endblock %}

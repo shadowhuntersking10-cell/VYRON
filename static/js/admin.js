@@ -110,14 +110,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         content.innerHTML = tbl(['ID', 'Name', 'Cost (secret)', 'Price', 'Stock', 'Active', 'Actions'],
           d.map((p) => `<tr><td>${p.id}</td><td>${escapeHtml(p.name)}</td><td>${p.supplier_cost}</td><td><b>${p.selling_price} ${p.currency}</b></td><td>${p.stock}</td><td>${pill(p.is_active ? 'ACTIVE' : 'OFF')}</td>
           <td><button class="btn btn-sm" data-pe="${p.id}">Price</button></td></tr>`).join('') || '<tr><td>No products</td></tr>');
-        content.querySelectorAll('[data-pe]').forEach((b) => b.onclick = () => {
+        content.querySelectorAll('[data-pe]').forEach((b) => b.onclick = async () => {
           const p = d.find((x) => x.id === +b.dataset.pe);
+          let q = null;
+          try { q = await api('/api/admin/pricing/' + p.id); } catch (e) {}
           const m = modal(`<h3>${escapeHtml(p.name)}</h3><div class="stack">
+            ${q ? `<p class="muted">Cost ${q.supplier_cost} · Pay ${q.payment_cost} · <b>Min safe ${q.minimum_safe_price}</b> · Suggested ${q.suggested_price} · Profit ${q.estimated_profit} (${q.profit_margin_percent}%)</p>` : ''}
             <label>Supplier cost<input id="pCost" class="input soft-in" type="number" step="100" value="${p.supplier_cost}"></label>
             <label>Selling price<input id="pPrice" class="input soft-in" type="number" step="100" value="${p.selling_price}"></label>
+            <label class="chk"><input type="checkbox" id="pLoss"> Loss-leader (explicit, logged)</label>
             <div class="row gap"><button class="btn btn-primary" id="pSave">Save</button></div></div>`);
           m.querySelector('#pSave').onclick = async () => {
-            await api(`/api/admin/products/${p.id}`, { method: 'PATCH', body: JSON.stringify({ game_id: p.game_id, name: p.name, supplier_cost: +m.querySelector('#pCost').value, selling_price: +m.querySelector('#pPrice').value, currency: p.currency }) });
+            const body = { game_id: p.game_id, name: p.name, supplier_cost: +m.querySelector('#pCost').value, selling_price: +m.querySelector('#pPrice').value, currency: p.currency, loss_leader_allowed: m.querySelector('#pLoss').checked };
+            try {
+              await api(`/api/admin/products/${p.id}`, { method: 'PATCH', body: JSON.stringify(body) });
+            } catch (e) {
+              if (String(e.message).includes('loss') && await confirmDlg(e.message + ' Save anyway as confirmed loss-leader?')) {
+                body.confirm_unsafe = true; body.loss_leader_allowed = true;
+                await api(`/api/admin/products/${p.id}`, { method: 'PATCH', body: JSON.stringify(body) });
+              } else { toast(e.message); return; }
+            }
             m.remove(); toast('Price updated'); load();
           };
         });
@@ -311,10 +323,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (section === 'revenue') {
-      const d = await api('/api/admin/revenue?days=30');
-      toolbar.innerHTML = `<span class="muted">Gross: <b>${d.total_gross}</b> · Net: <b>${d.total_net}</b></span>`;
-      content.innerHTML = tbl(['Stream', 'Gross', 'Supplier cost', 'Net', 'Count'],
-        d.by_stream.map((r) => `<tr><td>${r.stream}</td><td>${r.gross}</td><td>${r.supplier_cost}</td><td><b>${r.net}</b></td><td>${r.count}</td></tr>`).join('') || '<tr><td>No revenue yet — only verified transactions appear here.</td></tr>');
+      let range = '30d';
+      const render = async () => {
+        const d = await api('/api/admin/revenue?range=' + range);
+        const tops = await api('/api/admin/revenue/tops?range=' + range);
+        toolbar.innerHTML = `<div class="row gap">${['today', '7d', '30d', 'all'].map((r) => `<button class="btn btn-sm ${r === range ? 'btn-primary' : ''}" data-range="${r}">${r === 'today' ? 'Today' : r === 'all' ? 'All time' : 'Last ' + r}</button>`).join('')}</div><span class="muted">Gross: <b>${d.total_gross}</b> · Net: <b>${d.total_net}</b></span>`;
+        const topTbl = (rows, cols) => tbl(cols, rows.map((r) => `<tr><td>${escapeHtml(String(r.name ?? r.id))}</td><td>${r.gross}</td><td>${r.orders}</td></tr>`).join('') || '<tr><td>—</td></tr>');
+        content.innerHTML = `<div class="stack"><h3>By stream</h3>` + tbl(['Stream', 'Gross', 'Supplier cost', 'Net', 'Count'],
+          d.by_stream.map((r) => `<tr><td>${r.stream}</td><td>${r.gross}</td><td>${r.supplier_cost}</td><td><b>${r.net}</b></td><td>${r.count}</td></tr>`).join('') || '<tr><td>No revenue yet — only verified transactions appear here.</td></tr>') +
+          `<h3>🏆 Top games</h3>` + topTbl(tops.top_games, ['Game', 'Gross', 'Orders']) +
+          `<h3>📦 Top products</h3>` + topTbl(tops.top_products, ['Product', 'Gross', 'Orders']) +
+          `<h3>🏪 Top sellers</h3>` + topTbl(tops.top_sellers, ['Seller', 'Gross', 'Orders']) + `</div>`;
+        toolbar.querySelectorAll('[data-range]').forEach((b) => b.onclick = () => { range = b.dataset.range; render(); });
+      };
+      await render();
       return;
     }
 
@@ -410,6 +432,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    if (section === 'pricing') {
+      toolbar.innerHTML = `<span class="muted">Loss radar — every product with live cost breakdown. Red rows sell below the safe floor.</span>`;
+      const d = await api('/api/admin/pricing/overview');
+      content.innerHTML = tbl(['Product', 'Cost', 'Pay cost', 'Min safe', 'Suggested', 'Current', 'Profit', 'Margin', 'Actions'],
+        d.map((p) => `<tr style="${p.below_safe ? 'background:rgba(220,38,38,.08)' : ''}"><td>${escapeHtml(p.name)}</td><td>${p.supplier_cost}</td><td>${p.payment_cost}</td><td><b>${p.minimum_safe_price}</b></td><td>${p.suggested_price}</td><td><b>${p.current_price}</b> ${p.below_safe ? '⚠️' : ''}</td><td>${p.estimated_profit}</td><td>${p.profit_margin_percent}%</td>
+        <td><button class="btn btn-sm" data-sug="${p.id}">Apply suggested</button></td></tr>`).join('') || '<tr><td>No products</td></tr>');
+      content.querySelectorAll('[data-sug]').forEach((b) => b.onclick = async () => {
+        if (await confirmDlg('Set price to the suggested price?')) {
+          const r = await api(`/api/admin/pricing/${b.dataset.sug}/apply-suggested`, { method: 'POST', body: JSON.stringify({}) });
+          toast('New price: ' + r.price); location.reload();
+        }
+      });
+      return;
+    }
+
     if (section === 'variants') {
       toolbar.innerHTML = `<input id="vPid" class="input soft-in" placeholder="Product ID filter" style="max-width:160px"><button class="btn btn-sm" id="vGo">Filter</button><button class="btn btn-sm btn-primary" id="vAdd">+ Add variant</button>`;
       const load = async () => {
@@ -449,10 +486,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         const k = document.getElementById('medK').value;
         const d = await api('/api/admin/media' + (k ? '?kind=' + k : ''));
         content.innerHTML = `<div class="grid cards">` + d.items.map((m) =>
-          `<div class="card soft-out"><img src="${m.url}" style="width:100%;height:120px;object-fit:contain;background:var(--surface-2);border-radius:10px"><span class="muted">${escapeHtml(m.filename)} · ${(m.size_bytes / 1024).toFixed(1)} KB</span><span class="badge">${m.kind}</span><button class="btn btn-sm" data-mdel="${m.id}">Delete</button></div>`
+          `<div class="card soft-out"><img src="${m.url}" alt="${escapeHtml(m.alt_text || '')}" style="width:100%;height:120px;object-fit:contain;background:var(--surface-2);border-radius:10px"><span class="muted">${escapeHtml(m.filename)} · ${(m.size_bytes / 1024).toFixed(1)} KB</span><span class="badge">${m.media_type || m.kind}</span>${m.game_id ? `<span class="badge">game #${m.game_id}</span>` : ''}${m.product_id ? `<span class="badge">product #${m.product_id}</span>` : ''}<div class="row gap"><button class="btn btn-sm" data-mas="${m.id}">Assign</button><button class="btn btn-sm" data-mdel="${m.id}">Delete</button></div></div>`
         ).join('') + `</div>` || '<p>No media</p>';
         content.querySelectorAll('[data-mdel]').forEach((b) => b.onclick = async () => {
           if (await confirmDlg('Delete this file?')) { await api('/api/admin/media/' + b.dataset.mdel, { method: 'DELETE' }); load(); }
+        });
+        content.querySelectorAll('[data-mas]').forEach((b) => b.onclick = () => {
+          const m = modal(`<h3>Assign media #${b.dataset.mas}</h3><div class="stack">
+            <select id="aTarget" class="select soft-in"><option value="game_logo">Game logo</option><option value="game_cover">Game cover</option><option value="game_banner">Game banner</option><option value="product_image">Product image</option><option value="donation_cover">Donation cover</option></select>
+            <input id="aGame" class="input soft-in" type="number" placeholder="Game ID">
+            <input id="aProd" class="input soft-in" type="number" placeholder="Product ID">
+            <input id="aProf" class="input soft-in" type="number" placeholder="Donation profile ID">
+            <div class="row gap"><button class="btn btn-primary" id="aSave">Assign</button><button class="btn btn-sm" id="aUn">Unassign</button></div></div>`);
+          m.querySelector('#aSave').onclick = async () => {
+            const num = (id) => { const v = m.querySelector(id).value; return v ? +v : null; };
+            await api(`/api/admin/media/${b.dataset.mas}/assign`, { method: 'POST', body: JSON.stringify({ target: m.querySelector('#aTarget').value, game_id: num('#aGame'), product_id: num('#aProd'), profile_id: num('#aProf') }) });
+            m.remove(); toast('Assigned'); load();
+          };
+          m.querySelector('#aUn').onclick = async () => {
+            await api(`/api/admin/media/${b.dataset.mas}/unassign`, { method: 'POST', body: JSON.stringify({}) });
+            m.remove(); load();
+          };
         });
       };
       document.getElementById('medGo').onclick = load;

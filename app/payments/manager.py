@@ -10,6 +10,7 @@ from app.models import Order, OrderStatus, Payment, PaymentStatus, PaymentTransa
 from app.payments.base import PaymentProvider, ProviderNotConfigured
 from app.payments.click import ClickProvider
 from app.payments.payme import PaymeProvider
+from app.payments.stars_provider import StarsProvider
 from app.payments.stripe_provider import StripeProvider
 from app.utils.helpers import utcnow
 
@@ -20,6 +21,7 @@ class PaymentManager:
             "payme": PaymeProvider(),
             "click": ClickProvider(),
             "stripe": StripeProvider(),
+            "stars": StarsProvider(),
         }
 
     def providers(self) -> dict[str, PaymentProvider]:
@@ -118,6 +120,11 @@ class PaymentManager:
         if order and order.status == OrderStatus.PENDING_PAYMENT:
             order.status = OrderStatus.PAID
             order.timeline = (order.timeline or []) + [{"event": "payment_confirmed", "at": utcnow().isoformat()}]
+            from app.services.notification_service import notify_order_event as _notify
+
+            await _notify(db, user_id=order.user_id, title="Payment confirmed ✅",
+                          body=f"{order.public_id} · {payment.amount} {payment.currency} via {payment.provider}.",
+                          link=f"/app/orders/{order.public_id}")
         await db.flush()
         return payment
 

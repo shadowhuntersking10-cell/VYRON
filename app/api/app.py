@@ -37,6 +37,35 @@ class LangMiddleware(BaseHTTPMiddleware):
         return response
 
 
+class OriginCheckMiddleware(BaseHTTPMiddleware):
+    """CSRF-lite: browsers always attach Origin/Referer to cross-site POSTs.
+
+    State-changing /api/* calls (except provider webhooks, which use
+    signatures) are rejected when the supplied Origin/Referer host does not
+    match this app. Requests without either header (curl, tests, native API
+    clients) are allowed through.
+    """
+
+    STATE_CHANGING = {"POST", "PUT", "PATCH", "DELETE"}
+
+    async def dispatch(self, request: Request, call_next):
+        path = request.url.path
+        if request.method in self.STATE_CHANGING and path.startswith("/api/") and not path.startswith("/api/webhooks/"):
+            origin = request.headers.get("origin") or request.headers.get("referer") or ""
+            if origin:
+                try:
+                    from urllib.parse import urlparse as _parse
+
+                    host = (_parse(origin).hostname or "").lower()
+                    allowed = {request.url.hostname, _parse(settings.APP_BASE_URL).hostname}
+                    allowed = {h.lower() for h in allowed if h}
+                    if host not in allowed:
+                        return JSONResponse({"detail": "bad_origin"}, status_code=403)
+                except Exception:
+                    return JSONResponse({"detail": "bad_origin"}, status_code=403)
+        return await call_next(request)
+
+
 def template_context(request: Request, **extra) -> dict:
     lang = getattr(request.state, "lang", "uz")
     return {
@@ -53,6 +82,7 @@ def create_app() -> FastAPI:
     app = FastAPI(title="VYRON", version="1.0.0", docs_url="/api/docs", redoc_url=None)
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(LangMiddleware)
+    app.add_middleware(OriginCheckMiddleware)
 
     # Static + uploads
     static_dir = BASE_DIR / "static"

@@ -5,7 +5,8 @@
 {% if game.logo_url %}{% block og_image %}<meta property="og:image" content="{{ settings.APP_BASE_URL }}{{ game.logo_url }}">{% endblock %}{% endif %}
 {% block content %}
 <div class="page-head"><a href="/games">← {{ t('common.back') }}</a></div>
-<section class="soft-out card-lg seller-head">{% if game.logo_url %}<img class="avatar xl" style="border-radius:20px" src="{{ game.logo_url }}" alt="{{ game.title }}">{% else %}<div class="glogo xl">{{ game.title[:2] }}</div>{% endif %}
+{% if game.cover_url %}<section class="game-cover soft-out" style="background-image:url('{{ game.cover_url }}')"><div class="game-cover-shade"></div></section>{% endif %}
+<section class="soft-out card-lg seller-head" style="border-top:6px solid {{ game.accent_color or '#2E5AAC' }}">{% if game.logo_url %}<img class="avatar xl" style="border-radius:20px;box-shadow:0 8px 24px {{ game.accent_color or '#2E5AAC' }}55" src="{{ game.logo_url }}" alt="{{ game.title }} logo">{% else %}<div class="glogo xl" style="background:{{ game.accent_color or '#2E5AAC' }}">{{ game.title[:2] }}</div>{% endif %}
 <div><h1>{{ game.title }}</h1><p class="muted">{{ game.description or '' }}</p></div></section>
 <h2>📦 {{ t('checkout.step_product') }}</h2>
 <div class="grid cards">

@@ -2,10 +2,11 @@
 {% block title %}@{{ profile.username }} — VYRON{% endblock %}
 {% block content %}
 <div class="page-head"><a href="/donations">← {{ t('common.back') }}</a></div>
+{% if profile.cover_url %}<div class="donate-cover soft-out" style="background-image:url('{{ profile.cover_url }}')" role="img" aria-label="{{ profile.display_name or profile.username }} cover"></div>{% endif %}
 <section class="soft-out card-lg" id="donBox" data-username="{{ profile.username }}">
 <div class="don-head">
   {% if profile.avatar_url %}<img class="avatar xl" src="{{ profile.avatar_url }}" alt="@{{ profile.username }}">{% else %}<div class="avatar xl">{{ profile.username[:2] }}</div>{% endif %}
-  <div><h1>@{{ profile.username }}</h1><p class="muted">{{ profile.bio or '' }}</p></div>
+  <div><h1>{{ profile.display_name or ('@' + profile.username) }}</h1><p class="muted">@{{ profile.username }} · {{ profile.bio or '' }}</p></div>
 </div>
 {% if profile.goal_title %}<p>🎯 {{ profile.goal_title }}: {{ profile.current_amount }}/{{ profile.goal_amount }} {{ profile.currency }}</p>
 <div class="progress soft-in"><div class="bar" style="width:{{ (profile.current_amount / profile.goal_amount * 100) if profile.goal_amount else 0 }}%"></div></div>{% endif %}

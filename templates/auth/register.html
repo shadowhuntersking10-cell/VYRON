@@ -5,7 +5,8 @@
 <form id="regForm" class="stack">
 <input class="input soft-in" name="email" type="email" placeholder="Email">
 <input class="input soft-in" name="username" placeholder="Username" minlength="3">
-<input class="input soft-in" name="password" type="password" placeholder="Password (min 8)" required minlength="8">
+<input class="input soft-in" name="password" type="password" placeholder="Password (min 10, 3 of: a-z A-Z 0-9 symbol)" required minlength="10" autocomplete="new-password">
+<input class="input soft-in" name="password_confirm" type="password" placeholder="Confirm password" required minlength="10" autocomplete="new-password">
 <div id="regErr" class="alert err" hidden></div>
 <button class="btn btn-primary">{{ t('nav.register') }}</button>
 </form><p class="muted"><a href="/auth/login">{{ t('nav.login') }}</a></p></section>

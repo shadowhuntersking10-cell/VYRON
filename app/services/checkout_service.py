@@ -149,11 +149,17 @@ async def create_order(
             except ValueError as exc:
                 raise CheckoutError(str(exc)) from exc
 
+    from app.services import fx_service as _fx
+
+    fx = await _fx.snapshot_for_order(db, q["currency"])
     order = Order(
         public_id=generate_public_id(),
         user_id=user_id,
         status=OrderStatus.PENDING_PAYMENT,
         idempotency_key=key,
+        fx_base_currency=fx["fx_base_currency"],
+        fx_rate=fx["fx_rate"],
+        fx_quoted_at=fx["fx_quoted_at"],
         subtotal=q["subtotal"],
         discount=q["discount"],
         service_fee=q["service_fee"],
@@ -196,5 +202,10 @@ async def create_order(
         coupon = (await db.execute(select(Coupon).where(Coupon.code == q["coupon_applied"]))).scalars().first()
         if coupon:
             await coupon_service.record_usage(db, coupon, user_id=user_id, order_id=order.id)
+    from app.services.notification_service import notify_order_event as _notify
+
+    await _notify(db, user_id=user_id, title="Order created 🧾",
+                  body=f"{order.public_id} · {order.total} {order.currency}. Complete payment to proceed.",
+                  link=f"/app/orders/{order.public_id}")
     await db.flush()
     return order

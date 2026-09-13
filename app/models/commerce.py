@@ -48,6 +48,10 @@ class Order(Base, TimestampMixin):
     platform_fee: Mapped[float] = mapped_column(Numeric(18, 2), default=0, nullable=False)
     total: Mapped[float] = mapped_column(Numeric(18, 2), default=0, nullable=False)
     currency: Mapped[str] = mapped_column(String(8), default="UZS", nullable=False)
+    # FX snapshot (server-side conversion; base books kept in fx_base_currency)
+    fx_base_currency: Mapped[str] = mapped_column(String(8), default="UZS", nullable=False)
+    fx_rate: Mapped[float | None] = mapped_column(Numeric(18, 6), nullable=True)
+    fx_quoted_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     coupon_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
     # Player/game fields submitted at checkout: {"player_id": "...", "server": "..."}

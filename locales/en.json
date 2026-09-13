@@ -41,7 +41,14 @@
     "game_details": "Game details",
     "select_provider": "Select payment method",
     "order_created": "Order created",
-    "need_login": "Login to continue"
+    "need_login": "Login to continue",
+    "pay": "Pay",
+    "step_done": "Done",
+    "step_info": "Details",
+    "step_payment": "Payment",
+    "step_product": "Packages",
+    "step_summary": "Summary",
+    "title": "Checkout"
   },
   "order": {
     "timeline_created": "Created",
@@ -72,7 +79,11 @@
   "footer": {
     "rights": "All rights reserved",
     "how": "How it works",
-    "trust": "Trust & security"
+    "trust": "Trust & security",
+    "about": "About",
+    "privacy": "Privacy",
+    "refund": "Refunds",
+    "terms": "Terms"
   },
   "admin": {
     "panel": "Admin panel",
@@ -107,7 +118,8 @@
     "search": "Search",
     "filter": "Filter",
     "total": "Total",
-    "save_ok": "Saved"
+    "save_ok": "Saved",
+    "pricing": "Pricing"
   },
   "auth": {
     "email": "Email",

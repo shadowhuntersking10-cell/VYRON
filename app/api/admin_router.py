@@ -201,6 +201,16 @@ class ProductIn(BaseModel):
     stock: int = -1
     is_active: bool = True
     is_popular: bool = False
+    # pricing engine inputs
+    payment_fee_percent: float | None = None
+    payment_fixed_fee: float | None = None
+    platform_margin_percent: float | None = None
+    platform_fixed_fee: float | None = None
+    tax_percent: float | None = None
+    minimum_margin_percent: float | None = None
+    maximum_discount_percent: float | None = None
+    loss_leader_allowed: bool = False
+    confirm_unsafe: bool = False  # required to save below safe price
 
 
 @router.get("/products")
@@ -216,7 +226,25 @@ async def admin_products(game_id: int | None = None, db: AsyncSession = Depends(
 
 @router.post("/products")
 async def create_product(data: ProductIn, request: Request, admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
-    p = Product(**{**data.model_dump(), "supplier_cost": D(data.supplier_cost), "selling_price": D(data.selling_price)})
+    from app.services import pricing_service
+    payload = data.model_dump()
+    confirm = payload.pop("confirm_unsafe", False)
+    p = Product(**{k: v for k, v in payload.items()
+                   if k in ("game_id", "name", "description", "image_url", "supplier_id",
+                            "supplier_product_id", "currency", "delivery_type", "stock",
+                            "is_active", "is_popular", "loss_leader_allowed")})
+    p.supplier_cost = D(data.supplier_cost)
+    p.selling_price = D(data.selling_price)
+    pricing_service.apply_pricing(p, {k: (D(v) if v is not None and k != "loss_leader_allowed" else v)
+                                      for k, v in payload.items()
+                                      if k in ("payment_fee_percent", "payment_fixed_fee",
+                                               "platform_margin_percent", "platform_fixed_fee",
+                                               "tax_percent", "minimum_margin_percent",
+                                               "maximum_discount_percent") and v is not None})
+    try:
+        pricing_service.validate_price(p, p.selling_price, confirmed=confirm)
+    except pricing_service.UnsafePriceError as exc:
+        raise HTTPException(400, str(exc)) from exc
     db.add(p)
     await db.flush()
     await audit_service.log_action(db, action="product_create", actor_id=admin.id, entity="product", entity_id=p.id,
@@ -227,16 +255,76 @@ async def create_product(data: ProductIn, request: Request, admin: User = Depend
 
 @router.patch("/products/{product_id}")
 async def patch_product(product_id: int, data: ProductIn, request: Request, admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    from app.services import pricing_service
     p = await db.get(Product, product_id)
     if not p:
         raise HTTPException(404, "product_not_found")
     old_price = str(p.selling_price)
-    for k, v in data.model_dump().items():
-        setattr(p, k, D(v) if k in ("supplier_cost", "selling_price") else v)
+    payload = data.model_dump()
+    confirm = payload.pop("confirm_unsafe", False)
+    for k, v in payload.items():
+        if k in ("supplier_cost", "selling_price", "payment_fixed_fee", "platform_fixed_fee"):
+            setattr(p, k, D(v) if v is not None else None)
+        elif k in ("payment_fee_percent", "platform_margin_percent", "tax_percent",
+                   "minimum_margin_percent", "maximum_discount_percent"):
+            setattr(p, k, D(v) if v is not None else None)
+        elif k == "loss_leader_allowed":
+            p.loss_leader_allowed = bool(v)
+        else:
+            setattr(p, k, v)
+    try:
+        pricing_service.validate_price(p, p.selling_price, confirmed=confirm)
+    except pricing_service.UnsafePriceError as exc:
+        await db.rollback()
+        raise HTTPException(400, str(exc)) from exc
     await audit_service.log_action(db, action="price_change", actor_id=admin.id, entity="product", entity_id=p.id,
                                    ip=_ip(request), meta={"old": old_price, "new": str(p.selling_price)})
     await db.commit()
     return {"ok": True}
+
+
+# ---------- pricing ----------
+def _quote_json(q: dict) -> dict:
+    return {k: (str(v) if not isinstance(v, bool) else v) for k, v in q.items()}
+
+
+@router.get("/pricing/overview")
+async def pricing_overview(db: AsyncSession = Depends(get_db)):
+    """Every product with its live pricing breakdown (loss radar)."""
+    from app.services import pricing_service
+    rows = (await db.execute(select(Product).order_by(Product.id).limit(500))).scalars().all()
+    out = []
+    for p in rows:
+        q = pricing_service.quote_costs(p)
+        out.append({"id": p.id, "name": p.name, "currency": p.currency, **_quote_json(q)})
+    return out
+
+
+@router.get("/pricing/{product_id}")
+async def pricing_detail(product_id: int, db: AsyncSession = Depends(get_db)):
+    from app.services import pricing_service
+    p = await db.get(Product, product_id)
+    if not p:
+        raise HTTPException(404, "product_not_found")
+    return {"id": p.id, "name": p.name, "currency": p.currency,
+            **_quote_json(pricing_service.quote_costs(p))}
+
+
+@router.post("/pricing/{product_id}/apply-suggested")
+async def pricing_apply_suggested(product_id: int, request: Request,
+                                  admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    from app.services import pricing_service
+    p = await db.get(Product, product_id)
+    if not p:
+        raise HTTPException(404, "product_not_found")
+    q = pricing_service.quote_costs(p)
+    old = str(p.selling_price)
+    p.selling_price = D(q["suggested_price"])
+    await audit_service.log_action(db, action="price_change", actor_id=admin.id, entity="product",
+                                   entity_id=p.id, ip=_ip(request),
+                                   meta={"old": old, "new": str(p.selling_price), "via": "suggested_price"})
+    await db.commit()
+    return {"ok": True, "price": str(p.selling_price)}
 
 
 # ---------- product variants ----------
@@ -328,9 +416,102 @@ async def admin_media(kind: str = "", page: int = 1, per_page: int = 30, db: Asy
     total = (await db.execute(select(func.count()).select_from(stmt.subquery()))).scalar() or 0
     rows = (await db.execute(stmt.offset((page - 1) * per_page).limit(per_page))).scalars().all()
     return {"total": total, "page": page, "per_page": per_page,
-            "items": [{"id": m.id, "kind": m.kind, "filename": m.filename, "url": m.url,
-                       "mime": m.mime, "size_bytes": m.size_bytes, "owner_id": m.owner_id,
+            "items": [{"id": m.id, "kind": m.kind, "media_type": m.media_type, "filename": m.filename,
+                       "url": m.url, "mime": m.mime, "size_bytes": m.size_bytes, "owner_id": m.owner_id,
+                       "alt_text": m.alt_text, "game_id": m.game_id, "product_id": m.product_id,
                        "created_at": m.created_at.isoformat()} for m in rows]}
+
+
+class MediaPatch(BaseModel):
+    alt_text: str | None = None
+    media_type: str | None = None
+
+
+@router.patch("/media/{media_id}")
+async def admin_patch_media(media_id: int, data: MediaPatch, request: Request,
+                            admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    from app.models import MediaFile
+    m = await db.get(MediaFile, media_id)
+    if not m:
+        raise HTTPException(404, "media_not_found")
+    if data.alt_text is not None:
+        m.alt_text = data.alt_text[:255]
+    if data.media_type:
+        valid = {"GAME_LOGO", "GAME_COVER", "GAME_BANNER", "PRODUCT_IMAGE",
+                 "MARKETPLACE_IMAGE", "AVATAR", "DONATION_COVER", "PROMOTION_BANNER"}
+        if data.media_type not in valid:
+            raise HTTPException(400, "bad_media_type")
+        m.media_type = data.media_type
+    await audit_service.log_action(db, action="media_update", actor_id=admin.id, entity="media",
+                                   entity_id=m.id, ip=_ip(request))
+    await db.commit()
+    return {"ok": True}
+
+
+class MediaAssignIn(BaseModel):
+    target: str  # game_logo|game_cover|game_banner|product_image|donation_cover
+    game_id: int | None = None
+    product_id: int | None = None
+    profile_id: int | None = None
+
+
+@router.post("/media/{media_id}/assign")
+async def admin_assign_media(media_id: int, data: MediaAssignIn, request: Request,
+                             admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    from app.models import DonationProfile, MediaFile
+    m = await db.get(MediaFile, media_id)
+    if not m:
+        raise HTTPException(404, "media_not_found")
+    if data.target == "game_logo" and data.game_id:
+        g = await db.get(Game, data.game_id)
+        if not g:
+            raise HTTPException(404, "game_not_found")
+        g.logo_url = m.url
+        m.game_id, m.media_type = g.id, "GAME_LOGO"
+    elif data.target == "game_cover" and data.game_id:
+        g = await db.get(Game, data.game_id)
+        if not g:
+            raise HTTPException(404, "game_not_found")
+        g.cover_url = m.url
+        m.game_id, m.media_type = g.id, "GAME_COVER"
+    elif data.target == "game_banner" and data.game_id:
+        g = await db.get(Game, data.game_id)
+        if not g:
+            raise HTTPException(404, "game_not_found")
+        g.banner_url = m.url
+        m.game_id, m.media_type = g.id, "GAME_BANNER"
+    elif data.target == "product_image" and data.product_id:
+        p = await db.get(Product, data.product_id)
+        if not p:
+            raise HTTPException(404, "product_not_found")
+        p.image_url = m.url
+        m.product_id, m.media_type = p.id, "PRODUCT_IMAGE"
+    elif data.target == "donation_cover" and data.profile_id:
+        prof = await db.get(DonationProfile, data.profile_id)
+        if not prof:
+            raise HTTPException(404, "profile_not_found")
+        prof.cover_url = m.url
+        m.media_type = "DONATION_COVER"
+    else:
+        raise HTTPException(400, "bad_target")
+    await audit_service.log_action(db, action="media_assign", actor_id=admin.id, entity="media",
+                                   entity_id=m.id, ip=_ip(request), meta=data.model_dump())
+    await db.commit()
+    return {"ok": True, "url": m.url}
+
+
+@router.post("/media/{media_id}/unassign")
+async def admin_unassign_media(media_id: int, request: Request,
+                               admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    from app.models import MediaFile
+    m = await db.get(MediaFile, media_id)
+    if not m:
+        raise HTTPException(404, "media_not_found")
+    m.game_id, m.product_id = None, None
+    await audit_service.log_action(db, action="media_unassign", actor_id=admin.id, entity="media",
+                                   entity_id=m.id, ip=_ip(request))
+    await db.commit()
+    return {"ok": True}
 
 
 @router.delete("/media/{media_id}")
@@ -692,9 +873,32 @@ async def create_promo(data: PromoIn, admin: User = Depends(require_admin), db: 
 
 # ---------- revenue ----------
 @router.get("/revenue")
-async def admin_revenue(days: int = Query(30, ge=1, le=365), db: AsyncSession = Depends(get_db)):
-    since = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)
-    return await revenue_summary(db, since=since)
+async def admin_revenue(
+    range: str = Query("30d"),
+    days: int = Query(30, ge=1, le=365),
+    start: dt.datetime | None = None,
+    end: dt.datetime | None = None,
+    db: AsyncSession = Depends(get_db),
+):
+    from app.services.revenue_service import resolve_range
+    since, until = resolve_range(range, days=days, start=start, end=end)
+    summary = await revenue_summary(db, since=since, until=until)
+    summary["range"] = range
+    return summary
+
+
+@router.get("/revenue/tops")
+async def admin_revenue_tops(
+    range: str = Query("30d"),
+    days: int = Query(30, ge=1, le=365),
+    start: dt.datetime | None = None,
+    end: dt.datetime | None = None,
+    limit: int = Query(10, ge=1, le=50),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.services.revenue_service import resolve_range, revenue_tops
+    since, until = resolve_range(range, days=days, start=start, end=end)
+    return await revenue_tops(db, since=since, until=until, limit=limit)
 
 
 # ---------- support ----------

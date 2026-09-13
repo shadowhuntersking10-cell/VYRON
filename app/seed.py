@@ -15,7 +15,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.security import hash_password
 from app.config import settings
 from app.models import (
-    Coupon, DonationProfile, Game, GameCategory, MarketplaceListing,
+    Coupon, DonationPreset, DonationProfile, Game, GameCategory, GameField,
+    ListingImage, MarketplaceCategory, MarketplaceListing,
     Product, Promotion, Seller, SellerBalance, Setting, Supplier, User, UserRole,
 )
 
@@ -182,18 +183,35 @@ async def _seed_catalog(db: AsyncSession) -> None:
     db.add(generic)
     await db.flush()
 
+    accents = {
+        "pubg-mobile": "#7a2d12", "roblox": "#8f1d1d", "clash-of-clans": "#92400e",
+        "clash-royale": "#1e3a8a", "counter-strike-2": "#7c2d12", "standoff-2": "#334155",
+        "free-fire": "#991b1b", "mobile-legends": "#1e40af", "brawl-stars": "#a21caf",
+        "valorant": "#881337", "fortnite": "#4c1d95", "ea-sports-fc": "#065f46",
+        "league-of-legends": "#713f12", "minecraft": "#14532d", "steam": "#0b1f3a",
+        "playstation": "#1e3a8a", "xbox": "#14532d", "apple": "#111827",
+        "google-play": "#0e7490",
+    }
     n_products = 0
     for i, (slug, title, cat, fields, featured, desc, products) in enumerate(GAMES):
         logo = f"/static/images/games/{slug}.svg"
         g = Game(slug=slug, title=title, description=desc, category_id=cat_ids[cat],
-                 logo_url=logo, fields_schema=fields, supplier_id=manual.id,
-                 is_featured=featured, sort_order=i)
+                 logo_url=logo, cover_url=f"/static/images/covers/{slug}.svg",
+                 accent_color=accents.get(slug, "#0B1F3A"),
+                 fields_schema=fields, supplier_id=manual.id,
+                 is_featured=featured, is_demo=True, sort_order=i)
         db.add(g)
         await db.flush()
+        for order, f in enumerate(fields):
+            label = f.get("label", {})
+            db.add(GameField(game_id=g.id, key=f.get("key", ""), label_uz=label.get("uz", ""),
+                             label_en=label.get("en", ""), label_ru=label.get("ru", ""),
+                             required=bool(f.get("required", True)), sort_order=order))
         for name, cost, price, popular in products:
             db.add(Product(game_id=g.id, name=f"{title} - {name}", image_url=logo,
                            supplier_id=manual.id, supplier_cost=cost, selling_price=price,
-                           currency=CUR, is_popular=popular, sort_order=n_products))
+                           currency=CUR, is_popular=popular, is_demo=True,
+                           sort_order=n_products))
             n_products += 1
     await db.flush()
     log.info("seeded %d games, %d products", len(GAMES), n_products)
@@ -217,6 +235,32 @@ async def _seed_extras(db: AsyncSession) -> None:
         if not await db.get(Setting, key):
             db.add(Setting(key=key, value=value))
 
+    # Marketplace categories (structured, with commission overrides)
+    mkt_cats = [
+        ("accounts", "Hisoblar", "Accounts", "Аккаунты", None),
+        ("items", "Buyumlar", "Items", "Предметы", None),
+        ("currency", "Valyuta", "Currency", "Валюта", None),
+        ("boosting", "Boosting", "Boosting", "Буст", "15.0"),
+        ("giftcards", "Gift kartalar", "Gift cards", "Гифт-карты", None),
+        ("other", "Boshqa", "Other", "Другое", None),
+    ]
+    for order, (slug, uz, en, ru, comm) in enumerate(mkt_cats):
+        if not (await db.execute(select(MarketplaceCategory).where(MarketplaceCategory.slug == slug))).scalars().first():
+            from decimal import Decimal as _D
+            db.add(MarketplaceCategory(slug=slug, name_uz=uz, name_en=en, name_ru=ru,
+                                       commission_percent=_D(comm) if comm else None,
+                                       sort_order=order))
+
+    # Donation presets (structured; settings JSON remains as fallback)
+    from decimal import Decimal as _D2
+    for currency, amounts in (("UZS", [10000, 25000, 50000, 100000, 250000, 500000, 1000000]),
+                              ("USD", [1, 2, 5, 10, 20, 50, 100])):
+        for order, amount in enumerate(amounts):
+            exists = (await db.execute(select(DonationPreset).where(
+                DonationPreset.currency == currency, DonationPreset.amount == _D2(amount)))).scalars().first()
+            if not exists:
+                db.add(DonationPreset(currency=currency, amount=_D2(amount), sort_order=order))
+
     # Coupon + promotions
     if not (await db.execute(select(Coupon).where(Coupon.code == "WELCOME10"))).scalars().first():
         from decimal import Decimal
@@ -234,14 +278,16 @@ async def _seed_extras(db: AsyncSession) -> None:
                        password_hash=hash_password("Demo12345!"), full_name="Demo Creator")
         db.add(creator)
         await db.flush()
-        db.add(DonationProfile(user_id=creator.id, username="demo_creator",
+        db.add(DonationProfile(user_id=creator.id, username="demo_creator", display_name="Demo Creator",
+                               cover_url="/static/images/covers/pubg-mobile.svg",
                                bio="Demo donation profile (seed data). I stream PUBG Mobile every evening!",
                                goal_title="New microphone", goal_amount=1500000, currency=CUR))
         streamer = User(email="demo.streamer@vyron.local", username="demo_streamer",
                         password_hash=hash_password("Demo12345!"), full_name="Demo Streamer")
         db.add(streamer)
         await db.flush()
-        db.add(DonationProfile(user_id=streamer.id, username="demo_streamer",
+        db.add(DonationProfile(user_id=streamer.id, username="demo_streamer", display_name="Demo Streamer",
+                               cover_url="/static/images/covers/roblox.svg",
                                bio="Demo donation profile (seed data). Variety streams UZ/EN/RU.",
                                goal_title="PC upgrade fund", goal_amount=8000000, currency=CUR))
 
@@ -262,8 +308,19 @@ async def _seed_extras(db: AsyncSession) -> None:
             ("10,000 Mobile Legends diamonds piloting", "Demo listing (seed data). Safe boosting by top players.", 120000, "boosting"),
             ("Steam $20 gift card", "Demo listing (seed data). Global code, instant delivery.", 315000, "giftcards"),
         ]
+        categories = {c.slug: c.id for c in
+                      (await db.execute(select(MarketplaceCategory))).scalars().all()}
+        art = {"accounts": "/static/images/games/pubg-mobile.svg",
+               "boosting": "/static/images/games/mobile-legends.svg",
+               "giftcards": "/static/images/games/steam.svg"}
         for title, desc, price, cat in demo_listings:
-            db.add(MarketplaceListing(seller_id=seller.id, title=title, description=desc,
-                                      price=price, currency=CUR, category=cat, status="active"))
+            listing = MarketplaceListing(seller_id=seller.id, title=title, description=desc,
+                                         price=price, currency=CUR, category=cat,
+                                         category_id=categories.get(cat), status="active")
+            db.add(listing)
+            await db.flush()
+            if art.get(cat):
+                db.add(ListingImage(listing_id=listing.id, url=art[cat],
+                                    alt_text=title, sort_order=0))
     await db.flush()
     log.info("seeded extras (presets, coupon, promotions, demo donations, demo seller)")

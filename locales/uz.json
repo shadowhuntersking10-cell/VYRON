@@ -41,7 +41,14 @@
     "game_details": "O'yin ma'lumotlari",
     "select_provider": "To'lov usulini tanlang",
     "order_created": "Buyurtma yaratildi",
-    "need_login": "Davom etish uchun kiring"
+    "need_login": "Davom etish uchun kiring",
+    "pay": "To'lash",
+    "step_done": "Tayyor",
+    "step_info": "Ma'lumotlar",
+    "step_payment": "To'lov",
+    "step_product": "Paketlar",
+    "step_summary": "Xulosa",
+    "title": "Rasmiylashtirish"
   },
   "order": {
     "timeline_created": "Yaratildi",
@@ -72,7 +79,11 @@
   "footer": {
     "rights": "Barcha huquqlar himoyalangan",
     "how": "Qanday ishlaydi",
-    "trust": "Ishonch va xavfsizlik"
+    "trust": "Ishonch va xavfsizlik",
+    "about": "Biz haqimizda",
+    "privacy": "Maxfiylik",
+    "refund": "Qaytarish",
+    "terms": "Shartlar"
   },
   "admin": {
     "panel": "Admin panel",
@@ -107,7 +118,8 @@
     "search": "Qidirish",
     "filter": "Filtr",
     "total": "Jami",
-    "save_ok": "Saqlandi"
+    "save_ok": "Saqlandi",
+    "pricing": "Narxlash"
   },
   "auth": {
     "email": "Email",

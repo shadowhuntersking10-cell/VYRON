@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-<stop offset="0" stop-color="#991b1b"/><stop offset="1" stop-color="#f97316"/>
-</linearGradient></defs>
-<rect width="128" height="128" rx="28" fill="url(#g)"/>
-<text x="64" y="78" font-family="Arial,Helvetica,sans-serif" font-size="44" font-weight="900" fill="#ffffff" text-anchor="middle">FF</text>
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#991b1b"/><stop offset="1" stop-color="#f97316"/></linearGradient>
+<clipPath id="r"><rect width="128" height="128" rx="28"/></clipPath></defs>
+<g clip-path="url(#r)"><rect width="128" height="128" fill="url(#g)"/><polygon points="87.04,6.4 51.2,70.4 74.24,70.4 40.96,121.6 92.16,53.76 69.12,53.76" fill="#ffffff" fill-opacity="0.20"/>
+<ellipse cx="40" cy="18" rx="70" ry="26" fill="#ffffff" fill-opacity="0.12"/></g>
+<text x="64" y="80" font-family="Arial,Helvetica,sans-serif" font-size="44" font-weight="900" fill="#ffffff" text-anchor="middle" style="text-shadow:0 2px 8px rgba(0,0,0,.4)">FF</text>
 </svg>

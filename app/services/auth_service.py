@@ -6,14 +6,53 @@ import datetime as dt
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.security import hash_password, verify_password
+from app.auth.security import check_password_strength, hash_password, verify_password
 from app.config import settings
-from app.models import PasswordResetToken, User, UserRole, UserSession
+from app.models import EmailVerificationToken, PasswordResetToken, User, UserRole, UserSession
 from app.utils.helpers import generate_token, hash_token, utcnow
 
 
 class AuthError(ValueError):
     pass
+
+
+# ---------- brute-force buckets (per login identifier, in-memory) ----------
+MAX_LOGIN_FAILS = 8
+LOGIN_LOCKOUT_SECONDS = 900  # 15 minutes
+_LOGIN_BUCKETS: dict[str, dict] = {}
+
+
+def reset_login_buckets() -> None:
+    _LOGIN_BUCKETS.clear()
+
+
+def _bucket_key(login: str, ip: str | None) -> str:
+    return f"{login.strip().lower()}|{ip or ''}"
+
+
+def _check_lockout(key: str) -> None:
+    bucket = _LOGIN_BUCKETS.get(key)
+    if bucket and bucket.get("locked_until"):
+        import datetime as _dt
+
+        if _dt.datetime.now(_dt.timezone.utc).timestamp() < bucket["locked_until"]:
+            raise AuthError("too_many_attempts")
+        _LOGIN_BUCKETS.pop(key, None)
+
+
+def _record_login_fail(key: str) -> None:
+    import datetime as _dt
+
+    bucket = _LOGIN_BUCKETS.setdefault(key, {"fails": 0})
+    bucket["fails"] += 1
+    if bucket["fails"] >= MAX_LOGIN_FAILS:
+        bucket["locked_until"] = _dt.datetime.now(_dt.timezone.utc).timestamp() + LOGIN_LOCKOUT_SECONDS
+
+
+def require_strong_password(password: str) -> None:
+    problems = check_password_strength(password)
+    if problems:
+        raise AuthError("weak_password:" + ",".join(problems))
 
 
 async def get_user_by_login(db: AsyncSession, login: str) -> User | None:
@@ -31,6 +70,7 @@ async def register_user(
     full_name: str | None = None,
     lang: str = "uz",
 ) -> User:
+    require_strong_password(password)
     email = (email or "").strip().lower() or None
     username = (username or "").strip() or None
     if not email and not username:
@@ -56,14 +96,20 @@ async def register_user(
     return user
 
 
-async def authenticate(db: AsyncSession, login: str, password: str) -> User:
+async def authenticate(db: AsyncSession, login: str, password: str, *, ip: str | None = None) -> User:
+    key = _bucket_key(login, ip)
+    _check_lockout(key)
     user = await get_user_by_login(db, login)
     if not user or not verify_password(password, user.password_hash):
+        _record_login_fail(key)
         raise AuthError("invalid_credentials")
     if user.is_banned:
+        _record_login_fail(key)
         raise AuthError("user_banned")
     if not user.is_active:
+        _record_login_fail(key)
         raise AuthError("user_inactive")
+    _LOGIN_BUCKETS.pop(key, None)
     user.last_login_at = utcnow()
     await db.flush()
     return user
@@ -107,6 +153,7 @@ async def revoke_all_sessions(db: AsyncSession, user_id: int) -> int:
 async def change_password(db: AsyncSession, user: User, old_password: str, new_password: str) -> None:
     if not verify_password(old_password, user.password_hash):
         raise AuthError("wrong_password")
+    require_strong_password(new_password)
     user.password_hash = hash_password(new_password)
     await revoke_all_sessions(db, user.id)
 
@@ -131,7 +178,33 @@ async def consume_password_reset(db: AsyncSession, token: str, new_password: str
     user = await db.get(User, rec.user_id)
     if not user:
         raise AuthError("user_not_found")
+    require_strong_password(new_password)
     user.password_hash = hash_password(new_password)
     rec.used = True
     await revoke_all_sessions(db, user.id)
+    return user
+
+
+async def create_email_verification(db: AsyncSession, user: User) -> str:
+    token = generate_token()
+    expires = utcnow() + dt.timedelta(hours=24)
+    db.add(EmailVerificationToken(user_id=user.id, token_hash=hash_token(token), expires_at=expires))
+    await db.flush()
+    return token
+
+
+async def consume_email_verification(db: AsyncSession, token: str) -> User:
+    stmt = select(EmailVerificationToken).where(EmailVerificationToken.token_hash == hash_token(token))
+    rec = (await db.execute(stmt)).scalars().first()
+    if not rec or rec.used:
+        raise AuthError("invalid_token")
+    exp = rec.expires_at if rec.expires_at.tzinfo else rec.expires_at.replace(tzinfo=dt.timezone.utc)
+    if exp < utcnow():
+        raise AuthError("token_expired")
+    user = await db.get(User, rec.user_id)
+    if not user:
+        raise AuthError("user_not_found")
+    user.email_verified = True
+    rec.used = True
+    await db.flush()
     return user

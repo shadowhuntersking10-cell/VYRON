@@ -145,6 +145,11 @@ table.tbl th { color: var(--muted); font-weight: 700; }
 .don-head { display: flex; gap: 16px; align-items: center; margin-bottom: 12px; }
 img.avatar { object-fit: cover; }
 .pimg { width: 100%; height: 150px; object-fit: contain; border-radius: 12px; background: var(--surface-2); padding: 12px; }
+.game-cover { height: 220px; border-radius: 20px; background-size: cover; background-position: center; position: relative; margin-bottom: 18px; overflow: hidden; }
+.game-cover-shade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(11, 31, 58, 0.35)); }
+.game-card { border-top: 4px solid transparent; }
+.game-card img.pimg { height: 110px; }
+.donate-cover { height: 180px; border-radius: 20px; background-size: cover; background-position: center; margin-bottom: 18px; }
 .glogo img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; }
 .badge.pop { background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; }
 .badge.out { background: rgba(220,38,38,.12); color: #dc2626; }

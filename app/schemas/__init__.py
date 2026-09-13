@@ -5,7 +5,7 @@ import datetime as dt
 from decimal import Decimal
 from typing import Any
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, model_validator
 
 
 class UserOut(BaseModel):
@@ -26,8 +26,15 @@ class RegisterIn(BaseModel):
     email: EmailStr | None = None
     username: str | None = Field(default=None, min_length=3, max_length=64)
     password: str = Field(min_length=8, max_length=72)
+    password_confirm: str | None = Field(default=None, max_length=72)
     full_name: str | None = Field(default=None, max_length=255)
     lang: str = "uz"
+
+    @model_validator(mode="after")
+    def _passwords_match(self):
+        if self.password_confirm is not None and self.password_confirm != self.password:
+            raise ValueError("passwords_do_not_match")
+        return self
 
 
 class LoginIn(BaseModel):
@@ -107,6 +114,9 @@ class OrderOut(BaseModel):
     currency: str
     timeline: list = []
     created_at: dt.datetime
+    fx_base_currency: str | None = None
+    fx_rate: Decimal | None = None
+    fx_quoted_at: dt.datetime | None = None
 
     model_config = {"from_attributes": True}
 
@@ -131,8 +141,10 @@ class ListingOut(BaseModel):
     price: Decimal
     currency: str
     category: str
+    category_id: int | None = None
     status: str
     views: int = 0
+    gallery: list = []
 
     model_config = {"from_attributes": True}
 

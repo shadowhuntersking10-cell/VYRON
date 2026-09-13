@@ -18,6 +18,14 @@ ALLOWED_MIME = {
     "image/svg+xml": ".svg",
 }
 ALLOWED_KINDS = {"game_logo", "product", "avatar", "listing", "banner", "attachment"}
+KIND_TO_TYPE = {
+    "game_logo": "GAME_LOGO",
+    "product": "PRODUCT_IMAGE",
+    "avatar": "AVATAR",
+    "listing": "MARKETPLACE_IMAGE",
+    "banner": "PROMOTION_BANNER",
+    "attachment": "PRODUCT_IMAGE",
+}
 
 
 def storage_dir() -> Path:
@@ -48,7 +56,8 @@ async def save_upload(db: AsyncSession, file: UploadFile, *, kind: str, owner_id
             width, height = im.size
     except Exception:
         pass
-    rec = MediaFile(owner_id=owner_id, kind=kind, filename=file.filename or name,
+    rec = MediaFile(owner_id=owner_id, kind=kind, media_type=KIND_TO_TYPE.get(kind, "PRODUCT_IMAGE"),
+                    filename=file.filename or name, alt_text=file.filename or name,
                     path=str(dest), url=f"/uploads/{name}", mime=mime,
                     size_bytes=len(data), width=width, height=height)
     db.add(rec)

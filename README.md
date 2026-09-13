@@ -87,9 +87,19 @@ docker run -d -p 6379:6379 redis:7
 ## 6. Telegram Bot setup
 
 1. Create a bot with [@BotFather](https://t.me/BotFather) → get the token.
-2. `.env`: `TELEGRAM_BOT_TOKEN=<token>`.
+2. `.env`: `TELEGRAM_BOT_TOKEN=<token>` and `TELEGRAM_BOT_USERNAME=<botname>`.
 3. The bot starts automatically with `python main.py` (long polling).
-4. Commands: `/start /help /games /profile /orders /support`.
+4. Commands: `/start /help /games /profile /orders /support /paysupport`.
+5. Telegram Stars: once the token is set, the `stars` provider appears in
+   checkout; the bot sends real XTR invoices (`?start=pay_<order>`) and
+   settles them via `pre_checkout` / `successful_payment` handlers.
+
+## 6b. Pricing engine
+
+Every product carries cost inputs (`supplier_cost`, payment %, platform
+margin %, minimum margin %). The server derives a **minimum safe price**
+and a **suggested price**; saving below the floor is blocked unless the
+product is an explicitly confirmed loss-leader. See Admin → **Pricing**.
 
 ## 7. Telegram Mini App setup
 
@@ -155,6 +165,12 @@ alembic upgrade head    # migrations (production)
 Production checklist: `APP_ENV=production`, strong `APP_SECRET`, MySQL,
 Redis, HTTPS (`APP_BASE_URL`), real Telegram/Payment/Supplier credentials,
 `SEED_DEMO_DATA=false`, reverse proxy (nginx/caddy) → `APP_PORT`.
+
+Docker alternative (app + MySQL):
+
+```bash
+docker compose up --build -d   # reads MYSQL_*/APP_* from .env
+```
 
 ## 13. Honesty rules (built-in)
 

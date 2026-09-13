@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Verify email — VYRON{% endblock %}
+{% block content %}
+<section class="card soft-out narrow"><h1>✉️ Verify email</h1>
+<form id="verifyForm" class="stack">
+<input class="input soft-in" name="token" placeholder="Verification token" required>
+<div id="verifyMsg" class="alert" hidden></div>
+<button class="btn btn-primary">Confirm email</button>
+</form><p class="muted"><a href="/auth/login">Back to login</a></p></section>
+{% endblock %}
+{% block scripts %}<script src="/static/js/auth.js"></script>{% endblock %}

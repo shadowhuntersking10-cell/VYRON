@@ -1,4 +1,5 @@
-"""sellers, seller_balances, seller_payouts, marketplace_listings."""
+"""sellers, seller_balances, seller_payouts, marketplace_categories,
+marketplace_listings, marketplace_listing_images."""
 from __future__ import annotations
 
 import enum
@@ -61,6 +62,20 @@ class SellerPayout(Base, TimestampMixin):
     processed_by: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
 
 
+class MarketplaceCategory(Base, TimestampMixin):
+    __tablename__ = "marketplace_categories"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    slug: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
+    name_uz: Mapped[str] = mapped_column(String(128), nullable=False)
+    name_en: Mapped[str] = mapped_column(String(128), nullable=False)
+    name_ru: Mapped[str] = mapped_column(String(128), nullable=False)
+    commission_percent: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+    icon: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    sort_order: Mapped[int] = mapped_column(default=0, nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, index=True)
+
+
 class MarketplaceListing(Base, TimestampMixin):
     __tablename__ = "marketplace_listings"
 
@@ -72,6 +87,8 @@ class MarketplaceListing(Base, TimestampMixin):
     price: Mapped[float] = mapped_column(Numeric(18, 2), default=0, nullable=False)
     currency: Mapped[str] = mapped_column(String(8), default="UZS", nullable=False)
     category: Mapped[str] = mapped_column(String(64), default="other", nullable=False, index=True)
+    category_id: Mapped[int | None] = mapped_column(
+        ForeignKey("marketplace_categories.id", ondelete="SET NULL"), nullable=True, index=True)
     delivery_type: Mapped[str] = mapped_column(String(32), default="manual", nullable=False)
     stock: Mapped[int] = mapped_column(default=-1, nullable=False)
     status: Mapped[str] = mapped_column(String(16), default="active", nullable=False, index=True)  # active|paused|sold|deleted
@@ -79,5 +96,22 @@ class MarketplaceListing(Base, TimestampMixin):
     views: Mapped[int] = mapped_column(default=0, nullable=False)
 
     seller: Mapped[Seller] = relationship(back_populates="listings")
+    gallery: Mapped[list["ListingImage"]] = relationship(
+        back_populates="listing", cascade="all, delete-orphan", order_by="ListingImage.sort_order")
 
     __table_args__ = (Index("ix_listings_status_category", "status", "category"),)
+
+
+class ListingImage(Base, TimestampMixin):
+    __tablename__ = "marketplace_listing_images"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    listing_id: Mapped[int] = mapped_column(
+        ForeignKey("marketplace_listings.id", ondelete="CASCADE"), nullable=False, index=True)
+    media_id: Mapped[int | None] = mapped_column(
+        ForeignKey("media_files.id", ondelete="SET NULL"), nullable=True)
+    url: Mapped[str] = mapped_column(String(512), nullable=False)
+    alt_text: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    sort_order: Mapped[int] = mapped_column(default=0, nullable=False)
+
+    listing: Mapped[MarketplaceListing] = relationship(back_populates="gallery")

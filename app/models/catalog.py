@@ -1,9 +1,10 @@
-"""games, game_categories, products, product_variants, suppliers, ..."""
+"""games, game_categories, game_fields, products, product_variants,
+suppliers, supplier_products, supplier_orders."""
 from __future__ import annotations
 
 import enum
 
-from sqlalchemy import JSON, Boolean, Enum, ForeignKey, Index, Numeric, String, Text
+from sqlalchemy import JSON, Boolean, Enum, ForeignKey, Index, Numeric, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
@@ -31,16 +32,40 @@ class Game(Base, TimestampMixin):
     category_id: Mapped[int | None] = mapped_column(ForeignKey("game_categories.id", ondelete="SET NULL"), nullable=True, index=True)
     logo_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     banner_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    cover_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    accent_color: Mapped[str | None] = mapped_column(String(16), nullable=True)
     # Required player fields config: [{"key":"player_id","label":{...},"required":true},...]
+    # Source of truth: game_fields rows when present, else this JSON.
     fields_schema: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
     supplier_id: Mapped[int | None] = mapped_column(ForeignKey("suppliers.id", ondelete="SET NULL"), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, index=True)
     is_featured: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_demo: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     sort_order: Mapped[int] = mapped_column(default=0, nullable=False)
 
     products: Mapped[list["Product"]] = relationship(back_populates="game", cascade="all, delete-orphan")
+    fields: Mapped[list["GameField"]] = relationship(back_populates="game", cascade="all, delete-orphan")
 
     __table_args__ = (Index("ix_games_active_featured", "is_active", "is_featured"),)
+
+
+class GameField(Base, TimestampMixin):
+    """Required player fields per game (structured version of fields_schema)."""
+
+    __tablename__ = "game_fields"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    game_id: Mapped[int] = mapped_column(ForeignKey("games.id", ondelete="CASCADE"), nullable=False, index=True)
+    key: Mapped[str] = mapped_column(String(64), nullable=False)
+    label_uz: Mapped[str] = mapped_column(String(128), nullable=False)
+    label_en: Mapped[str] = mapped_column(String(128), nullable=False)
+    label_ru: Mapped[str] = mapped_column(String(128), nullable=False)
+    required: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    sort_order: Mapped[int] = mapped_column(default=0, nullable=False)
+
+    game: Mapped[Game] = relationship(back_populates="fields")
+
+    __table_args__ = (Index("ix_game_fields_unique", "game_id", "key", unique=True),)
 
 
 class Product(Base, TimestampMixin):
@@ -56,6 +81,16 @@ class Product(Base, TimestampMixin):
     supplier_cost: Mapped[float] = mapped_column(Numeric(18, 2), default=0, nullable=False)  # NEVER exposed to clients
     selling_price: Mapped[float] = mapped_column(Numeric(18, 2), default=0, nullable=False)
     currency: Mapped[str] = mapped_column(String(8), default="UZS", nullable=False)
+    # ---- pricing engine inputs (all server-side) ----
+    payment_fee_percent: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+    payment_fixed_fee: Mapped[float | None] = mapped_column(Numeric(18, 2), nullable=True)
+    platform_margin_percent: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+    platform_fixed_fee: Mapped[float | None] = mapped_column(Numeric(18, 2), nullable=True)
+    tax_percent: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+    minimum_margin_percent: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+    maximum_discount_percent: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+    loss_leader_allowed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_demo: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     delivery_type: Mapped[str] = mapped_column(String(32), default="auto", nullable=False)  # auto|manual|code
     stock: Mapped[int] = mapped_column(default=-1, nullable=False)  # -1 = unlimited
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False, index=True)
@@ -75,6 +110,14 @@ class ProductVariant(Base, TimestampMixin):
     supplier_product_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     supplier_cost: Mapped[float] = mapped_column(Numeric(18, 2), default=0, nullable=False)
     selling_price: Mapped[float] = mapped_column(Numeric(18, 2), default=0, nullable=False)
+    payment_fee_percent: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+    payment_fixed_fee: Mapped[float | None] = mapped_column(Numeric(18, 2), nullable=True)
+    platform_margin_percent: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+    platform_fixed_fee: Mapped[float | None] = mapped_column(Numeric(18, 2), nullable=True)
+    tax_percent: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+    minimum_margin_percent: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+    maximum_discount_percent: Mapped[float | None] = mapped_column(Numeric(5, 2), nullable=True)
+    loss_leader_allowed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     stock: Mapped[int] = mapped_column(default=-1, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 

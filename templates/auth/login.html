@@ -7,6 +7,15 @@
 <input class="input soft-in" name="password" type="password" placeholder="Password" required>
 <div id="loginErr" class="alert err" hidden></div>
 <button class="btn btn-primary">{{ t('nav.login') }}</button>
-</form><p class="muted">No account? <a href="/auth/register">{{ t('nav.register') }}</a></p></section>
+</form>
+<details class="stack" id="forgotBox"><summary class="muted">Forgot password?</summary>
+<form id="forgotForm" class="stack"><input class="input soft-in" name="login" placeholder="Email or username" required>
+<button class="btn">Send reset link</button><div id="forgotMsg" class="alert" hidden></div></form></details>
+<details class="stack" id="resetBox" hidden><summary class="muted">Have a reset token?</summary>
+<form id="resetForm" class="stack"><input class="input soft-in" name="token" placeholder="Reset token" required>
+<input class="input soft-in" name="password" type="password" placeholder="New password (min 10)" required minlength="10" autocomplete="new-password">
+<input class="input soft-in" name="password_confirm" type="password" placeholder="Confirm new password" required autocomplete="new-password">
+<button class="btn btn-primary">Set new password</button><div id="resetMsg" class="alert" hidden></div></form></details>
+<p class="muted">No account? <a href="/auth/register">{{ t('nav.register') }}</a></p></section>
 {% endblock %}
 {% block scripts %}<script src="/static/js/auth.js"></script>{% endblock %}

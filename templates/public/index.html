@@ -13,7 +13,7 @@
 </section>
 <section><div class="sec-head"><h2>🎮 {{ t('home.featured') }}</h2><a href="/games">{{ t('home.view_all') }} →</a></div>
 <div class="grid cards">
-{% for g in games %}<a class="card soft-out" href="/games/{{ g.slug }}">{% if g.logo_url %}<img class="pimg" src="{{ g.logo_url }}" alt="{{ g.title }}">{% else %}<div class="glogo">{{ g.title[:2] }}</div>{% endif %}<b>{{ g.title }}</b></a>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}
+{% for g in games %}<a class="card soft-out game-card" style="border-top-color:{{ g.accent_color or '#2E5AAC' }}" href="/games/{{ g.slug }}">{% if g.logo_url %}<img class="pimg" src="{{ g.logo_url }}" alt="{{ g.title }} logo">{% else %}<div class="glogo" style="background:{{ g.accent_color or '#2E5AAC' }}">{{ g.title[:2] }}</div>{% endif %}<b>{{ g.title }}</b></a>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}
 </div></section>
 <section><div class="sec-head"><h2>🔥 {{ t('home.popular') }}</h2><a href="/games">{{ t('home.view_all') }} →</a></div>
 <div class="grid cards">

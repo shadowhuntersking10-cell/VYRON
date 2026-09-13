@@ -87,6 +87,64 @@ async def create_all_tables() -> None:
     log.info("Ensured all tables exist")
 
 
+async def ensure_schema() -> list[str]:
+    """Idempotent startup migration: add columns that exist in models but
+    not in the database (for deployments created before a model change).
+
+    Production MySQL deployments should prefer `alembic upgrade head`;
+    this is a safety net that never drops or alters existing data.
+    Returns the list of added `table.column` names.
+    """
+    from sqlalchemy import inspect  # noqa: PLC0415
+
+    from app.models import Base  # noqa: PLC0415
+
+    engine = get_engine()
+    applied: list[str] = []
+
+    def _run(sync_conn) -> None:
+        inspector = inspect(sync_conn)
+        existing_tables = set(inspector.get_table_names())
+        dialect = sync_conn.dialect
+        for table in Base.metadata.tables.values():
+            if table.name not in existing_tables:
+                table.create(bind=sync_conn)
+                applied.append(f"{table.name}.*")
+                continue
+            present = {c["name"] for c in inspector.get_columns(table.name)}
+            for column in table.columns:
+                if column.name in present:
+                    continue
+                coltype = column.type.compile(dialect=dialect)
+                ddl = f"ALTER TABLE {table.name} ADD COLUMN {column.name} {coltype}"
+                default = None
+                if column.server_default is not None:
+                    default = str(column.server_default.arg)
+                elif column.default is not None and column.default.arg is not None:
+                    arg = column.default.arg
+                    default = f"'{arg}'" if isinstance(arg, str) else str(arg)
+                # Never add a bare NOT NULL column to a non-empty table.
+                if not column.nullable and default is None:
+                    ddl += " NULL"
+                elif default is not None:
+                    if dialect.name == "mysql" and isinstance(default, str) and default.upper() in (
+                        "CURRENT_TIMESTAMP", "NOW()"):
+                        ddl += f" DEFAULT {default}"
+                    else:
+                        ddl += f" DEFAULT {default}"
+                try:
+                    sync_conn.exec_driver_sql(ddl)
+                    applied.append(f"{table.name}.{column.name}")
+                except Exception as exc:  # noqa: BLE001 - log and continue
+                    log.warning("ensure_schema skipped %s.%s: %s", table.name, column.name, exc)
+
+    async with engine.begin() as conn:
+        await conn.run_sync(_run)
+    if applied:
+        log.info("ensure_schema added %d columns: %s", len(applied), ", ".join(applied))
+    return applied
+
+
 async def dispose_engine() -> None:
     global _engine, _session_factory
     if _engine is not None:

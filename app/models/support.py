@@ -98,6 +98,9 @@ class MediaFile(Base, TimestampMixin):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     owner_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
     kind: Mapped[str] = mapped_column(String(32), nullable=False, index=True)  # game_logo|product|avatar|listing|banner
+    # Structured media type: GAME_LOGO|GAME_COVER|GAME_BANNER|PRODUCT_IMAGE|
+    # MARKETPLACE_IMAGE|AVATAR|DONATION_COVER|PROMOTION_BANNER
+    media_type: Mapped[str] = mapped_column(String(32), default="PRODUCT_IMAGE", nullable=False, index=True)
     filename: Mapped[str] = mapped_column(String(255), nullable=False)
     path: Mapped[str] = mapped_column(String(512), nullable=False)
     url: Mapped[str] = mapped_column(String(512), nullable=False)
@@ -105,6 +108,9 @@ class MediaFile(Base, TimestampMixin):
     size_bytes: Mapped[int] = mapped_column(default=0, nullable=False)
     width: Mapped[int | None] = mapped_column(nullable=True)
     height: Mapped[int | None] = mapped_column(nullable=True)
+    alt_text: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    game_id: Mapped[int | None] = mapped_column(ForeignKey("games.id", ondelete="SET NULL"), nullable=True, index=True)
+    product_id: Mapped[int | None] = mapped_column(ForeignKey("products.id", ondelete="SET NULL"), nullable=True, index=True)
 
 
 class PasswordResetToken(Base):

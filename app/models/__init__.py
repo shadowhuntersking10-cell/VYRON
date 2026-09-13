@@ -1,6 +1,6 @@
 """Aggregate all SQLAlchemy models. Import models from here."""
 from app.models.base import Base, TimestampMixin
-from app.models.catalog import Game, GameCategory, Product, ProductVariant, Supplier, SupplierOrder, SupplierProduct
+from app.models.catalog import Game, GameCategory, GameField, Product, ProductVariant, Supplier, SupplierOrder, SupplierProduct
 from app.models.commerce import (
     Coupon,
     CouponUsage,
@@ -16,8 +16,10 @@ from app.models.commerce import (
     Wallet,
     WalletTransaction,
 )
-from app.models.donations import Donation, DonationProfile
+from app.models.donations import Donation, DonationPreset, DonationProfile
 from app.models.marketplace import (
+    ListingImage,
+    MarketplaceCategory,
     MarketplaceListing,
     PayoutStatus,
     Seller,
@@ -48,6 +50,7 @@ __all__ = [
     "Admin",
     "GameCategory",
     "Game",
+    "GameField",
     "Product",
     "ProductVariant",
     "Supplier",
@@ -70,8 +73,11 @@ __all__ = [
     "SellerBalance",
     "SellerPayout",
     "PayoutStatus",
+    "MarketplaceCategory",
     "MarketplaceListing",
+    "ListingImage",
     "DonationProfile",
+    "DonationPreset",
     "Donation",
     "Notification",
     "SupportTicket",
