@@ -1,8 +1,15 @@
 # VYRON 🎮
 
 Professional gaming & digital marketplace platform: game top-ups, gift cards,
-marketplace, sellers, donations, orders, payments, Telegram Mini App + Bot,
-admin panel, promotions, coupons, payouts and revenue management.
+marketplace, sellers, donations, orders, payments, wallet, Telegram Mini App + Bot,
+admin panel, promotions, coupons, payouts, media library and revenue management.
+
+Seed catalog: **19 games / 96 products** (PUBG Mobile, Roblox, Clash of Clans,
+Clash Royale, CS2, Standoff 2, Free Fire, Mobile Legends, Brawl Stars, Valorant,
+Fortnite, EA Sports FC, League of Legends, Minecraft + Steam/PlayStation/Xbox/
+Apple/Google Play gift cards), 4 categories, demo seller with listings, demo
+donation profiles, promotions and a WELCOME10 coupon. Seed products use manual
+fulfilment (paid orders → MANUAL_REVIEW) until a real supplier is configured.
 
 **Single entry point — everything starts with:**
 
@@ -64,8 +71,11 @@ Set `MYSQL_*` in `.env`, then either let `main.py` auto-create tables or run:
 alembic upgrade head
 ```
 
-Without MySQL credentials the app boots on a local SQLite dev DB
-(`vyron_dev.db`) with a clear warning.
+Without MySQL credentials a development boot uses a local SQLite fallback
+(`vyron_dev.db`) with a clear warning. **Production (`APP_ENV=production`)
+strictly requires MySQL and fails fast if it is unreachable** — there is no
+silent downgrade. Donation presets, marketplace categories, commissions, fees
+and promotion pricing are all admin-configurable (Admin → Settings).
 
 ## 5. Redis setup (optional)
 

@@ -151,6 +151,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             <ul class="timeline">${(o.timeline || []).map((t) => `<li class="soft-in">${escapeHtml(t.event)}</li>`).join('')}</ul>
             <div class="row gap wrap"><button class="btn btn-sm" data-st="COMPLETED">Complete</button><button class="btn btn-sm" data-st="MANUAL_REVIEW">Manual review</button><button class="btn btn-sm" data-st="FAILED">Fail</button><button class="btn btn-sm" data-st="REFUNDED">Refund</button></div>`);
           m.querySelectorAll('[data-st]').forEach((sb) => sb.onclick = async () => {
+            if (sb.dataset.st === 'REFUNDED') {
+              if (await confirmDlg('Refund this order? The amount will be credited to the customer wallet.')) {
+                await api(`/api/admin/orders/${o.id}/refund`, { method: 'POST', body: JSON.stringify({}) });
+                toast('Refunded'); m.remove(); load();
+              }
+              return;
+            }
             if (await confirmDlg('Set status ' + sb.dataset.st + '?')) {
               await api(`/api/admin/orders/${o.id}/status`, { method: 'POST', body: JSON.stringify({ status: sb.dataset.st }) });
               m.remove(); load();
@@ -189,21 +196,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (section === 'marketplace') {
-      const d = await api('/api/admin/listings');
-      content.innerHTML = tbl(['ID', 'Title', 'Price', 'Status', 'Promoted'],
-        d.map((l) => `<tr><td>${l.id}</td><td>${escapeHtml(l.title)}</td><td>${l.price}</td><td>${pill(l.status)}</td><td>${l.is_promoted ? '⭐' : ''}</td></tr>`).join('') || '<tr><td>No listings</td></tr>');
+      const load = async () => {
+        const d = await api('/api/admin/listings');
+        content.innerHTML = tbl(['ID', 'Title', 'Price', 'Status', 'Promoted', 'Actions'],
+          d.map((l) => `<tr><td>${l.id}</td><td>${escapeHtml(l.title)}</td><td>${l.price}</td><td>${pill(l.status)}</td><td>${l.is_promoted ? '⭐' : ''}</td>
+          <td><button class="btn btn-sm" data-pr="${l.id}" data-on="${l.is_promoted ? '0' : '1'}">${l.is_promoted ? 'Unpromote' : 'Promote ⭐'}</button></td></tr>`).join('') || '<tr><td>No listings</td></tr>');
+        content.querySelectorAll('[data-pr]').forEach((b) => b.onclick = async () => {
+          await api(`/api/admin/listings/${b.dataset.pr}/promote?promoted=${b.dataset.on === '1'}`, { method: 'POST' });
+          load();
+        });
+      };
+      await load();
       return;
     }
 
     if (section === 'sellers') {
-      const d = await api('/api/admin/sellers');
-      content.innerHTML = tbl(['ID', 'Shop', 'Verified', 'Active', 'Sales', 'Actions'],
-        d.map((s) => `<tr><td>${s.id}</td><td>${escapeHtml(s.shop_name)}</td><td>${s.is_verified ? '✔' : ''}</td><td>${pill(s.is_active ? 'ACTIVE' : 'OFF')}</td><td>${s.sales_count}</td>
-        <td><button class="btn btn-sm" data-sv="${s.id}">Verify</button></td></tr>`).join('') || '<tr><td>No sellers</td></tr>');
-      content.querySelectorAll('[data-sv]').forEach((b) => b.onclick = async () => {
-        await api(`/api/admin/sellers/${b.dataset.sv}/verify?verified=true`, { method: 'POST' });
-        toast('Verified'); location.reload();
-      });
+      const load = async () => {
+        const d = await api('/api/admin/sellers');
+        content.innerHTML = tbl(['ID', 'Shop', 'Verified', 'Active', 'Sales', 'Actions'],
+          d.map((s) => `<tr><td>${s.id}</td><td>${escapeHtml(s.shop_name)}</td><td>${s.is_verified ? '✔' : ''}</td><td>${pill(s.is_active ? 'ACTIVE' : 'OFF')}</td><td>${s.sales_count}</td>
+          <td><button class="btn btn-sm" data-sv="${s.id}">Verify</button> <button class="btn btn-sm" data-se="${s.id}">Edit</button></td></tr>`).join('') || '<tr><td>No sellers</td></tr>');
+        content.querySelectorAll('[data-sv]').forEach((b) => b.onclick = async () => {
+          await api(`/api/admin/sellers/${b.dataset.sv}/verify?verified=true`, { method: 'POST' });
+          toast('Verified'); load();
+        });
+        content.querySelectorAll('[data-se]').forEach((b) => b.onclick = () => {
+          const m = modal(`<h3>Seller #${b.dataset.se}</h3><div class="stack">
+            <label>Commission % override (empty = global)<input id="sComm" class="input soft-in" type="number" step="0.1" placeholder="e.g. 7.5"></label>
+            <label class="chk"><input type="checkbox" id="sPrem"> Premium seller</label>
+            <button class="btn btn-primary" id="sSave">Save</button></div>`);
+          m.querySelector('#sSave').onclick = async () => {
+            const body = { is_premium: m.querySelector('#sPrem').checked };
+            const c = m.querySelector('#sComm').value;
+            if (c !== '') body.commission_percent = +c;
+            await api(`/api/admin/sellers/${b.dataset.se}`, { method: 'PATCH', body: JSON.stringify(body) });
+            m.remove(); toast('Saved');
+          };
+        });
+      };
+      await load();
       return;
     }
 
@@ -358,6 +389,83 @@ document.addEventListener('DOMContentLoaded', async () => {
         await api('/api/admin/settings/' + b.dataset.save, { method: 'PUT', body: JSON.stringify({ value: v }) });
         toast('Saved');
       });
+      return;
+    }
+
+    if (section === 'categories') {
+      toolbar.innerHTML = `<button class="btn btn-sm btn-primary" id="catAdd">+ Add category</button>`;
+      const load = async () => {
+        const d = await api('/api/admin/categories');
+        content.innerHTML = tbl(['Slug', 'UZ', 'EN', 'RU', 'Order', 'Active'],
+          d.map((c) => `<tr><td><b>${c.slug}</b></td><td>${escapeHtml(c.name_uz)}</td><td>${escapeHtml(c.name_en)}</td><td>${escapeHtml(c.name_ru)}</td><td>${c.sort_order}</td><td>${pill(c.is_active ? 'ACTIVE' : 'OFF')}</td></tr>`).join('') || '<tr><td>No categories</td></tr>');
+      };
+      document.getElementById('catAdd').onclick = () => {
+        const m = modal(`<h3>New category</h3><div class="stack"><input id="cSlug" class="input soft-in" placeholder="slug"><input id="cUz" class="input soft-in" placeholder="Name UZ"><input id="cEn" class="input soft-in" placeholder="Name EN"><input id="cRu" class="input soft-in" placeholder="Name RU"><button class="btn btn-primary" id="cSave">Create</button></div>`);
+        m.querySelector('#cSave').onclick = async () => {
+          await api('/api/admin/categories', { method: 'POST', body: JSON.stringify({ slug: m.querySelector('#cSlug').value, name_uz: m.querySelector('#cUz').value, name_en: m.querySelector('#cEn').value, name_ru: m.querySelector('#cRu').value }) });
+          m.remove(); load();
+        };
+      };
+      await load();
+      return;
+    }
+
+    if (section === 'variants') {
+      toolbar.innerHTML = `<input id="vPid" class="input soft-in" placeholder="Product ID filter" style="max-width:160px"><button class="btn btn-sm" id="vGo">Filter</button><button class="btn btn-sm btn-primary" id="vAdd">+ Add variant</button>`;
+      const load = async () => {
+        const pid = document.getElementById('vPid').value;
+        const d = await api('/api/admin/variants' + (pid ? '?product_id=' + pid : ''));
+        content.innerHTML = tbl(['ID', 'Product', 'Name', 'Cost', 'Price', 'Stock', 'Active'],
+          d.map((v) => `<tr><td>${v.id}</td><td>${v.product_id}</td><td>${escapeHtml(v.name)}</td><td>${v.supplier_cost}</td><td><b>${v.selling_price}</b></td><td>${v.stock}</td><td>${pill(v.is_active ? 'ACTIVE' : 'OFF')}</td></tr>`).join('') || '<tr><td>No variants</td></tr>');
+      };
+      document.getElementById('vGo').onclick = load;
+      document.getElementById('vAdd').onclick = () => {
+        const m = modal(`<h3>New variant</h3><div class="stack"><input id="vP" class="input soft-in" type="number" placeholder="Product ID"><input id="vN" class="input soft-in" placeholder="Name"><input id="vC" class="input soft-in" type="number" placeholder="Supplier cost"><input id="vS" class="input soft-in" type="number" placeholder="Selling price"><button class="btn btn-primary" id="vSave">Create</button></div>`);
+        m.querySelector('#vSave').onclick = async () => {
+          await api('/api/admin/variants', { method: 'POST', body: JSON.stringify({ product_id: +m.querySelector('#vP').value, name: m.querySelector('#vN').value, supplier_cost: +m.querySelector('#vC').value || 0, selling_price: +m.querySelector('#vS').value || 0 }) });
+          m.remove(); load();
+        };
+      };
+      await load();
+      return;
+    }
+
+    if (section === 'wallets') {
+      const d = await api('/api/admin/wallets');
+      toolbar.innerHTML = `<span class="muted">Total: ${d.total}</span>`;
+      content.innerHTML = tbl(['ID', 'User', 'Balance', 'Currency', 'Actions'],
+        d.items.map((w) => `<tr><td>${w.id}</td><td>${w.user_id}</td><td><b>${w.balance}</b></td><td>${w.currency}</td><td><button class="btn btn-sm" data-wx="${w.id}">Transactions</button></td></tr>`).join('') || '<tr><td>No wallets</td></tr>');
+      content.querySelectorAll('[data-wx]').forEach((b) => b.onclick = async () => {
+        const tx = await api(`/api/admin/wallets/${b.dataset.wx}/transactions`);
+        modal(`<h3>Wallet #${b.dataset.wx}</h3>` + tbl(['Kind', 'Amount', 'After', 'Ref'],
+          tx.map((t) => `<tr><td>${t.kind}</td><td>${t.amount}</td><td>${t.balance_after}</td><td>${escapeHtml(t.reference || '')}</td></tr>`).join('') || '<tr><td>No transactions</td></tr>'));
+      });
+      return;
+    }
+
+    if (section === 'media') {
+      toolbar.innerHTML = `<select id="medK" class="select soft-in"><option value="">All kinds</option>${['game_logo', 'product', 'avatar', 'listing', 'banner', 'attachment'].map((k) => `<option>${k}</option>`).join('')}</select><button class="btn btn-sm" id="medGo">Filter</button><input type="file" id="medFile" accept="image/*" style="max-width:200px"><select id="medKind" class="select soft-in"><option value="game_logo">game_logo</option><option value="product">product</option><option value="banner">banner</option><option value="avatar">avatar</option><option value="listing">listing</option></select><button class="btn btn-sm btn-primary" id="medUp">Upload</button>`;
+      const load = async () => {
+        const k = document.getElementById('medK').value;
+        const d = await api('/api/admin/media' + (k ? '?kind=' + k : ''));
+        content.innerHTML = `<div class="grid cards">` + d.items.map((m) =>
+          `<div class="card soft-out"><img src="${m.url}" style="width:100%;height:120px;object-fit:contain;background:var(--surface-2);border-radius:10px"><span class="muted">${escapeHtml(m.filename)} · ${(m.size_bytes / 1024).toFixed(1)} KB</span><span class="badge">${m.kind}</span><button class="btn btn-sm" data-mdel="${m.id}">Delete</button></div>`
+        ).join('') + `</div>` || '<p>No media</p>';
+        content.querySelectorAll('[data-mdel]').forEach((b) => b.onclick = async () => {
+          if (await confirmDlg('Delete this file?')) { await api('/api/admin/media/' + b.dataset.mdel, { method: 'DELETE' }); load(); }
+        });
+      };
+      document.getElementById('medGo').onclick = load;
+      document.getElementById('medUp').onclick = async () => {
+        const f = document.getElementById('medFile').files[0];
+        if (!f) { toast('Choose a file'); return; }
+        const fd = new FormData();
+        fd.append('file', f);
+        const r = await fetch('/api/media/upload?kind=' + document.getElementById('medKind').value, { method: 'POST', body: fd });
+        if (!r.ok) { toast('Upload failed'); return; }
+        toast('Uploaded'); load();
+      };
+      await load();
       return;
     }
 

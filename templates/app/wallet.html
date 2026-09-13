@@ -1,5 +1,11 @@
 {% extends "app/_layout.html" %}
 {% block app %}<h1>👛 {{ t('nav.wallet') }}</h1>
 <section class="card soft-out"><div class="price big" id="walletBal">…</div></section>
+<section class="card soft-out"><h2>Top up wallet</h2>
+<form id="topupForm" class="row gap wrap">
+<input class="input soft-in" name="amount" type="number" min="1" step="any" placeholder="Amount" required style="max-width:200px">
+<select class="select soft-in" name="provider" id="topupProvider"><option value="payme">Payme</option><option value="click">Click</option><option value="stripe">Stripe</option></select>
+<button class="btn btn-primary">Top up</button>
+</form><div id="topupMsg"></div></section>
 <h2>Transactions</h2><div id="walletTx" class="stack"></div>{% endblock %}
 {% block scripts %}<script src="/static/js/dashboard.js"></script>{% endblock %}

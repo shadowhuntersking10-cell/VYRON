@@ -8,6 +8,7 @@
 <input class="input soft-in" name="subject" placeholder="Subject" required minlength="3">
 <select class="select soft-in" name="category"><option value="general">General</option><option value="order">Order</option><option value="payment">Payment</option><option value="seller">Seller</option></select>
 <textarea class="input soft-in" name="body" placeholder="Describe your issue" required></textarea>
+<label class="muted">Attachments (images, optional)<input class="input soft-in" type="file" id="ticketFiles" accept="image/*" multiple></label>
 <button class="btn btn-primary">{{ t('common.save') }}</button>
 </form></section>
 <section class="card soft-out"><h2>My tickets</h2><div id="ticketList" class="stack"><p class="muted">{{ t('common.loading') }}</p></div></section>

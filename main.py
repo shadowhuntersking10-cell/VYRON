@@ -57,16 +57,17 @@ async def init_database() -> None:
     get_engine()
     ok, detail = await check_connection()
     if not ok:
-        # If MySQL was requested but unreachable, fall back to SQLite dev DB
-        if settings.using_mysql:
-            log.error("MySQL unreachable (%s). Falling back to local SQLite dev DB.", detail)
-            from app.database import dispose_engine, init_engine  # noqa: PLC0415
-
-            await dispose_engine()
-            init_engine("sqlite+aiosqlite:///./vyron_dev.db")
-            ok, detail = await check_connection()
-        if not ok:
-            raise RuntimeError(f"Database unreachable: {detail}")
+        # VYRON requires MySQL. A local SQLite fallback is allowed ONLY for
+        # development when no MySQL credentials were configured at all.
+        # Production, or explicit-but-unreachable MySQL, fails fast.
+        mysql_explicit = settings.using_mysql
+        if settings.is_production or mysql_explicit:
+            raise RuntimeError(
+                f"Database unreachable in {settings.APP_ENV} mode: {detail}. "
+                "VYRON requires MySQL - check MYSQL_HOST/PORT/DATABASE/USER/PASSWORD."
+            )
+        log.error("Database unreachable (%s).", detail)
+        raise RuntimeError(f"Database unreachable: {detail}")
     await create_all_tables()
 
     from app.database import get_session_factory  # noqa: PLC0415

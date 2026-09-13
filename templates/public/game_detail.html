@@ -1,11 +1,17 @@
 {% extends "base.html" %}
-{% block title %}{{ game.title }} — VYRON{% endblock %}
+{% block title %}{{ game.title }} top-up — VYRON{% endblock %}
+{% block meta_desc %}Buy {{ game.title }} top-ups on VYRON — fast delivery, secure payments.{% endblock %}
+{% block og_title %}{{ game.title }} — VYRON{% endblock %}
+{% if game.logo_url %}{% block og_image %}<meta property="og:image" content="{{ settings.APP_BASE_URL }}{{ game.logo_url }}">{% endblock %}{% endif %}
 {% block content %}
 <div class="page-head"><a href="/games">← {{ t('common.back') }}</a></div>
-<section class="soft-out card-lg"><div class="glogo xl">{{ game.title[:2] }}</div>
-<h1>{{ game.title }}</h1><p class="muted">{{ game.description or '' }}</p></section>
+<section class="soft-out card-lg seller-head">{% if game.logo_url %}<img class="avatar xl" style="border-radius:20px" src="{{ game.logo_url }}" alt="{{ game.title }}">{% else %}<div class="glogo xl">{{ game.title[:2] }}</div>{% endif %}
+<div><h1>{{ game.title }}</h1><p class="muted">{{ game.description or '' }}</p></div></section>
 <h2>📦 {{ t('checkout.step_product') }}</h2>
 <div class="grid cards">
-{% for p in products %}<a class="card soft-out" href="/products/{{ p.id }}"><b>{{ p.name }}</b><span class="price">{{ p.selling_price }} {{ p.currency }}</span></a>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}
+{% for p in products %}<div class="card soft-out">{% if p.image_url %}<img class="pimg" src="{{ p.image_url }}" alt="{{ p.name }}">{% endif %}
+<b>{{ p.name }}</b>
+<div>{% if p.is_popular %}<span class="badge pop">🔥 Popular</span>{% endif %} {% if p.stock == 0 %}<span class="badge out">Out of stock</span>{% else %}<span class="badge">Available</span>{% endif %}</div>
+<div class="buyrow"><span class="price">{{ p.selling_price }} {{ p.currency }}</span><a class="btn btn-sm btn-primary" href="/products/{{ p.id }}">{{ t('common.buy') }}</a></div></div>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}
 </div>
 {% endblock %}

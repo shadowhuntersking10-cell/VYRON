@@ -3,9 +3,11 @@
 {% block content %}
 <div class="page-head"><a href="/marketplace">← {{ t('common.back') }}</a></div>
 <section class="soft-out card-lg" id="listingBox" data-listing="{{ listing.id }}">
+{% if listing.images %}<div class="row gap wrap">{% for img in listing.images %}<img src="{{ img }}" alt="" style="width:120px;height:120px;object-fit:cover;border-radius:14px">{% endfor %}</div>{% endif %}
 <h1>{{ listing.title }}</h1><p class="muted">{{ listing.description or '' }}</p>
 <div class="price big">{{ listing.price }} {{ listing.currency }}</div>
-{% if seller %}<p>🏪 <a href="/api/marketplace/sellers/{{ seller.id }}">{{ seller.shop_name }}</a> {% if seller.is_verified %}✔{% endif %}</p>{% endif %}
+<p><span class="badge">{{ listing.category }}</span> <span class="badge">{{ listing.delivery_type }}</span> {% if listing.stock == -1 %}<span class="badge">In stock</span>{% elif listing.stock > 0 %}<span class="badge">{{ listing.stock }} left</span>{% else %}<span class="badge out">Sold out</span>{% endif %}</p>
+{% if seller %}<p>🏪 <a href="/sellers/{{ seller.id }}">{{ seller.shop_name }}</a> {% if seller.is_verified %}✔{% endif %} · ⭐ {{ seller.rating_avg }} ({{ seller.sales_count }} sales)</p>{% endif %}
 <div class="row gap"><a class="btn btn-primary" href="/checkout?listing_id={{ listing.id }}">🛒 {{ t('common.buy') }}</a>
 <button class="btn" id="favBtn" data-kind="listing" data-id="{{ listing.id }}">♡</button></div>
 </section>

@@ -3,6 +3,11 @@
 <section class="card soft-out" id="becomeBox"><h2>Become a seller</h2>
 <form id="becomeForm" class="stack"><input class="input soft-in" name="shop_name" placeholder="Shop name" required minlength="3"><textarea class="input soft-in" name="description" placeholder="Description"></textarea><button class="btn btn-primary">Start selling</button></form></section>
 <section class="card soft-out"><h2>+ New listing</h2>
-<form id="listingForm" class="stack"><input class="input soft-in" name="title" placeholder="Title" required minlength="3"><textarea class="input soft-in" name="description" placeholder="Description"></textarea><div class="row gap"><input class="input soft-in" name="price" type="number" min="0" step="100" placeholder="Price" required><select class="select soft-in" name="category"><option value="accounts">Accounts</option><option value="items">Items</option><option value="currency">Currency</option><option value="other">Other</option></select></div><button class="btn btn-primary">Publish</button></form></section>
+<form id="listingForm" class="stack"><input class="input soft-in" name="title" placeholder="Title" required minlength="3"><textarea class="input soft-in" name="description" placeholder="Description"></textarea>
+<div class="row gap"><input class="input soft-in" name="price" type="number" min="0" step="100" placeholder="Price" required><select class="select soft-in" name="category" id="listingCat"><option value="other">Other</option></select></div>
+<div class="row gap"><input class="input soft-in" name="stock" type="number" value="-1" title="Stock (-1 = unlimited)"><select class="select soft-in" name="delivery_type"><option value="manual">Manual delivery</option><option value="auto">Automatic</option><option value="code">Code / key</option></select></div>
+<label>Images (JPG/PNG/WebP, max 5MB each)<input class="input soft-in" type="file" id="listingFiles" accept="image/*" multiple></label>
+<div id="listingPreview" class="row gap wrap"></div>
+<button class="btn btn-primary">Publish</button></form></section>
 {% endblock %}
 {% block scripts %}<script src="/static/js/seller.js"></script>{% endblock %}

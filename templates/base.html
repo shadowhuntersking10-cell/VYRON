@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>{% block title %}VYRON — {{ t('app.tagline') }}{% endblock %}</title>
+<meta name="description" content="{% block meta_desc %}VYRON — game top-ups, gift cards, marketplace and donations. PUBG Mobile, Roblox, Steam and more.{% endblock %}">
+<link rel="canonical" href="{{ settings.APP_BASE_URL }}{{ request.url.path }}">
+<meta property="og:site_name" content="VYRON">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{% block og_title %}VYRON — {{ t('app.tagline') }}{% endblock %}">
+<meta property="og:description" content="{% block og_desc %}Game top-ups, gift cards, marketplace and donations in one place.{% endblock %}">
+<meta property="og:url" content="{{ settings.APP_BASE_URL }}{{ request.url.path }}">
+{% block og_image %}<meta property="og:image" content="{{ settings.APP_BASE_URL }}/static/images/og-default.png">{% endblock %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0B1F3A">
 <link rel="stylesheet" href="/static/css/themes.css">
 <link rel="stylesheet" href="/static/css/main.css">
 <script>try{document.documentElement.dataset.theme=localStorage.getItem('vyron_theme')||'system';}catch(e){}</script>

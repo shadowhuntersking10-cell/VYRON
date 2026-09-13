@@ -4,6 +4,6 @@
 <div class="page-head"><a href="/support">← {{ t('common.back') }}</a></div>
 <h1>🎫 Ticket #{{ ticket_id }}</h1>
 <div id="msgList" class="stack"></div>
-<form id="replyForm" class="row gap"><input class="input soft-in" name="body" placeholder="Message" required><button class="btn btn-primary">{{ t('common.save') }}</button></form>
+<form id="replyForm" class="stack"><div class="row gap"><input class="input soft-in" name="body" placeholder="Message" required><button class="btn btn-primary">{{ t('common.save') }}</button></div><input class="input soft-in" type="file" id="replyFiles" accept="image/*" multiple></form>
 {% endblock %}
 {% block scripts %}<script>window.TICKET_ID={{ ticket_id }};</script><script src="/static/js/support.js"></script>{% endblock %}

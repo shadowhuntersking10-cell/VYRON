@@ -15,6 +15,11 @@ DEFAULTS: dict[str, str] = {
     "site_announcement": "",
     "support_telegram": "",
     "maintenance_mode": "false",
+    "donation_presets": '{"UZS": [10000, 25000, 50000, 100000, 250000, 500000], "USD": [1, 2, 5, 10, 20, 50, 100]}',
+    "marketplace_categories": "accounts,items,currency,boosting,giftcards,other",
+    "payment_fee_percent": "1.5",
+    "promotion_price": "50000",
+    "seller_premium_price": "99000",
 }
 
 
@@ -49,3 +54,16 @@ async def all_settings(db: AsyncSession) -> dict[str, str]:
     for r in rows:
         data[r.key] = r.value or ""
     return data
+
+
+async def donation_presets_for(db: AsyncSession, currency: str) -> list[float]:
+    """Admin-configurable donation preset amounts for a currency."""
+    import json as _json
+
+    raw = await get_setting(db, "donation_presets")
+    try:
+        data = _json.loads(raw or "{}")
+    except Exception:
+        data = {}
+    presets = data.get(currency) or data.get("UZS") or []
+    return [float(x) for x in presets if float(x) > 0][:12]

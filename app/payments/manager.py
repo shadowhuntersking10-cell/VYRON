@@ -67,6 +67,42 @@ class PaymentManager:
         await db.flush()
         return payment
 
+    async def init_wallet_topup(
+        self,
+        db: AsyncSession,
+        *,
+        user_id: int,
+        amount,
+        currency: str,
+        provider_name: str,
+        return_url: str | None = None,
+    ) -> Payment:
+        """Wallet deposit: a Payment without an order. Webhook settlement credits the wallet."""
+        from decimal import Decimal as _D
+
+        provider = self.get(provider_name)
+        provider.require_configured()
+        if _D(str(amount)) <= 0:
+            raise ValueError("bad_amount")
+        ref = f"WALLET-{user_id}-{uuid.uuid4().hex[:10]}"
+        result = await provider.create_payment(
+            amount=_D(str(amount)), currency=currency, order_public_id=ref, return_url=return_url,
+        )
+        payment = Payment(
+            order_id=None, user_id=user_id, provider=provider.name,
+            provider_payment_id=result.provider_payment_id or ref, status=PaymentStatus.PENDING,
+            amount=_D(str(amount)), currency=currency,
+            idempotency_key=f"wtop-{ref}",
+            checkout_url=result.checkout_url,
+            raw_init={**(result.raw or {}), "wallet_topup": True, "ref": ref},
+        )
+        db.add(payment)
+        await db.flush()
+        db.add(PaymentTransaction(payment_id=payment.id, kind="init", status="PENDING",
+                                  payload={"wallet_topup": True, "ref": ref}))
+        await db.flush()
+        return payment
+
     async def mark_paid(
         self, db: AsyncSession, payment: Payment, *, provider_payment_id: str | None = None, payload: dict | None = None
     ) -> Payment:

@@ -1,34 +1,171 @@
 {
-  "app": { "name": "VYRON", "tagline": "Игры и цифровой маркет" },
+  "app": {
+    "name": "VYRON",
+    "tagline": "Игры и цифровой маркет"
+  },
   "nav": {
-    "home": "Главная", "games": "Игры", "marketplace": "Маркет",
-    "donations": "Донаты", "promotions": "Акции", "support": "Поддержка",
-    "orders": "Заказы", "profile": "Профиль", "admin": "Админ",
-    "login": "Войти", "register": "Регистрация", "logout": "Выйти",
-    "dashboard": "Кабинет", "wallet": "Кошелёк", "favorites": "Избранное",
-    "notifications": "Уведомления", "settings": "Настройки", "security": "Безопасность"
+    "home": "Главная",
+    "games": "Игры",
+    "marketplace": "Маркет",
+    "donations": "Донаты",
+    "promotions": "Акции",
+    "support": "Поддержка",
+    "orders": "Заказы",
+    "profile": "Профиль",
+    "admin": "Админ",
+    "login": "Войти",
+    "register": "Регистрация",
+    "logout": "Выйти",
+    "dashboard": "Кабинет",
+    "wallet": "Кошелёк",
+    "favorites": "Избранное",
+    "notifications": "Уведомления",
+    "settings": "Настройки",
+    "security": "Безопасность"
   },
   "home": {
     "hero_title": "Пополнения для любимых игр",
     "hero_sub": "Топ-апы, гифт-карты, маркет и донаты — всё в одном месте.",
-    "cta_games": "Смотреть игры", "cta_market": "Открыть маркет",
-    "featured": "Популярные игры", "popular": "Популярные товары",
-    "market": "Выбор маркета", "donate": "Поддержать",
-    "promo": "Акции", "view_all": "Все"
+    "cta_games": "Смотреть игры",
+    "cta_market": "Открыть маркет",
+    "featured": "Популярные игры",
+    "popular": "Популярные товары",
+    "market": "Выбор маркета",
+    "donate": "Поддержать",
+    "promo": "Акции",
+    "view_all": "Все"
   },
   "checkout": {
-    "title": "Оформление", "step_product": "Товар", "step_info": "Данные",
-    "step_summary": "Заказ", "step_payment": "Оплата", "step_done": "Готово",
-    "total": "Итого", "discount": "Скидка", "service_fee": "Сервисный сбор",
-    "pay": "Оплатить", "provider_nc": "Платёжный провайдер не настроен"
+    "coupon_ph": "Промокод",
+    "apply": "Применить",
+    "game_details": "Данные игры",
+    "select_provider": "Выберите способ оплаты",
+    "order_created": "Заказ создан",
+    "need_login": "Войдите, чтобы продолжить"
   },
-  "order": { "status": "Статус", "timeline": "История заказа", "empty": "Заказов пока нет" },
+  "order": {
+    "timeline_created": "Создан",
+    "timeline_payment_started": "Оплата начата",
+    "timeline_payment_confirmed": "Оплата подтверждена",
+    "timeline_processing": "Обработка",
+    "timeline_supplier": "Отправлен поставщику",
+    "timeline_completed": "Выполнен",
+    "timeline_failed": "Ошибка"
+  },
   "common": {
-    "search": "Поиск...", "loading": "Загрузка...", "error": "Что-то пошло не так",
-    "empty": "Пока пусто", "retry": "Повторить", "save": "Сохранить",
-    "cancel": "Отмена", "delete": "Удалить", "edit": "Изменить",
-    "buy": "Купить", "details": "Подробнее", "back": "Назад"
+    "search": "Поиск...",
+    "loading": "Загрузка...",
+    "error": "Что-то пошло не так",
+    "empty": "Пока пусто",
+    "retry": "Повторить",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Изменить",
+    "buy": "Купить",
+    "details": "Подробнее",
+    "back": "Назад"
   },
-  "miniapp": { "welcome": "Добро пожаловать в VYRON 🎮" },
-  "footer": { "about": "О нас", "terms": "Условия", "privacy": "Конфиденциальность", "refund": "Возвраты" }
+  "miniapp": {
+    "welcome": "Добро пожаловать в VYRON 🎮"
+  },
+  "footer": {
+    "rights": "Все права защищены",
+    "how": "Как это работает",
+    "trust": "Доверие и безопасность"
+  },
+  "admin": {
+    "panel": "Админ-панель",
+    "dashboard": "Панель",
+    "users": "Пользователи",
+    "games": "Игры",
+    "categories": "Категории",
+    "products": "Товары",
+    "variants": "Варианты",
+    "orders": "Заказы",
+    "payments": "Платежи",
+    "suppliers": "Поставщики",
+    "marketplace": "Маркет",
+    "sellers": "Продавцы",
+    "donations": "Донаты",
+    "promotions": "Акции",
+    "coupons": "Купоны",
+    "payouts": "Выплаты",
+    "revenue": "Доход",
+    "wallets": "Кошельки",
+    "support": "Поддержка",
+    "fraud": "Фрод",
+    "notifications": "Уведомления",
+    "telegram": "Telegram",
+    "media": "Медиа",
+    "audit": "Аудит",
+    "settings": "Настройки",
+    "confirm": "Подтвердить",
+    "yes": "Да",
+    "no": "Нет",
+    "actions": "Действия",
+    "search": "Поиск",
+    "filter": "Фильтр",
+    "total": "Итого",
+    "save_ok": "Сохранено"
+  },
+  "auth": {
+    "email": "Email",
+    "username": "Имя пользователя",
+    "password": "Пароль",
+    "new_password": "Новый пароль",
+    "current_password": "Текущий пароль",
+    "full_name": "Ф.И.О.",
+    "have_account": "Есть аккаунт?",
+    "no_account": "Нет аккаунта?"
+  },
+  "donation": {
+    "donate": "Донат",
+    "custom_amount": "Другая сумма",
+    "anonymous": "Анонимно",
+    "message": "Сообщение",
+    "recent": "Недавние",
+    "top": "Топ",
+    "be_first": "Станьте первым!",
+    "goal": "Цель"
+  },
+  "market": {
+    "sell": "Продать",
+    "sort_new": "Новые",
+    "sort_cheap": "Дешевле",
+    "sort_exp": "Дороже",
+    "in_stock": "В наличии",
+    "sold_out": "Продано",
+    "reviews": "Отзывы",
+    "write_review": "Оставить отзыв"
+  },
+  "wallet": {
+    "balance": "Баланс",
+    "topup": "Пополнить",
+    "transactions": "Транзакции",
+    "amount": "Сумма"
+  },
+  "support": {
+    "new_ticket": "Новое обращение",
+    "subject": "Тема",
+    "message": "Сообщение",
+    "my_tickets": "Мои обращения",
+    "reply": "Ответ"
+  },
+  "seller": {
+    "become": "Стать продавцом",
+    "shop_name": "Название магазина",
+    "sales": "Продажи",
+    "available": "Доступно",
+    "pending": "Ожидание",
+    "payout": "Вывод",
+    "new_listing": "Новое объявление"
+  },
+  "errors": {
+    "required_login": "Сначала войдите",
+    "not_found": "Не найдено",
+    "forbidden": "Доступ запрещён",
+    "server": "Ошибка сервера",
+    "failed_load": "Ошибка загрузки"
+  }
 }

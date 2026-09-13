@@ -39,6 +39,27 @@ async def seller_me(user: User = Depends(require_seller), db: AsyncSession = Dep
     }
 
 
+@router.get("/orders")
+async def seller_orders(user: User = Depends(require_seller), db: AsyncSession = Depends(get_db)):
+    """Orders that contain this seller's listings."""
+    from app.models import MarketplaceListing, Order, OrderItem
+    seller = await _seller(user, db)
+    stmt = (
+        select(Order, OrderItem, MarketplaceListing)
+        .join(OrderItem, OrderItem.order_id == Order.id)
+        .join(MarketplaceListing, MarketplaceListing.id == OrderItem.listing_id)
+        .where(OrderItem.kind == "marketplace", MarketplaceListing.seller_id == seller.id)
+        .order_by(Order.id.desc())
+        .limit(100)
+    )
+    rows = (await db.execute(stmt)).all()
+    return [{
+        "order_id": o.id, "public_id": o.public_id, "status": o.status.value,
+        "title": i.title, "quantity": i.quantity, "total": str(i.total_price),
+        "currency": o.currency, "created_at": o.created_at.isoformat(),
+    } for o, i, _ in rows]
+
+
 @router.get("/payouts")
 async def payouts(user: User = Depends(require_seller), db: AsyncSession = Depends(get_db)):
     seller = await _seller(user, db)

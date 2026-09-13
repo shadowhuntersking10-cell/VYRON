@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ seller.shop_name }} — VYRON{% endblock %}
+{% block content %}
+<div class="page-head"><a href="/marketplace">← {{ t('common.back') }}</a></div>
+<section class="soft-out card-lg seller-head">
+  {% if seller.avatar_url %}<img class="avatar xl" src="{{ seller.avatar_url }}" alt="{{ seller.shop_name }}">{% else %}<div class="avatar xl">{{ seller.shop_name[:2] }}</div>{% endif %}
+  <div><h1>{{ seller.shop_name }} {% if seller.is_verified %}<span class="badge">✔ Verified</span>{% endif %}</h1>
+  <p class="muted">{{ seller.description or '' }}</p>
+  <p>⭐ {{ seller.rating_avg }} ({{ seller.rating_count }}) · 📦 {{ seller.sales_count }} sales</p></div>
+</section>
+<h2>Active listings</h2>
+<div class="grid cards">
+{% for l in listings %}<a class="card soft-out" href="/marketplace/{{ l.id }}"><b>{{ l.title }}</b><span class="price">{{ l.price }} {{ l.currency }}</span></a>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}
+</div>
+<h2>Reviews</h2>
+<div class="stack">
+{% for r in reviews %}<div class="card soft-in">⭐ {{ r.rating }}<p>{{ r.comment or '' }}</p></div>{% else %}<p class="muted">No reviews yet</p>{% endfor %}
+</div>
+{% endblock %}

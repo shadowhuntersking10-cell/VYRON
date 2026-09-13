@@ -15,12 +15,19 @@ router = APIRouter(prefix="/api/marketplace", tags=["marketplace"])
 class ListingIn(BaseModel):
     title: str = Field(min_length=3, max_length=255)
     description: str | None = None
-    images: list[str] = []
+    images: list[str] = Field(default_factory=list, max_length=8)
     price: float = Field(ge=0)
     currency: str = "UZS"
     category: str = "other"
     delivery_type: str = "manual"
     stock: int = -1
+
+
+@router.get("/categories")
+async def marketplace_categories(db: AsyncSession = Depends(get_db)):
+    from app.services import settings_service
+    raw = await settings_service.get_setting(db, "marketplace_categories")
+    return {"categories": [c.strip() for c in raw.split(",") if c.strip()]}
 
 
 @router.get("/listings", response_model=list[ListingOut])

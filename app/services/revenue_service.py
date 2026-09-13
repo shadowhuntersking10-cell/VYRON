@@ -30,12 +30,17 @@ async def record_order_revenue(db: AsyncSession, order: Order) -> RevenueLedger 
     if existing:
         return existing
 
+    from app.services import settings_service as _ss
+    from app.utils.money import money_percent as _pct
+
     supplier_cost = sum((D(i.supplier_cost) for i in order.items), D(0))
     gross = D(order.total)
-    net = money_sub(money_sub(gross, supplier_cost), D(order.discount))
+    fee_pct = D(await _ss.get_float(db, "payment_fee_percent"))
+    processing_fee = _pct(gross, fee_pct)
+    net = money_sub(money_sub(money_sub(gross, supplier_cost), D(order.discount)), processing_fee)
     entry = RevenueLedger(
         stream=stream, order_id=order.id, gross=gross,
-        supplier_cost=supplier_cost, processing_fee=D(0),
+        supplier_cost=supplier_cost, processing_fee=processing_fee,
         seller_payout=D(0), net=net, currency=order.currency,
     )
     db.add(entry)

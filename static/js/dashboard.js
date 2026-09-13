@@ -34,8 +34,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       const w = await api('/api/wallet');
       document.getElementById('walletBal').textContent = w.balance + ' ' + w.currency;
       document.getElementById('walletTx').innerHTML = w.transactions.map((t) =>
-        `<div class="card soft-in"><b>${t.kind}</b> ${t.amount}<span class="muted">${t.created_at}</span></div>`).join('') || '<p class="muted">No transactions</p>';
+        `<div class="card soft-in"><b>${t.kind}</b> ${t.amount}<span class="muted">${t.reference || ''} · ${t.created_at}</span></div>`).join('') || '<p class="muted">No transactions</p>';
     } catch (e) {}
+    try {
+      const pv = await api('/api/payments/providers');
+      document.getElementById('topupProvider').innerHTML = pv.providers.map((p) => `<option value="${p.name}" ${p.configured ? '' : 'disabled'}>${p.name}${p.configured ? '' : ' (not configured)'}</option>`).join('');
+    } catch (e) {}
+    document.getElementById('topupForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = new FormData(e.target);
+      const msg = document.getElementById('topupMsg');
+      try {
+        const res = await api('/api/wallet/topup', { method: 'POST', body: JSON.stringify({ amount: +f.get('amount'), provider: f.get('provider') }) });
+        if (res.error === 'payment_provider_not_configured') { msg.innerHTML = '<div class="alert err">Payment provider is not configured.</div>'; return; }
+        if (res.payment?.checkout_url) location.href = res.payment.checkout_url;
+        else { msg.innerHTML = '<div class="alert ok">Top-up initiated.</div>'; }
+      } catch (ex) { msg.innerHTML = `<div class="alert err">${escapeHtml(ex.message)}</div>`; }
+    });
   }
   if (document.getElementById('noteList')) {
     const n = await api('/api/notifications').catch(() => ({ items: [] }));

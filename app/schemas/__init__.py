@@ -155,6 +155,7 @@ class TicketIn(BaseModel):
     category: str = "general"
     body: str = Field(min_length=1, max_length=5000)
     order_id: int | None = None
+    attachments: list[str] = Field(default_factory=list, max_length=5)
 
 
 class Page(BaseModel):

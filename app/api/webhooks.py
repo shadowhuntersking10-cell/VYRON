@@ -22,6 +22,22 @@ async def _settle_paid(db: AsyncSession, payment: Payment, provider_payment_id: 
     manager = get_payment_manager()
     await manager.mark_paid(db, payment, provider_payment_id=provider_payment_id, payload=payload)
     await db.commit()
+    # Wallet top-up (no order attached): credit the wallet ledger.
+    if payment.order_id is None and (payment.raw_init or {}).get("wallet_topup"):
+        from app.services import wallet_service
+        from app.services.notification_service import notify_user as _notify
+
+        wallet = await wallet_service.get_or_create_wallet(db, payment.user_id or 0)
+        await wallet_service.credit(db, wallet, payment.amount, kind="topup",
+                                    reference=f"pay:{payment.id}:{payment.provider}")
+        await db.commit()
+        if payment.user_id:
+            # fresh session state for notify
+            await _notify(db, user_id=payment.user_id, kind="payment", title="Wallet topped up",
+                          body=f"{payment.amount} {payment.currency} added to your wallet.", link="/app/wallet")
+            await db.commit()
+        log.info("wallet top-up settled: user=%s amount=%s", payment.user_id, payment.amount)
+        return
     order = await db.get(Order, payment.order_id) if payment.order_id else None
     if order:
         try:
@@ -97,7 +113,10 @@ async def stripe_webhook(request: Request, db: AsyncSession = Depends(get_db)):
         payload = _json.loads(raw or b"{}")
     except Exception:
         return {"error": "bad_payload"}
-    result = await provider.handle_webhook(payload, dict(request.headers))
+    try:
+        result = await provider.handle_webhook(payload, dict(request.headers))
+    except ProviderNotConfigured:
+        return {"error": "provider_not_configured"}
     if result.provider_payment_id:
         payment = (await db.execute(select(Payment).where(
             Payment.provider_payment_id == result.provider_payment_id, Payment.provider == "stripe"

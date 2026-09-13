@@ -10,18 +10,20 @@ from app.services.notification_service import notify_user
 STATUSES = ("OPEN", "IN_PROGRESS", "WAITING_USER", "RESOLVED", "CLOSED")
 
 
-async def create_ticket(db: AsyncSession, *, user_id: int | None, subject: str, category: str, body: str, order_id: int | None = None) -> SupportTicket:
+async def create_ticket(db: AsyncSession, *, user_id: int | None, subject: str, category: str, body: str, order_id: int | None = None, attachments: list | None = None) -> SupportTicket:
     ticket = SupportTicket(user_id=user_id, subject=subject.strip(), category=category or "general",
                            status="OPEN", order_id=order_id)
     db.add(ticket)
     await db.flush()
-    db.add(SupportMessage(ticket_id=ticket.id, sender_id=user_id, is_admin=False, body=body.strip()))
+    db.add(SupportMessage(ticket_id=ticket.id, sender_id=user_id, is_admin=False, body=body.strip(),
+                          attachments=(attachments or [])[:5]))
     await db.flush()
     return ticket
 
 
-async def reply(db: AsyncSession, ticket: SupportTicket, *, sender_id: int | None, body: str, is_admin: bool) -> SupportMessage:
-    msg = SupportMessage(ticket_id=ticket.id, sender_id=sender_id, is_admin=is_admin, body=body.strip())
+async def reply(db: AsyncSession, ticket: SupportTicket, *, sender_id: int | None, body: str, is_admin: bool, attachments: list | None = None) -> SupportMessage:
+    msg = SupportMessage(ticket_id=ticket.id, sender_id=sender_id, is_admin=is_admin, body=body.strip(),
+                         attachments=(attachments or [])[:5])
     db.add(msg)
     ticket.status = "WAITING_USER" if is_admin else "IN_PROGRESS"
     await db.flush()

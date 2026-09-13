@@ -62,6 +62,18 @@ class GenericSupplier(SupplierProvider):
             raise SupplierError(f"supplier http {resp.status_code}")
         return resp.json()
 
+    async def get_products(self) -> list[dict]:
+        self.require_configured()
+        try:
+            async with httpx.AsyncClient(timeout=20) as client:
+                resp = await client.get(f"{self.api_url}/products", headers=self._headers())
+        except Exception as exc:
+            raise SupplierError(f"supplier network error: {exc}") from exc
+        if resp.status_code != 200:
+            raise SupplierError(f"supplier http {resp.status_code}")
+        data = resp.json()
+        return data if isinstance(data, list) else data.get("products", [])
+
     async def create_order(self, *, external_product_id, customer_fields, quantity=1, idempotency_key="") -> SupplierOrderResult:
         self.require_configured()
         try:

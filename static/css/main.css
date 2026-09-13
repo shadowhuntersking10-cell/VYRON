@@ -135,3 +135,23 @@ table.tbl th { color: var(--muted); font-weight: 700; }
     border-radius: 12px; padding: 6px 10px; box-shadow: 4px 4px 12px var(--shadow-d); }
   table.tbl td { display: flex; justify-content: space-between; border: 0; }
 }
+
+/* donations */
+.chips { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.chip { padding: 12px 18px; border-radius: 14px; border: 1px solid var(--border); cursor: pointer; font-weight: 700; color: var(--ink); font-size: 15px; }
+.chip.on { background: linear-gradient(135deg, #2563eb, #3b82f6); color: #fff; border: 0; }
+.avatar { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; color: #fff; background: linear-gradient(135deg, #2563eb, #60a5fa); object-fit: cover; }
+.avatar.xl { width: 84px; height: 84px; font-size: 28px; }
+.don-head { display: flex; gap: 16px; align-items: center; margin-bottom: 12px; }
+img.avatar { object-fit: cover; }
+.pimg { width: 100%; height: 150px; object-fit: contain; border-radius: 12px; background: var(--surface-2); padding: 12px; }
+.glogo img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; }
+.badge.pop { background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; }
+.badge.out { background: rgba(220,38,38,.12); color: #dc2626; }
+.old-price { text-decoration: line-through; color: var(--muted); font-size: 13px; }
+.card .buyrow { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+.how-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.how-grid .step { text-align: center; padding: 24px 16px; }
+.how-grid .n { font-size: 30px; font-weight: 900; color: var(--accent); }
+.trust-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.seller-head { display: flex; gap: 18px; align-items: center; }

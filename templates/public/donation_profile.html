@@ -3,14 +3,20 @@
 {% block content %}
 <div class="page-head"><a href="/donations">← {{ t('common.back') }}</a></div>
 <section class="soft-out card-lg" id="donBox" data-username="{{ profile.username }}">
-<h1>@{{ profile.username }}</h1><p class="muted">{{ profile.bio or '' }}</p>
+<div class="don-head">
+  {% if profile.avatar_url %}<img class="avatar xl" src="{{ profile.avatar_url }}" alt="@{{ profile.username }}">{% else %}<div class="avatar xl">{{ profile.username[:2] }}</div>{% endif %}
+  <div><h1>@{{ profile.username }}</h1><p class="muted">{{ profile.bio or '' }}</p></div>
+</div>
 {% if profile.goal_title %}<p>🎯 {{ profile.goal_title }}: {{ profile.current_amount }}/{{ profile.goal_amount }} {{ profile.currency }}</p>
 <div class="progress soft-in"><div class="bar" style="width:{{ (profile.current_amount / profile.goal_amount * 100) if profile.goal_amount else 0 }}%"></div></div>{% endif %}
-<form id="donForm" class="row gap wrap">
-<input class="input soft-in" name="amount" type="number" min="1000" step="100" placeholder="Amount" required>
+<h2>💙 Donate</h2>
+<div id="presetChips" class="chips"></div>
+<form id="donForm" class="stack">
+<div class="row gap"><input class="input soft-in" name="amount" type="number" min="1" step="any" placeholder="Custom amount" required>
+<select class="select soft-in" name="provider" id="donProvider"><option value="payme">Payme</option><option value="click">Click</option><option value="stripe">Stripe</option></select></div>
 <input class="input soft-in" name="message" maxlength="200" placeholder="Message (optional)">
-<label class="chk"><input type="checkbox" name="anonymous"> Anonymous</label>
-<button class="btn btn-primary">💙 Donate</button>
+<label class="chk"><input type="checkbox" name="anonymous"> Anonymous donation</label>
+<button class="btn btn-primary big">💙 Donate</button>
 </form><p class="muted" id="donFee"></p><div id="donResult"></div>
 </section>
 <section class="duo"><div><h2>Recent supporters</h2><div id="donRecent" class="stack"></div></div>

@@ -12,12 +12,16 @@
   <div class="hero-art" aria-hidden="true"><div class="orb"></div><div class="orb o2"></div></div>
 </section>
 <section><div class="sec-head"><h2>🎮 {{ t('home.featured') }}</h2><a href="/games">{{ t('home.view_all') }} →</a></div>
-<div class="grid cards" id="featGames">
-{% for g in games %}<a class="card soft-out" href="/games/{{ g.slug }}"><div class="glogo">{{ g.title[:2] }}</div><b>{{ g.title }}</b></a>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}
+<div class="grid cards">
+{% for g in games %}<a class="card soft-out" href="/games/{{ g.slug }}">{% if g.logo_url %}<img class="pimg" src="{{ g.logo_url }}" alt="{{ g.title }}">{% else %}<div class="glogo">{{ g.title[:2] }}</div>{% endif %}<b>{{ g.title }}</b></a>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}
+</div></section>
+<section><div class="sec-head"><h2>🔥 {{ t('home.popular') }}</h2><a href="/games">{{ t('home.view_all') }} →</a></div>
+<div class="grid cards">
+{% for p in popular %}<a class="card soft-out" href="/products/{{ p.id }}">{% if p.image_url %}<img class="pimg" src="{{ p.image_url }}" alt="{{ p.name }}">{% endif %}<b>{{ p.name }}</b><div class="buyrow"><span class="price">{{ p.selling_price }} {{ p.currency }}</span><span class="badge pop">🔥</span></div></a>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}
 </div></section>
 <section><div class="sec-head"><h2>🛍 {{ t('home.market') }}</h2><a href="/marketplace">{{ t('home.view_all') }} →</a></div>
 <div class="grid cards">
-{% for l in listings %}<a class="card soft-out" href="/marketplace/{{ l.id }}"><b>{{ l.title }}</b><span class="price">{{ l.price }} {{ l.currency }}</span></a>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}
+{% for l in listings %}<a class="card soft-out" href="/marketplace/{{ l.id }}">{% if l.images %}<img class="pimg" src="{{ l.images[0] }}" alt="{{ l.title }}">{% endif %}<b>{{ l.title }}</b><span class="price">{{ l.price }} {{ l.currency }}</span></a>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}
 </div></section>
 <section class="duo">
 <div><div class="sec-head"><h2>💙 {{ t('home.donate') }}</h2><a href="/donations">{{ t('home.view_all') }} →</a></div>
@@ -25,4 +29,18 @@
 <div><div class="sec-head"><h2>🏷 {{ t('home.promo') }}</h2><a href="/promotions">{{ t('home.view_all') }} →</a></div>
 <div class="stack">{% for p in promos %}<a class="card soft-out" href="/promotions"><b>{{ p.title }}</b></a>{% else %}<div class="empty-state soft-in"><p>{{ t('common.empty') }}</p></div>{% endfor %}</div></div>
 </section>
+<section><div class="sec-head"><h2>⚙️ How it works</h2></div>
+<div class="how-grid">
+<div class="soft-out step"><div class="n">1</div><b>Choose a game</b><p class="muted">Pick top-ups, gift cards or marketplace deals.</p></div>
+<div class="soft-out step"><div class="n">2</div><b>Enter details</b><p class="muted">Player ID and region — validated securely.</p></div>
+<div class="soft-out step"><div class="n">3</div><b>Pay safely</b><p class="muted">Payme, Click or Stripe with verified webhooks.</p></div>
+<div class="soft-out step"><div class="n">4</div><b>Get delivery</b><p class="muted">Automatic supplier delivery + live tracking.</p></div>
+</div></section>
+<section><div class="sec-head"><h2>🛡 Trust & security</h2></div>
+<div class="trust-grid">
+<div class="card soft-out"><b>🔒 Verified payments</b><span class="muted">Only server-verified payments mark orders paid.</span></div>
+<div class="card soft-out"><b>📦 Honest delivery</b><span class="muted">No fake completions — every order is tracked.</span></div>
+<div class="card soft-out"><b>💸 Buyer protection</b><span class="muted">Refunds credited to your wallet.</span></div>
+<div class="card soft-out"><b>🛠 Human support</b><span class="muted">Real tickets with real replies.</span></div>
+</div></section>
 {% endblock %}

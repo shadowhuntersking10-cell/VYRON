@@ -39,8 +39,9 @@ async def index(request: Request, db: AsyncSession = Depends(get_db)):
     listings = (await db.execute(select(MarketplaceListing).where(MarketplaceListing.status == "active")
                                  .order_by(MarketplaceListing.is_promoted.desc(), MarketplaceListing.id.desc()).limit(8))).scalars().all()
     profiles = (await db.execute(select(DonationProfile).where(DonationProfile.is_active.is_(True)).limit(4))).scalars().all()
+    popular = (await db.execute(select(Product).where(Product.is_active.is_(True), Product.is_popular.is_(True)).order_by(Product.id).limit(8))).scalars().all()
     return templates.TemplateResponse(request, "public/index.html", await _ctx(
-        request, db, games=games[:8], promos=list(promos), listings=list(listings), profiles=list(profiles)))
+        request, db, games=games[:8], promos=list(promos), listings=list(listings), profiles=list(profiles), popular=list(popular)))
 
 
 @router.get("/games", response_class=HTMLResponse)
@@ -80,6 +81,19 @@ async def marketplace_detail(request: Request, listing_id: int, db: AsyncSession
         return templates.TemplateResponse(request, "errors/404.html", await _ctx(request, db), status_code=404)
     seller = await db.get(Seller, listing.seller_id)
     return templates.TemplateResponse(request, "public/marketplace_detail.html", await _ctx(request, db, listing=listing, seller=seller))
+
+
+@router.get("/sellers/{seller_id}", response_class=HTMLResponse)
+async def seller_profile(request: Request, seller_id: int, db: AsyncSession = Depends(get_db)):
+    from app.models import MarketplaceListing as _L
+    from app.models import Review as _R
+    seller = await db.get(Seller, seller_id)
+    if not seller or not seller.is_active:
+        return templates.TemplateResponse(request, "errors/404.html", await _ctx(request, db), status_code=404)
+    listings = (await db.execute(select(_L).where(_L.seller_id == seller.id, _L.status == "active").order_by(_L.id.desc()).limit(24))).scalars().all()
+    reviews = (await db.execute(select(_R).where(_R.seller_id == seller.id).order_by(_R.id.desc()).limit(20))).scalars().all()
+    return templates.TemplateResponse(request, "public/seller_profile.html", await _ctx(
+        request, db, seller=seller, listings=list(listings), reviews=list(reviews)))
 
 
 @router.get("/donations", response_class=HTMLResponse)
@@ -162,9 +176,9 @@ async def admin_index(request: Request, db: AsyncSession = Depends(get_db)):
 
 @router.get("/admin/{section}", response_class=HTMLResponse)
 async def admin_section(request: Request, section: str, db: AsyncSession = Depends(get_db)):
-    allowed = {"dashboard", "users", "games", "products", "orders", "payments", "suppliers",
+    allowed = {"dashboard", "users", "games", "categories", "products", "variants", "orders", "payments", "suppliers",
                "marketplace", "sellers", "donations", "promotions", "coupons", "payouts",
-               "revenue", "support", "fraud", "notifications", "telegram", "audit", "settings"}
+               "revenue", "wallets", "support", "fraud", "notifications", "telegram", "media", "audit", "settings"}
     if section not in allowed:
         return templates.TemplateResponse(request, "errors/404.html", await _ctx(request, db), status_code=404)
     ctx = await _ctx(request, db, section=section)

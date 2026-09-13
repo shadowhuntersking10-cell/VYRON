@@ -19,13 +19,42 @@ document.addEventListener('DOMContentLoaded', async () => {
       toast('Welcome, seller!'); location.reload();
     } catch (ex) { toast(ex.message); }
   });
+  try {
+    const cats = await api('/api/marketplace/categories');
+    const sel = document.getElementById('listingCat');
+    if (sel && cats.categories?.length) sel.innerHTML = cats.categories.map((c) => `<option value="${c}">${c}</option>`).join('');
+  } catch (e) {}
+  document.getElementById('listingFiles')?.addEventListener('change', (e) => {
+    const prev = document.getElementById('listingPreview');
+    prev.innerHTML = '';
+    [...e.target.files].slice(0, 8).forEach((f) => {
+      const img = document.createElement('img');
+      img.style.cssText = 'width:64px;height:64px;object-fit:cover;border-radius:10px';
+      img.src = URL.createObjectURL(f);
+      prev.appendChild(img);
+    });
+  });
   document.getElementById('listingForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
+    const btn = e.target.querySelector('button');
+    btn.disabled = true; btn.textContent = 'Publishing…';
     try {
-      await api('/api/marketplace/listings', { method: 'POST', body: JSON.stringify({ title: f.get('title'), description: f.get('description'), price: +f.get('price'), category: f.get('category') }) });
+      const images = [];
+      const files = [...(document.getElementById('listingFiles').files || [])].slice(0, 8);
+      for (const file of files) {
+        const fd = new FormData();
+        fd.append('file', file);
+        const r = await fetch('/api/media/upload?kind=listing', { method: 'POST', body: fd });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.detail || 'Upload failed');
+        images.push(d.url);
+      }
+      await api('/api/marketplace/listings', { method: 'POST', body: JSON.stringify({ title: f.get('title'), description: f.get('description'), price: +f.get('price'), category: f.get('category'), stock: +f.get('stock'), delivery_type: f.get('delivery_type'), images }) });
       toast('Listing published'); e.target.reset();
+      document.getElementById('listingPreview').innerHTML = '';
     } catch (ex) { toast(ex.message); }
+    finally { btn.disabled = false; btn.textContent = 'Publish'; }
   });
   if (document.getElementById('payoutList')) {
     const load = async () => {
@@ -41,6 +70,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
   if (document.getElementById('sellerOrders')) {
-    document.getElementById('sellerOrders').innerHTML = '<p class="muted">Sales appear here after your first order. Buyers pay → you get notified → balance updates.</p>';
+    try {
+      const orders = await api('/api/seller/orders');
+      document.getElementById('sellerOrders').innerHTML = orders.map((o) =>
+        `<div class="card soft-out"><b>${escapeHtml(o.title)}</b> × ${o.quantity}<span class="badge">${o.status}</span><span>${o.total} ${escapeHtml(o.currency)}</span><span class="muted">${o.public_id} · ${o.created_at}</span></div>`
+      ).join('') || '<div class="empty-state soft-in"><p>No sales yet. Buyers pay → you get notified → balance updates.</p></div>';
+    } catch (e) { document.getElementById('sellerOrders').innerHTML = '<div class="alert err">Failed to load</div>'; }
   }
 });

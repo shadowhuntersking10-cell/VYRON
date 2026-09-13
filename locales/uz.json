@@ -1,34 +1,171 @@
 {
-  "app": { "name": "VYRON", "tagline": "O'yinlar va raqamli bozor" },
+  "app": {
+    "name": "VYRON",
+    "tagline": "O'yinlar va raqamli bozor"
+  },
   "nav": {
-    "home": "Bosh sahifa", "games": "O'yinlar", "marketplace": "Market",
-    "donations": "Donatlar", "promotions": "Aksiyalar", "support": "Yordam",
-    "orders": "Buyurtmalar", "profile": "Profil", "admin": "Admin",
-    "login": "Kirish", "register": "Ro'yxatdan o'tish", "logout": "Chiqish",
-    "dashboard": "Kabinet", "wallet": "Hamyon", "favorites": "Sevimlilar",
-    "notifications": "Bildirishnomalar", "settings": "Sozlamalar", "security": "Xavfsizlik"
+    "home": "Bosh sahifa",
+    "games": "O'yinlar",
+    "marketplace": "Market",
+    "donations": "Donatlar",
+    "promotions": "Aksiyalar",
+    "support": "Yordam",
+    "orders": "Buyurtmalar",
+    "profile": "Profil",
+    "admin": "Admin",
+    "login": "Kirish",
+    "register": "Ro'yxatdan o'tish",
+    "logout": "Chiqish",
+    "dashboard": "Kabinet",
+    "wallet": "Hamyon",
+    "favorites": "Sevimlilar",
+    "notifications": "Bildirishnomalar",
+    "settings": "Sozlamalar",
+    "security": "Xavfsizlik"
   },
   "home": {
     "hero_title": "Sevimli o'yinlaringiz uchun to'lovlar",
     "hero_sub": "Top-up'lar, gift kartalar, market va donatlar — barchasi bir joyda.",
-    "cta_games": "O'yinlarni ko'rish", "cta_market": "Marketga o'tish",
-    "featured": "Mashhur o'yinlar", "popular": "Ommabop mahsulotlar",
-    "market": "Market tanlovlari", "donate": "Qo'llab-quvvatlash",
-    "promo": "Aksiyalar", "view_all": "Barchasi"
+    "cta_games": "O'yinlarni ko'rish",
+    "cta_market": "Marketga o'tish",
+    "featured": "Mashhur o'yinlar",
+    "popular": "Ommabop mahsulotlar",
+    "market": "Market tanlovlari",
+    "donate": "Qo'llab-quvvatlash",
+    "promo": "Aksiyalar",
+    "view_all": "Barchasi"
   },
   "checkout": {
-    "title": "To'lov", "step_product": "Mahsulot", "step_info": "Ma'lumotlar",
-    "step_summary": "Buyurtma", "step_payment": "To'lov", "step_done": "Tayyor",
-    "total": "Jami", "discount": "Chegirma", "service_fee": "Xizmat haqi",
-    "pay": "To'lash", "provider_nc": "To'lov provayderi sozlanmagan"
+    "coupon_ph": "Kupon kodi",
+    "apply": "Qo'llash",
+    "game_details": "O'yin ma'lumotlari",
+    "select_provider": "To'lov usulini tanlang",
+    "order_created": "Buyurtma yaratildi",
+    "need_login": "Davom etish uchun kiring"
   },
-  "order": { "status": "Holat", "timeline": "Buyurtma tarixi", "empty": "Hali buyurtmalar yo'q" },
+  "order": {
+    "timeline_created": "Yaratildi",
+    "timeline_payment_started": "To'lov boshlandi",
+    "timeline_payment_confirmed": "To'lov tasdiqlandi",
+    "timeline_processing": "Qayta ishlanmoqda",
+    "timeline_supplier": "Ta'minotchiga yuborildi",
+    "timeline_completed": "Bajarildi",
+    "timeline_failed": "Muvaffaqiyatsiz"
+  },
   "common": {
-    "search": "Qidirish...", "loading": "Yuklanmoqda...", "error": "Xatolik yuz berdi",
-    "empty": "Hozircha bo'sh", "retry": "Qayta urinish", "save": "Saqlash",
-    "cancel": "Bekor qilish", "delete": "O'chirish", "edit": "Tahrirlash",
-    "buy": "Sotib olish", "details": "Batafsil", "back": "Orqaga"
+    "search": "Qidirish...",
+    "loading": "Yuklanmoqda...",
+    "error": "Xatolik yuz berdi",
+    "empty": "Hozircha bo'sh",
+    "retry": "Qayta urinish",
+    "save": "Saqlash",
+    "cancel": "Bekor qilish",
+    "delete": "O'chirish",
+    "edit": "Tahrirlash",
+    "buy": "Sotib olish",
+    "details": "Batafsil",
+    "back": "Orqaga"
   },
-  "miniapp": { "welcome": "VYRON'ga xush kelibsiz 🎮" },
-  "footer": { "about": "Biz haqimizda", "terms": "Foydalanish shartlari", "privacy": "Maxfiylik", "refund": "Qaytarish siyosati" }
+  "miniapp": {
+    "welcome": "VYRON'ga xush kelibsiz 🎮"
+  },
+  "footer": {
+    "rights": "Barcha huquqlar himoyalangan",
+    "how": "Qanday ishlaydi",
+    "trust": "Ishonch va xavfsizlik"
+  },
+  "admin": {
+    "panel": "Admin panel",
+    "dashboard": "Boshqaruv",
+    "users": "Foydalanuvchilar",
+    "games": "O'yinlar",
+    "categories": "Kategoriyalar",
+    "products": "Mahsulotlar",
+    "variants": "Variantlar",
+    "orders": "Buyurtmalar",
+    "payments": "To'lovlar",
+    "suppliers": "Ta'minotchilar",
+    "marketplace": "Market",
+    "sellers": "Sotuvchilar",
+    "donations": "Donatlar",
+    "promotions": "Aksiyalar",
+    "coupons": "Kuponlar",
+    "payouts": "To'lovlar",
+    "revenue": "Daromad",
+    "wallets": "Hamyonlar",
+    "support": "Yordam",
+    "fraud": "Firibgarlik",
+    "notifications": "Bildirishnomalar",
+    "telegram": "Telegram",
+    "media": "Media",
+    "audit": "Audit",
+    "settings": "Sozlamalar",
+    "confirm": "Tasdiqlash",
+    "yes": "Ha",
+    "no": "Yo'q",
+    "actions": "Amallar",
+    "search": "Qidirish",
+    "filter": "Filtr",
+    "total": "Jami",
+    "save_ok": "Saqlandi"
+  },
+  "auth": {
+    "email": "Email",
+    "username": "Foydalanuvchi nomi",
+    "password": "Parol",
+    "new_password": "Yangi parol",
+    "current_password": "Joriy parol",
+    "full_name": "F.I.Sh",
+    "have_account": "Hisobingiz bormi?",
+    "no_account": "Hisobingiz yo'qmi?"
+  },
+  "donation": {
+    "donate": "Donat qilish",
+    "custom_amount": "Boshqa summa",
+    "anonymous": "Anonim",
+    "message": "Xabar",
+    "recent": "So'nggi homiylar",
+    "top": "Top homiylar",
+    "be_first": "Birinchi bo'ling!",
+    "goal": "Maqsad"
+  },
+  "market": {
+    "sell": "Sotish",
+    "sort_new": "Yangi",
+    "sort_cheap": "Arzon",
+    "sort_exp": "Qimmat",
+    "in_stock": "Mavjud",
+    "sold_out": "Tugagan",
+    "reviews": "Sharhlar",
+    "write_review": "Sharh yozish"
+  },
+  "wallet": {
+    "balance": "Balans",
+    "topup": "To'ldirish",
+    "transactions": "Tranzaksiyalar",
+    "amount": "Summa"
+  },
+  "support": {
+    "new_ticket": "Yangi murojaat",
+    "subject": "Mavzu",
+    "message": "Xabar",
+    "my_tickets": "Murojaatlarim",
+    "reply": "Javob"
+  },
+  "seller": {
+    "become": "Sotuvchi bo'lish",
+    "shop_name": "Do'kon nomi",
+    "sales": "Savdolar",
+    "available": "Mavjud",
+    "pending": "Kutilmoqda",
+    "payout": "Pul yechish",
+    "new_listing": "Yangi e'lon"
+  },
+  "errors": {
+    "required_login": "Avval kiring",
+    "not_found": "Topilmadi",
+    "forbidden": "Ruxsat yo'q",
+    "server": "Server xatosi",
+    "failed_load": "Yuklashda xatolik"
+  }
 }

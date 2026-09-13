@@ -45,11 +45,13 @@ async def profile_detail(username: str, db: AsyncSession = Depends(get_db)):
     top = (await db.execute(select(Donation).where(Donation.profile_id == p.id, Donation.status == "paid")
                             .order_by(Donation.amount.desc()).limit(5))).scalars().all()
     fee_pct = await donation_service.fee_percent(db)
+    from app.services import settings_service
+    presets = await settings_service.donation_presets_for(db, p.currency)
     return {
         "username": p.username, "bio": p.bio, "avatar_url": p.avatar_url,
         "goal_title": p.goal_title, "goal_amount": str(p.goal_amount),
         "current_amount": str(p.current_amount), "currency": p.currency,
-        "fee_percent": fee_pct,
+        "fee_percent": fee_pct, "presets": presets,
         "recent": [{"amount": str(d.amount), "message": d.message, "anonymous": d.is_anonymous,
                     "created_at": d.created_at.isoformat()} for d in recent],
         "top": [{"amount": str(d.amount), "anonymous": d.is_anonymous} for d in top],

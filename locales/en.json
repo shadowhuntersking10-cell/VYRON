@@ -1,34 +1,171 @@
 {
-  "app": { "name": "VYRON", "tagline": "Games & digital marketplace" },
+  "app": {
+    "name": "VYRON",
+    "tagline": "Games & digital marketplace"
+  },
   "nav": {
-    "home": "Home", "games": "Games", "marketplace": "Market",
-    "donations": "Donations", "promotions": "Promotions", "support": "Support",
-    "orders": "Orders", "profile": "Profile", "admin": "Admin",
-    "login": "Log in", "register": "Sign up", "logout": "Log out",
-    "dashboard": "Dashboard", "wallet": "Wallet", "favorites": "Favorites",
-    "notifications": "Notifications", "settings": "Settings", "security": "Security"
+    "home": "Home",
+    "games": "Games",
+    "marketplace": "Market",
+    "donations": "Donations",
+    "promotions": "Promotions",
+    "support": "Support",
+    "orders": "Orders",
+    "profile": "Profile",
+    "admin": "Admin",
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out",
+    "dashboard": "Dashboard",
+    "wallet": "Wallet",
+    "favorites": "Favorites",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "security": "Security"
   },
   "home": {
     "hero_title": "Top-ups for your favourite games",
     "hero_sub": "Top-ups, gift cards, marketplace and donations — all in one place.",
-    "cta_games": "Browse games", "cta_market": "Open market",
-    "featured": "Featured games", "popular": "Popular products",
-    "market": "Marketplace picks", "donate": "Support creators",
-    "promo": "Promotions", "view_all": "View all"
+    "cta_games": "Browse games",
+    "cta_market": "Open market",
+    "featured": "Featured games",
+    "popular": "Popular products",
+    "market": "Marketplace picks",
+    "donate": "Support creators",
+    "promo": "Promotions",
+    "view_all": "View all"
   },
   "checkout": {
-    "title": "Checkout", "step_product": "Product", "step_info": "Details",
-    "step_summary": "Summary", "step_payment": "Payment", "step_done": "Done",
-    "total": "Total", "discount": "Discount", "service_fee": "Service fee",
-    "pay": "Pay now", "provider_nc": "Payment provider not configured"
+    "coupon_ph": "Coupon code",
+    "apply": "Apply",
+    "game_details": "Game details",
+    "select_provider": "Select payment method",
+    "order_created": "Order created",
+    "need_login": "Login to continue"
   },
-  "order": { "status": "Status", "timeline": "Order timeline", "empty": "No orders yet" },
+  "order": {
+    "timeline_created": "Created",
+    "timeline_payment_started": "Payment started",
+    "timeline_payment_confirmed": "Payment confirmed",
+    "timeline_processing": "Processing",
+    "timeline_supplier": "Sent to supplier",
+    "timeline_completed": "Completed",
+    "timeline_failed": "Failed"
+  },
   "common": {
-    "search": "Search...", "loading": "Loading...", "error": "Something went wrong",
-    "empty": "Nothing here yet", "retry": "Retry", "save": "Save",
-    "cancel": "Cancel", "delete": "Delete", "edit": "Edit",
-    "buy": "Buy", "details": "Details", "back": "Back"
+    "search": "Search...",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "empty": "Nothing here yet",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "buy": "Buy",
+    "details": "Details",
+    "back": "Back"
   },
-  "miniapp": { "welcome": "Welcome to VYRON 🎮" },
-  "footer": { "about": "About", "terms": "Terms", "privacy": "Privacy", "refund": "Refund policy" }
+  "miniapp": {
+    "welcome": "Welcome to VYRON 🎮"
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "how": "How it works",
+    "trust": "Trust & security"
+  },
+  "admin": {
+    "panel": "Admin panel",
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "games": "Games",
+    "categories": "Categories",
+    "products": "Products",
+    "variants": "Variants",
+    "orders": "Orders",
+    "payments": "Payments",
+    "suppliers": "Suppliers",
+    "marketplace": "Marketplace",
+    "sellers": "Sellers",
+    "donations": "Donations",
+    "promotions": "Promotions",
+    "coupons": "Coupons",
+    "payouts": "Payouts",
+    "revenue": "Revenue",
+    "wallets": "Wallets",
+    "support": "Support",
+    "fraud": "Fraud",
+    "notifications": "Notifications",
+    "telegram": "Telegram",
+    "media": "Media",
+    "audit": "Audit",
+    "settings": "Settings",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "actions": "Actions",
+    "search": "Search",
+    "filter": "Filter",
+    "total": "Total",
+    "save_ok": "Saved"
+  },
+  "auth": {
+    "email": "Email",
+    "username": "Username",
+    "password": "Password",
+    "new_password": "New password",
+    "current_password": "Current password",
+    "full_name": "Full name",
+    "have_account": "Have an account?",
+    "no_account": "No account?"
+  },
+  "donation": {
+    "donate": "Donate",
+    "custom_amount": "Custom amount",
+    "anonymous": "Anonymous",
+    "message": "Message",
+    "recent": "Recent supporters",
+    "top": "Top supporters",
+    "be_first": "Be the first!",
+    "goal": "Goal"
+  },
+  "market": {
+    "sell": "Sell",
+    "sort_new": "New",
+    "sort_cheap": "Cheapest",
+    "sort_exp": "Expensive",
+    "in_stock": "In stock",
+    "sold_out": "Sold out",
+    "reviews": "Reviews",
+    "write_review": "Write a review"
+  },
+  "wallet": {
+    "balance": "Balance",
+    "topup": "Top up",
+    "transactions": "Transactions",
+    "amount": "Amount"
+  },
+  "support": {
+    "new_ticket": "New ticket",
+    "subject": "Subject",
+    "message": "Message",
+    "my_tickets": "My tickets",
+    "reply": "Reply"
+  },
+  "seller": {
+    "become": "Become a seller",
+    "shop_name": "Shop name",
+    "sales": "Sales",
+    "available": "Available",
+    "pending": "Pending",
+    "payout": "Payout",
+    "new_listing": "New listing"
+  },
+  "errors": {
+    "required_login": "Please login first",
+    "not_found": "Not found",
+    "forbidden": "Forbidden",
+    "server": "Server error",
+    "failed_load": "Failed to load"
+  }
 }

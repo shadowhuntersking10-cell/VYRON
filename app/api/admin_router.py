@@ -145,6 +145,47 @@ async def delete_game(game_id: int, request: Request, admin: User = Depends(requ
     return {"ok": True}
 
 
+# ---------- categories ----------
+class CategoryIn(BaseModel):
+    slug: str
+    name_uz: str
+    name_en: str
+    name_ru: str
+    sort_order: int = 0
+    is_active: bool = True
+
+
+@router.get("/categories")
+async def admin_categories(db: AsyncSession = Depends(get_db)):
+    rows = (await db.execute(select(GameCategory).order_by(GameCategory.sort_order))).scalars().all()
+    return [{"id": c.id, "slug": c.slug, "name_uz": c.name_uz, "name_en": c.name_en,
+             "name_ru": c.name_ru, "sort_order": c.sort_order, "is_active": c.is_active} for c in rows]
+
+
+@router.post("/categories")
+async def create_category(data: CategoryIn, request: Request, admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    if (await db.execute(select(GameCategory).where(GameCategory.slug == data.slug))).scalars().first():
+        raise HTTPException(400, "slug_taken")
+    c = GameCategory(**data.model_dump())
+    db.add(c)
+    await db.flush()
+    await audit_service.log_action(db, action="category_create", actor_id=admin.id, entity="category", entity_id=c.id, ip=_ip(request))
+    await db.commit()
+    return {"id": c.id}
+
+
+@router.patch("/categories/{category_id}")
+async def patch_category(category_id: int, data: CategoryIn, request: Request, admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    c = await db.get(GameCategory, category_id)
+    if not c:
+        raise HTTPException(404, "category_not_found")
+    for k, v in data.model_dump().items():
+        setattr(c, k, v)
+    await audit_service.log_action(db, action="category_update", actor_id=admin.id, entity="category", entity_id=c.id, ip=_ip(request))
+    await db.commit()
+    return {"ok": True}
+
+
 # ---------- products ----------
 class ProductIn(BaseModel):
     game_id: int
@@ -194,6 +235,118 @@ async def patch_product(product_id: int, data: ProductIn, request: Request, admi
         setattr(p, k, D(v) if k in ("supplier_cost", "selling_price") else v)
     await audit_service.log_action(db, action="price_change", actor_id=admin.id, entity="product", entity_id=p.id,
                                    ip=_ip(request), meta={"old": old_price, "new": str(p.selling_price)})
+    await db.commit()
+    return {"ok": True}
+
+
+# ---------- product variants ----------
+class VariantIn(BaseModel):
+    product_id: int
+    name: str
+    supplier_product_id: str | None = None
+    supplier_cost: float = 0
+    selling_price: float = 0
+    stock: int = -1
+    is_active: bool = True
+
+
+@router.get("/variants")
+async def admin_variants(product_id: int | None = None, db: AsyncSession = Depends(get_db)):
+    stmt = select(ProductVariant).order_by(ProductVariant.id.desc()).limit(300)
+    if product_id:
+        stmt = select(ProductVariant).where(ProductVariant.product_id == product_id).order_by(ProductVariant.id)
+    rows = (await db.execute(stmt)).scalars().all()
+    return [{"id": v.id, "product_id": v.product_id, "name": v.name,
+             "supplier_cost": str(v.supplier_cost), "selling_price": str(v.selling_price),
+             "stock": v.stock, "is_active": v.is_active} for v in rows]
+
+
+@router.post("/variants")
+async def create_variant(data: VariantIn, request: Request, admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    if not await db.get(Product, data.product_id):
+        raise HTTPException(404, "product_not_found")
+    v = ProductVariant(**{**data.model_dump(), "supplier_cost": D(data.supplier_cost), "selling_price": D(data.selling_price)})
+    db.add(v)
+    await db.flush()
+    await audit_service.log_action(db, action="variant_create", actor_id=admin.id, entity="variant", entity_id=v.id, ip=_ip(request))
+    await db.commit()
+    return {"id": v.id}
+
+
+@router.patch("/variants/{variant_id}")
+async def patch_variant(variant_id: int, data: VariantIn, request: Request, admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    v = await db.get(ProductVariant, variant_id)
+    if not v:
+        raise HTTPException(404, "variant_not_found")
+    for k, val in data.model_dump().items():
+        setattr(v, k, D(val) if k in ("supplier_cost", "selling_price") else val)
+    await audit_service.log_action(db, action="variant_update", actor_id=admin.id, entity="variant", entity_id=v.id, ip=_ip(request))
+    await db.commit()
+    return {"ok": True}
+
+
+@router.delete("/variants/{variant_id}")
+async def delete_variant(variant_id: int, request: Request, admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    v = await db.get(ProductVariant, variant_id)
+    if not v:
+        raise HTTPException(404, "variant_not_found")
+    v.is_active = False
+    await audit_service.log_action(db, action="variant_disable", actor_id=admin.id, entity="variant", entity_id=v.id, ip=_ip(request))
+    await db.commit()
+    return {"ok": True}
+
+
+# ---------- wallets ----------
+@router.get("/wallets")
+async def admin_wallets(page: int = 1, per_page: int = 20, db: AsyncSession = Depends(get_db)):
+    from app.models import Wallet
+    page, per_page = pagination_params(page, per_page)
+    stmt = select(Wallet).order_by(Wallet.id.desc())
+    total = (await db.execute(select(func.count()).select_from(stmt.subquery()))).scalar() or 0
+    rows = (await db.execute(stmt.offset((page - 1) * per_page).limit(per_page))).scalars().all()
+    return {"total": total, "page": page, "per_page": per_page,
+            "items": [{"id": w.id, "user_id": w.user_id, "balance": str(w.balance), "currency": w.currency} for w in rows]}
+
+
+@router.get("/wallets/{wallet_id}/transactions")
+async def admin_wallet_tx(wallet_id: int, db: AsyncSession = Depends(get_db)):
+    from app.models import WalletTransaction
+    rows = (await db.execute(select(WalletTransaction).where(WalletTransaction.wallet_id == wallet_id)
+                             .order_by(WalletTransaction.id.desc()).limit(100))).scalars().all()
+    return [{"id": t.id, "kind": t.kind, "amount": str(t.amount), "balance_after": str(t.balance_after),
+             "reference": t.reference, "created_at": t.created_at.isoformat()} for t in rows]
+
+
+# ---------- media library ----------
+@router.get("/media")
+async def admin_media(kind: str = "", page: int = 1, per_page: int = 30, db: AsyncSession = Depends(get_db)):
+    from app.models import MediaFile
+    page, per_page = pagination_params(page, per_page)
+    stmt = select(MediaFile).order_by(MediaFile.id.desc())
+    if kind:
+        stmt = select(MediaFile).where(MediaFile.kind == kind).order_by(MediaFile.id.desc())
+    total = (await db.execute(select(func.count()).select_from(stmt.subquery()))).scalar() or 0
+    rows = (await db.execute(stmt.offset((page - 1) * per_page).limit(per_page))).scalars().all()
+    return {"total": total, "page": page, "per_page": per_page,
+            "items": [{"id": m.id, "kind": m.kind, "filename": m.filename, "url": m.url,
+                       "mime": m.mime, "size_bytes": m.size_bytes, "owner_id": m.owner_id,
+                       "created_at": m.created_at.isoformat()} for m in rows]}
+
+
+@router.delete("/media/{media_id}")
+async def admin_delete_media(media_id: int, request: Request, admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    from pathlib import Path as _Path
+
+    from app.models import MediaFile
+    m = await db.get(MediaFile, media_id)
+    if not m:
+        raise HTTPException(404, "media_not_found")
+    try:
+        _Path(m.path).unlink(missing_ok=True)
+    except Exception:
+        pass
+    await db.delete(m)
+    await audit_service.log_action(db, action="media_delete", actor_id=admin.id, entity="media", entity_id=media_id, ip=_ip(request))
     await db.commit()
     return {"ok": True}
 
@@ -266,6 +419,47 @@ async def admin_order_status(order_id: int, data: OrderStatusIn, request: Reques
 
 
 # ---------- payments / refunds ----------
+@router.post("/orders/{order_id}/refund")
+async def admin_refund(order_id: int, request: Request,
+                       admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    """Refund a paid/completed order: creates a Refund record, marks the order
+    REFUNDED and credits the customer's wallet (refund credit ledger entry)."""
+    from app.models import Refund, RevenueLedger
+    from app.services import wallet_service
+    from app.services.notification_service import notify_user as _notify
+
+    order = await db.get(Order, order_id)
+    if not order:
+        raise HTTPException(404, "order_not_found")
+    if order.status not in (OrderStatus.PAID, OrderStatus.COMPLETED, OrderStatus.PROCESSING,
+                            OrderStatus.MANUAL_REVIEW, OrderStatus.REFUND_PENDING):
+        raise HTTPException(400, "order_not_refundable")
+    await db.refresh(order, attribute_names=["payments"])
+    paid = next((p for p in order.payments if p.status.value == "PAID"), None)
+    refund = Refund(order_id=order.id, payment_id=paid.id if paid else None,
+                    amount=order.total, currency=order.currency,
+                    reason="admin_refund", status="COMPLETED", processed_by=admin.id)
+    db.add(refund)
+    order.status = OrderStatus.REFUNDED
+    order.timeline = (order.timeline or []) + [{"event": "refunded", "at": dt.datetime.now(dt.timezone.utc).isoformat()}]
+    # Negative-net ledger entry so revenue reports stay truthful.
+    db.add(RevenueLedger(stream="refunds", order_id=order.id, gross=D(0),
+                         supplier_cost=D(0), processing_fee=D(0), seller_payout=D(0),
+                         net=-D(order.total), currency=order.currency))
+    if order.user_id:
+        wallet = await wallet_service.get_or_create_wallet(db, order.user_id)
+        await wallet_service.credit(db, wallet, order.total, kind="refund",
+                                    reference=f"refund:order:{order.id}")
+        await _notify(db, user_id=order.user_id, kind="payment", title="Refund completed",
+                      body=f"Order {order.public_id}: {order.total} {order.currency} credited to your wallet.",
+                      link=f"/app/orders/{order.public_id}")
+    await audit_service.log_action(db, action="refund", actor_id=admin.id, entity="order",
+                                   entity_id=order.id, ip=_ip(request),
+                                   meta={"amount": str(order.total)})
+    await db.commit()
+    return {"ok": True, "status": "REFUNDED"}
+
+
 @router.get("/payments")
 async def admin_payments(page: int = 1, per_page: int = 20, db: AsyncSession = Depends(get_db)):
     page, per_page = pagination_params(page, per_page)
@@ -338,6 +532,47 @@ async def admin_listings(status: str = "", db: AsyncSession = Depends(get_db)):
     rows = (await db.execute(stmt)).scalars().all()
     return [{"id": l.id, "title": l.title, "price": str(l.price), "status": l.status,
              "seller_id": l.seller_id, "is_promoted": l.is_promoted} for l in rows]
+
+
+@router.post("/listings/{listing_id}/promote")
+async def promote_listing(listing_id: int, promoted: bool = True, request: Request = None,  # type: ignore[assignment]
+                          admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    row = await db.get(MarketplaceListing, listing_id)
+    if not row:
+        raise HTTPException(404, "listing_not_found")
+    row.is_promoted = promoted
+    await audit_service.log_action(db, action="listing_promote" if promoted else "listing_unpromote",
+                                   actor_id=admin.id, entity="listing", entity_id=row.id,
+                                   ip=_ip(request) if request else None)
+    await db.commit()
+    return {"ok": True, "is_promoted": promoted}
+
+
+class SellerPatch(BaseModel):
+    is_verified: bool | None = None
+    is_active: bool | None = None
+    commission_percent: float | None = None
+    is_premium: bool | None = None
+
+
+@router.patch("/sellers/{seller_id}")
+async def patch_seller(seller_id: int, data: SellerPatch, request: Request,
+                       admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db)):
+    s = await db.get(Seller, seller_id)
+    if not s:
+        raise HTTPException(404, "seller_not_found")
+    if data.is_verified is not None:
+        s.is_verified = data.is_verified
+    if data.is_active is not None:
+        s.is_active = data.is_active
+    if data.is_premium is not None:
+        s.is_premium = data.is_premium
+    if data.commission_percent is not None:
+        s.commission_percent = D(data.commission_percent)
+    await audit_service.log_action(db, action="seller_update", actor_id=admin.id, entity="seller",
+                                   entity_id=s.id, ip=_ip(request), meta=data.model_dump())
+    await db.commit()
+    return {"ok": True}
 
 
 @router.get("/payouts")

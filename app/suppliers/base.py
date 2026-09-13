@@ -48,6 +48,10 @@ class SupplierProvider:
     async def get_product(self, external_id: str) -> dict | None:
         raise NotImplementedError
 
+    async def get_products(self) -> list[dict]:
+        """List supplier-side products (sync catalogue). Default: unsupported."""
+        return []
+
     async def create_order(
         self, *, external_product_id: str, customer_fields: dict,
         quantity: int = 1, idempotency_key: str = "",
