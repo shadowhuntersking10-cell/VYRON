@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form-card">
+  <h1>{{ t('reset_password', lang) }}</h1>
+  <form id="forgot-form">
+    <div class="form-err"></div><div class="form-ok"></div>
+    <div class="field"><label>{{ t('email', lang) }}</label><input class="input" type="email" name="email" required></div>
+    <button class="btn btn-primary btn-block" type="submit">{{ t('submit', lang) }}</button>
+  </form>
+</div>
+{% endblock %}

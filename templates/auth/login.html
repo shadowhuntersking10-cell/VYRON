@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form-card">
+  <h1>{{ t('login', lang) }}</h1>
+  <form id="login-form">
+    <div class="form-err"></div>
+    <div class="field"><label>{{ t('username', lang) }} / {{ t('email', lang) }}</label><input class="input" name="login" required autocomplete="username"></div>
+    <div class="field"><label>{{ t('password', lang) }}</label><input class="input" type="password" name="password" required autocomplete="current-password"></div>
+    <button class="btn btn-primary btn-block" type="submit">{{ t('login_btn', lang) }}</button>
+  </form>
+  <p><a href="/forgot-password">{{ t('forgot', lang) }}</a></p>
+  <p><a href="/register">{{ t('no_account', lang) }}</a></p>
+</div>
+{% endblock %}

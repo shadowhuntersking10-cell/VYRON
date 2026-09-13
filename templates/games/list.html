@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🎮 {{ t('games', lang) }}</h1>
+<form method="get" class="toolbar"><input class="input" name="search" value="{{ search }}" placeholder="{{ t('search_placeholder', lang) }}"><button class="btn btn-soft btn-sm" type="submit">{{ t('search', lang) }}</button></form>
+{% if games %}
+<div class="grid games">
+  {% for g in games %}
+  <a class="card game-card" href="/games/{{ g.slug }}"><img src="{{ g.logo or '/static/images/fallback.svg' }}" alt="{{ g.name }}" loading="lazy" onerror="this.src='/static/images/fallback.svg'"><h3>{{ g.name }}</h3><p>{% if g.featured %}<span class="badge hot">{{ t('featured', lang) }}</span>{% endif %}</p></a>
+  {% endfor %}
+</div>
+{% else %}<div class="panel">{{ t('no_results', lang) }}</div>{% endif %}
+{% endblock %}

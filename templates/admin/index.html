@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>⚙️ {{ t('admin', lang) }}</h1>
+<div class="admin-layout" id="admin-root">
+  <aside class="admin-side">
+    <button data-section="dashboard" class="active">📊 {{ t('dashboard', lang) }}</button>
+    <button data-section="users">👥 {{ t('users', lang) }}</button>
+    <button data-section="games">🎮 {{ t('games', lang) }}</button>
+    <button data-section="products">📦 {{ t('products', lang) }} / {{ t('pricing', lang) }}</button>
+    <button data-section="orders">🧾 {{ t('orders', lang) }}</button>
+    <button data-section="payments">💳 {{ t('payments', lang) }}</button>
+    <button data-section="suppliers">🏭 {{ t('suppliers', lang) }}</button>
+    <button data-section="sellers">🏪 {{ t('sellers', lang) }} / {{ t('payouts', lang) }}</button>
+    <button data-section="coupons">🎟 {{ t('coupons', lang) }}</button>
+    <button data-section="promotions">🎁 {{ t('promotions', lang) }}</button>
+    <button data-section="media">🖼 {{ t('media', lang) }}</button>
+    <button data-section="support">💬 {{ t('support', lang) }}</button>
+    <button data-section="audit">📜 {{ t('audit', lang) }}</button>
+    <button data-section="settings">⚙️ {{ t('settings', lang) }}</button>
+  </aside>
+  <div class="panel" id="admin-view"><div class="skeleton" style="height:200px"></div></div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="/static/js/admin.js"></script>{% endblock %}

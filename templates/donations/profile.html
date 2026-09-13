@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<img class="cover" src="{{ profile.cover or '/static/images/fallback.svg' }}" alt="cover" onerror="this.src='/static/images/fallback.svg'">
+<div class="game-head">
+  <img class="logo" src="{{ profile.avatar or '/static/images/fallback.svg' }}" alt="{{ profile.display_name }}" onerror="this.src='/static/images/fallback.svg'">
+  <div><h1 style="margin:0">{{ profile.display_name }}</h1><p style="color:var(--muted)">@{{ profile.username }}</p></div>
+</div>
+<p>{{ profile.bio }}</p>
+<div class="progress"><div style="width:{{ progress }}%"></div></div>
+<p><b>{{ money(profile.raised_amount) }}</b> / {{ money(profile.goal_amount) }} ({{ progress }}%)</p>
+<div class="checkout-grid" id="donate-root" data-username="{{ profile.username }}">
+  <div class="panel">
+    <h3>{{ t('donate', lang) }}</h3>
+    <div class="preset-grid">
+      {% for pr in presets %}<button class="preset" data-amount="{{ pr.amount }}">{{ money(pr.amount) }}</button>{% endfor %}
+    </div>
+    <div class="field" style="margin-top:12px"><label>{{ t('custom_amount', lang) }}</label><input class="input" id="custom-amount" type="number" min="1000"></div>
+    <div class="field"><label>{{ t('your_message', lang) }}</label><textarea class="input" id="donate-msg"></textarea></div>
+    <label><input type="checkbox" id="donate-anon"> {{ t('anonymous', lang) }}</label>
+    <div style="margin-top:14px">
+      {% if user %}<button class="btn btn-primary btn-block" id="donate-btn">{{ t('donate_btn', lang) }}</button>
+      {% else %}<a class="btn btn-primary btn-block" href="/login?next=/donations/{{ profile.username }}">{{ t('login_required', lang) }}</a>{% endif %}
+    </div>
+  </div>
+  <div>
+    <div class="panel"><h3>{{ t('recent_supporters', lang) }}</h3>
+      {% for d in recent %}<div class="donor-row"><span>{{ '🕶️' if d.is_anonymous else '💜' }} {{ 'Anonymous' if d.is_anonymous else d.donor_name }}</span><b>{{ money(d.amount) }}</b></div>{% else %}<p>{{ t('empty', lang) }}</p>{% endfor %}
+    </div>
+    <div class="panel" style="margin-top:16px"><h3>{{ t('top_supporters', lang) }}</h3>
+      {% for d in top %}<div class="donor-row"><span>🏆 {{ 'Anonymous' if d.is_anonymous else d.donor_name }}</span><b>{{ money(d.amount) }}</b></div>{% else %}<p>{{ t('empty', lang) }}</p>{% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

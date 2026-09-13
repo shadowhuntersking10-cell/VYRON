@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="checkout-grid">
+  <div class="panel" style="text-align:center">
+    <img src="{{ product.image or '/static/images/fallback.svg' }}" alt="{{ product.name }}" style="max-height:280px;border-radius:20px" onerror="this.src='/static/images/fallback.svg'">
+    <h1>{{ product.name }}</h1>
+    {% if game %}<p><a href="/games/{{ game.slug }}">{{ game.name }}</a></p>{% endif %}
+    <p>{{ product.description }}</p>
+    {% if variants %}<p><b>{{ t('select_variant', lang) }}:</b></p>
+    <div class="preset-grid">{% for v in variants %}<button class="preset" data-variant="{{ v.id }}">{{ v.name }} (+{{ money(v.price_delta) }})</button>{% endfor %}</div>{% endif %}
+  </div>
+  <div class="panel">
+    <div class="price-row"><span class="price" style="font-size:32px">{{ money(product.customer_price) }}</span>{% if product.old_price and product.old_price > product.customer_price %}<span class="old-price">{{ money(product.old_price) }}</span>{% endif %}</div>
+    <div class="kv"><span>{{ t('order_status', lang) }}</span><b>{{ t('in_stock' if product.stock_status=='in_stock' else 'out_of_stock', lang) }}</b></div>
+    <div style="margin-top:16px"><a class="btn btn-primary btn-block" href="/checkout?product={{ product.id }}">{{ t('buy_now', lang) }}</a></div>
+    <div style="margin-top:10px"><button class="btn btn-soft btn-block" data-fav="product:{{ product.id }}">♥ {{ t('favorites', lang) }}</button></div>
+  </div>
+</div>
+{% endblock %}

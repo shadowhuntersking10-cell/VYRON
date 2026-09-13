@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>💬 {{ t('support', lang) }}</h1>
+{% if user %}
+<div class="checkout-grid">
+  <div class="panel">
+    <h3>{{ t('my_tickets', lang) }}</h3>
+    <div id="my-tickets"><div class="skeleton"></div></div>
+    <hr>
+    <h3>{{ t('new_ticket', lang) }}</h3>
+    <form id="ticket-form">
+      <div class="field"><label>{{ t('subject', lang) }}</label><input class="input" name="subject" required></div>
+      <div class="field"><label>{{ t('category', lang) }}</label><select class="input" name="category"><option value="general">general</option><option value="payment">payment</option><option value="order">order</option><option value="seller">seller</option></select></div>
+      <div class="field"><label>{{ t('message', lang) }}</label><textarea class="input" name="body" required></textarea></div>
+      <button class="btn btn-primary" type="submit">{{ t('submit', lang) }}</button>
+    </form>
+  </div>
+  <div class="panel"><h3>{{ t('message', lang) }}</h3>
+    <div id="ticket-thread" class="chat-box"><p>{{ t('empty', lang) }}</p></div>
+    <form id="reply-form"><div class="toolbar"><input class="input" id="reply-body" placeholder="{{ t('type_message', lang) }}" required><button class="btn btn-primary btn-sm" type="submit">{{ t('send', lang) }}</button></div></form>
+  </div>
+</div>
+<script>fetch("/api/support/tickets").then(r=>r.json()).then(d=>{document.getElementById("my-tickets").innerHTML=d.items.map(t=>'<div class="donor-row"><span><a href="/support?ticket='+t.id+'">#'+t.id+" "+t.subject+'</a></span><b>'+t.status+"</b></div>").join("")||"<p>{{ t('no_tickets', lang) }}</p>"});</script>
+{% else %}<div class="panel"><a href="/login?next=/support">{{ t('login_required', lang) }}</a></div>{% endif %}
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<img class="game-banner" src="{{ game.banner or game.cover or '/static/images/fallback.svg' }}" alt="{{ game.name }}" onerror="this.src='/static/images/fallback.svg'">
+<div class="game-head">
+  <img class="logo" src="{{ game.logo or '/static/images/fallback.svg' }}" alt="{{ game.name }} logo" onerror="this.src='/static/images/fallback.svg'">
+  <div><h1 style="margin:0">{{ game.name }}</h1><p style="color:var(--muted)">{{ game.description }}</p></div>
+</div>
+<form method="get" class="toolbar">
+  <input class="input" name="search" value="{{ search }}" placeholder="{{ t('search', lang) }}">
+  <select class="input" name="sort" onchange="this.form.submit()">
+    <option value="popular" {% if sort=='popular' %}selected{% endif %}>{{ t('sort_popular', lang) }}</option>
+    <option value="price_asc" {% if sort=='price_asc' %}selected{% endif %}>{{ t('sort_price_asc', lang) }}</option>
+    <option value="price_desc" {% if sort=='price_desc' %}selected{% endif %}>{{ t('sort_price_desc', lang) }}</option>
+  </select>
+</form>
+{% if products %}
+<div class="grid products">
+  {% for p in products %}
+  <div class="card product-card">
+    <a href="/products/{{ p.slug }}"><img class="pimg" src="{{ p.image or '/static/images/fallback.svg' }}" alt="{{ p.name }}" loading="lazy" onerror="this.src='/static/images/fallback.svg'"></a>
+    <div class="card-body">
+      {% if p.popular %}<span class="badge hot">{{ t('popular', lang) }}</span>{% endif %}
+      <span class="badge {% if p.stock_status=='in_stock' %}ok{% else %}err{% endif %}">{{ t('in_stock' if p.stock_status=='in_stock' else 'out_of_stock', lang) }}</span>
+      <h3 style="margin-top:8px"><a href="/products/{{ p.slug }}" style="color:inherit;text-decoration:none">{{ p.name }}</a></h3>
+      <div class="price-row"><span class="price">{{ money(p.customer_price) }}</span>{% if p.old_price and p.old_price > p.customer_price %}<span class="old-price">{{ money(p.old_price) }}</span>{% endif %}</div>
+      <a class="btn btn-primary btn-sm btn-block" href="/checkout?product={{ p.id }}">{{ t('buy_now', lang) }}</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}<div class="panel">{{ t('no_results', lang) }}</div>{% endif %}
+{% endblock %}

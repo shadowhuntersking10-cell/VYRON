@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form-card" style="text-align:center">
+  <h1>{{ t('verify_email', lang) }}</h1>
+  <input type="hidden" id="verify-email-token" value="{{ token }}">
+  <p id="verify-result">{{ t('loading', lang) }}</p>
+  <a class="btn btn-soft" href="/">{{ t('home', lang) }}</a>
+</div>
+{% endblock %}

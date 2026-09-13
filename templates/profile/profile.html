@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>👤 {{ user.display_name or user.username }}</h1>
+<div class="checkout-grid">
+  <div>
+    <div class="panel">
+      <h3>{{ t('settings_title', lang) }}</h3>
+      <form id="profile-form">
+        <div class="field"><label>{{ t('display_name', lang) }}</label><input class="input" name="display_name" value="{{ user.display_name or '' }}"></div>
+        <div class="field"><label>{{ t('language', lang) }}</label><select class="input" name="lang"><option value="uz" {% if user.lang=='uz' %}selected{% endif %}>O'zbek</option><option value="en" {% if user.lang=='en' %}selected{% endif %}>English</option><option value="ru" {% if user.lang=='ru' %}selected{% endif %}>Русский</option></select></div>
+        <div class="field"><label>{{ t('theme', lang) }}</label><select class="input" name="theme"><option value="system" {% if user.theme=='system' %}selected{% endif %}>{{ t('theme_system', lang) }}</option><option value="dark" {% if user.theme=='dark' %}selected{% endif %}>{{ t('theme_dark', lang) }}</option><option value="light" {% if user.theme=='light' %}selected{% endif %}>{{ t('theme_light', lang) }}</option></select></div>
+        <button class="btn btn-primary" type="submit">{{ t('save', lang) }}</button>
+        <a class="btn btn-soft" href="/security">{{ t('security', lang) }}</a>
+        <button class="btn btn-soft" type="button" id="logout-btn">{{ t('logout', lang) }}</button>
+      </form>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <h3>💰 {{ t('wallet', lang) }}: {{ money(wallet.balance) }}</h3>
+      <div class="toolbar"><input class="input" id="deposit-amount" type="number" placeholder="{{ t('amount', lang) }}"><button class="btn btn-primary btn-sm" id="deposit-btn">{{ t('deposit', lang) }}</button></div>
+    </div>
+    {% if seller %}
+    <div class="panel" style="margin-top:16px">
+      <h3>🏪 {{ t('seller_dashboard', lang) }} ({{ seller.status }})</h3>
+      <form id="listing-form">
+        <div class="field"><label>{{ t('title', lang) }}</label><input class="input" name="title" required></div>
+        <div class="field"><label>{{ t('description', lang) }}</label><textarea class="input" name="description"></textarea></div>
+        <div class="field"><label>{{ t('price', lang) }}</label><input class="input" name="price" type="number" required></div>
+        <div class="field"><label>{{ t('stock', lang) }}</label><input class="input" name="stock" type="number" value="1"></div>
+        <button class="btn btn-primary" type="submit">{{ t('create_listing', lang) }}</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+  <div>
+    <div class="panel"><h3>🔔 {{ t('notifications', lang) }}</h3>
+      {% for n in notifs %}<div class="donor-row"><span><b>{{ n.title }}</b><br><small>{{ n.body }}</small></span></div>{% else %}<p>{{ t('no_notifications', lang) }}</p>{% endfor %}
+    </div>
+    <div class="panel" style="margin-top:16px"><h3>♥ {{ t('my_favorites', lang) }} ({{ favs|length }})</h3>
+      {% for f in favs %}<div class="donor-row"><span>{{ f.target_type }} #{{ f.target_id }}</span></div>{% else %}<p>{{ t('empty', lang) }}</p>{% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🛒 {{ t('marketplace', lang) }}</h1>
+<form method="get" class="toolbar">
+  <input class="input" name="search" value="{{ search }}" placeholder="{{ t('search_placeholder', lang) }}">
+  <select class="input" name="category_id" onchange="this.form.submit()">
+    <option value="">{{ t('all', lang) }}</option>
+    {% for c in cats %}<option value="{{ c.id }}" {% if category_id==c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+  </select>
+  <button class="btn btn-soft btn-sm" type="submit">{{ t('search', lang) }}</button>
+</form>
+{% if listings %}
+<div class="grid products">
+  {% for l in listings %}
+  <div class="card product-card">
+    <a href="/marketplace/{{ l.slug }}"><img class="pimg" src="{{ l.images[0].url if l.images else '/static/images/fallback.svg' }}" alt="{{ l.title }}" loading="lazy" onerror="this.src='/static/images/fallback.svg'"></a>
+    <div class="card-body">
+      {% if l.featured %}<span class="badge hot">{{ t('featured', lang) }}</span>{% endif %}
+      <span class="badge">★ {{ l.rating }}</span>
+      <h3 style="margin-top:8px"><a href="/marketplace/{{ l.slug }}" style="color:inherit;text-decoration:none">{{ l.title }}</a></h3>
+      <div class="price-row"><span class="price">{{ money(l.price) }}</span></div>
+      <a class="btn btn-primary btn-sm btn-block" href="/marketplace/{{ l.slug }}">{{ t('buy_now', lang) }}</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}<div class="panel">{{ t('no_results', lang) }}</div>{% endif %}
+<hr style="margin:40px 0;border-color:var(--border)">
+<h2>{{ t('become_seller', lang) }}</h2>
+{% if user %}
+<form id="seller-register-form" class="panel" style="max-width:520px">
+  <div class="field"><label>{{ t('name', lang) }}</label><input class="input" name="shop_name" required></div>
+  <div class="field"><label>{{ t('description', lang) }}</label><textarea class="input" name="bio"></textarea></div>
+  <button class="btn btn-primary" type="submit">{{ t('submit', lang) }}</button>
+</form>
+{% else %}<p><a href="/login?next=/marketplace">{{ t('login_required', lang) }}</a></p>{% endif %}
+{% endblock %}

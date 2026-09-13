@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero" aria-label="hero">
+  <h1>{{ t('hero_title', lang) }}</h1>
+  <p>{{ t('hero_sub', lang) }}</p>
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="/games">{{ t('cta_games', lang) }}</a>
+    <a class="btn btn-soft" href="/marketplace">{{ t('cta_market', lang) }}</a>
+  </div>
+</section>
+
+{% if promos %}
+<section class="section"><div class="grid cols-4">
+  {% for p in promos[:3] %}
+  <a class="card" href="{{ p.target_url or '/promotions' }}"><img src="{{ p.banner or '/static/images/fallback.svg' }}" alt="{{ p.title }}" style="width:100%;height:150px;object-fit:cover" loading="lazy" onerror="this.src='/static/images/fallback.svg'"><div class="card-body"><b>{{ p.title }}</b></div></a>
+  {% endfor %}
+</div></section>
+{% endif %}
+
+<section class="section">
+  <div class="section-head"><h2>🔥 {{ t('popular_games', lang) }}</h2><a href="/games">{{ t('view_all', lang) }} →</a></div>
+  <div class="grid games">
+    {% for g in games %}
+    <a class="card game-card" href="/games/{{ g.slug }}">
+      <img src="{{ g.logo or '/static/images/fallback.svg' }}" alt="{{ g.name }}" loading="lazy" onerror="this.src='/static/images/fallback.svg'">
+      <h3>{{ g.name }}</h3><p>{% if g.featured %}<span class="badge hot">{{ t('featured', lang) }}</span>{% endif %}</p>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>⚡ {{ t('popular_products', lang) }}</h2><a href="/games">{{ t('view_all', lang) }} →</a></div>
+  <div class="grid products">
+    {% for p in products %}
+    <div class="card product-card">
+      <a href="/products/{{ p.slug }}"><img class="pimg" src="{{ p.image or '/static/images/fallback.svg' }}" alt="{{ p.name }}" loading="lazy" onerror="this.src='/static/images/fallback.svg'"></a>
+      <div class="card-body">
+        {% if p.popular %}<span class="badge hot">{{ t('popular', lang) }}</span>{% endif %}
+        <h3><a href="/products/{{ p.slug }}" style="color:inherit;text-decoration:none">{{ p.name }}</a></h3>
+        <div class="price-row"><span class="price">{{ money(p.customer_price) }}</span>{% if p.old_price and p.old_price > p.customer_price %}<span class="old-price">{{ money(p.old_price) }}</span>{% endif %}</div>
+        <a class="btn btn-primary btn-sm btn-block" href="/checkout?product={{ p.id }}">{{ t('buy_now', lang) }}</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% if listings %}
+<section class="section">
+  <div class="section-head"><h2>🛒 {{ t('featured_market', lang) }}</h2><a href="/marketplace">{{ t('view_all', lang) }} →</a></div>
+  <div class="grid products">
+    {% for l in listings %}
+    <div class="card product-card">
+      <a href="/marketplace/{{ l.slug }}"><img class="pimg" src="{{ l.images[0].url if l.images else '/static/images/fallback.svg' }}" alt="{{ l.title }}" loading="lazy" onerror="this.src='/static/images/fallback.svg'"></a>
+      <div class="card-body"><h3><a href="/marketplace/{{ l.slug }}" style="color:inherit;text-decoration:none">{{ l.title }}</a></h3>
+      <div class="price-row"><span class="price">{{ money(l.price) }}</span></div>
+      <a class="btn btn-soft btn-sm btn-block" href="/marketplace/{{ l.slug }}">{{ t('details', lang) }}</a></div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if profiles %}
+<section class="section">
+  <div class="section-head"><h2>💜 {{ t('donation_profiles', lang) }}</h2><a href="/donations">{{ t('view_all', lang) }} →</a></div>
+  <div class="grid cols-4">
+    {% for p in profiles %}
+    <a class="card" href="/donations/{{ p.username }}" style="color:inherit;text-decoration:none">
+      <img src="{{ p.cover or '/static/images/fallback.svg' }}" alt="{{ p.display_name }}" style="width:100%;height:130px;object-fit:cover" loading="lazy" onerror="this.src='/static/images/fallback.svg'">
+      <div class="card-body"><b>{{ p.display_name }}</b><br><small>@{{ p.username }} · {{ money(p.raised_amount) }} / {{ money(p.goal_amount) }}</small></div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="section">
+  <div class="section-head"><h2>{{ t('how_works', lang) }}</h2></div>
+  <div class="grid cols-4">
+    <div class="card"><div class="card-body"><h3>1️⃣ {{ t('how_1', lang) }}</h3><p>{{ t('how_1t', lang) }}</p></div></div>
+    <div class="card"><div class="card-body"><h3>2️⃣ {{ t('how_2', lang) }}</h3><p>{{ t('how_2t', lang) }}</p></div></div>
+    <div class="card"><div class="card-body"><h3>3️⃣ {{ t('how_3', lang) }}</h3><p>{{ t('how_3t', lang) }}</p></div></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>{{ t('trust_title', lang) }}</h2></div>
+  <div class="grid cols-4">
+    <div class="card"><div class="card-body">🔒 <b>{{ t('trust_1', lang) }}</b></div></div>
+    <div class="card"><div class="card-body">💎 <b>{{ t('trust_2', lang) }}</b></div></div>
+    <div class="card"><div class="card-body">💬 <b>{{ t('trust_3', lang) }}</b></div></div>
+  </div>
+</section>
+{% endblock %}

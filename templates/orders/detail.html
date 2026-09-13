@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ t('order_id', lang) }} {{ order.public_id }}</h1>
+<div class="checkout-grid">
+  <div class="panel">
+    <div class="kv"><span>{{ t('status', lang) }}</span><b><span class="badge">{{ order.status }}</span></b></div>
+    <h3>{{ t('order_items', lang) }}</h3>
+    {% for i in order.items %}<div class="kv"><span>{{ i.title }} × {{ i.quantity }}</span><b>{{ money(i.total_price) }}</b></div>{% endfor %}
+    <div class="kv"><span>{{ t('subtotal', lang) }}</span><span>{{ money(order.subtotal) }}</span></div>
+    <div class="kv"><span>{{ t('discount_label', lang) }}</span><span>{{ money(order.discount) }}</span></div>
+    <div class="kv"><span>{{ t('payment_fee', lang) }}</span><span>{{ money(order.payment_fee) }}</span></div>
+    <div class="kv total"><span>{{ t('total', lang) }}</span><span>{{ money(order.total) }}</span></div>
+  </div>
+  <div class="panel"><h3>{{ t('order_timeline', lang) }}</h3>
+    <ul class="timeline">{% for e in timeline %}<li><b>{{ e.event }}</b><br><small>{{ e.note }} · {{ e.at }}</small></li>{% endfor %}</ul>
+  </div>
+</div>
+{% endblock %}

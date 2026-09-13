@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form-card">
+  <h1>{{ t('register', lang) }}</h1>
+  <form id="register-form">
+    <div class="form-err"></div>
+    <div class="field"><label>{{ t('username', lang) }}</label><input class="input" name="username" required minlength="3" maxlength="32" autocomplete="username"></div>
+    <div class="field"><label>{{ t('email', lang) }}</label><input class="input" type="email" name="email" required autocomplete="email"></div>
+    <div class="field"><label>{{ t('password', lang) }}</label><input class="input" type="password" name="password" required minlength="8" autocomplete="new-password"></div>
+    <div class="field"><label>{{ t('password_confirm', lang) }}</label><input class="input" type="password" name="password_confirm" required minlength="8" autocomplete="new-password"></div>
+    <button class="btn btn-primary btn-block" type="submit">{{ t('register_btn', lang) }}</button>
+  </form>
+  <p><a href="/login">{{ t('have_account', lang) }}</a></p>
+</div>
+{% endblock %}

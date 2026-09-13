@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="panel" style="text-align:center">
+  <h1>🏪 {{ seller.shop_name }}</h1>
+  <p>★ {{ seller.rating }} · {{ seller.sales_count }} sales</p>
+  <p>{{ seller.bio }}</p>
+</div>
+<h2>{{ t('products', lang) }}</h2>
+<div class="grid products">
+  {% for l in listings %}
+  <div class="card product-card"><a href="/marketplace/{{ l.slug }}"><img class="pimg" src="{{ l.images[0].url if l.images else '/static/images/fallback.svg' }}" alt="{{ l.title }}" loading="lazy" onerror="this.src='/static/images/fallback.svg'"></a>
+  <div class="card-body"><h3>{{ l.title }}</h3><div class="price-row"><span class="price">{{ money(l.price) }}</span></div><a class="btn btn-primary btn-sm btn-block" href="/marketplace/{{ l.slug }}">{{ t('details', lang) }}</a></div></div>
+  {% endfor %}
+</div>
+{% endblock %}

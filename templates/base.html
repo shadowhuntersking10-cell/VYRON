@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" data-theme="{{ theme }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{ seo.title if seo and seo.title else 'VYRON' }}</title>
+<meta name="description" content="{{ seo.description if seo and seo.description else t('brand_tag', lang) }}">
+<meta property="og:title" content="{{ seo.title if seo and seo.title else 'VYRON' }}">
+<meta property="og:description" content="{{ seo.description if seo and seo.description else t('brand_tag', lang) }}">
+<meta property="og:type" content="website">
+<link rel="canonical" href="{{ settings.BASE_URL }}{{ request.url.path }}">
+<link rel="icon" href="/static/icons/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/css/main.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>window.I18N_ERRORS = {};</script>
+{% block head %}{% endblock %}
+</head>
+<body>
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" href="/">VYRON</a>
+    <nav class="nav" aria-label="main">
+      <a href="/games">{{ t('games', lang) }}</a>
+      <a href="/marketplace">{{ t('marketplace', lang) }}</a>
+      <a href="/donations">{{ t('donations', lang) }}</a>
+      <a href="/promotions">{{ t('promotions', lang) }}</a>
+      <a href="/support">{{ t('support', lang) }}</a>
+    </nav>
+    <div class="header-actions">
+      <select class="mini-select" onchange="setLang(this.value)" aria-label="{{ t('language', lang) }}">
+        <option value="uz" {% if lang=='uz' %}selected{% endif %}>O'Z</option>
+        <option value="en" {% if lang=='en' %}selected{% endif %}>EN</option>
+        <option value="ru" {% if lang=='ru' %}selected{% endif %}>RU</option>
+      </select>
+      <select class="mini-select" onchange="setTheme(this.value)" aria-label="{{ t('theme', lang) }}">
+        <option value="system">◐</option>
+        <option value="dark">🌙</option>
+        <option value="light">☀️</option>
+      </select>
+      {% if user %}
+        <a class="btn btn-soft btn-sm" href="/profile">{{ user.display_name or user.username }}</a>
+        {% if is_admin %}<a class="btn btn-primary btn-sm" href="/admin">{{ t('admin', lang) }}</a>{% endif %}
+      {% else %}
+        <a class="btn btn-soft btn-sm" href="/login">{{ t('login', lang) }}</a>
+        <a class="btn btn-primary btn-sm" href="/register">{{ t('register', lang) }}</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+<main class="container page">
+{% block content %}{% endblock %}
+</main>
+<div class="bottom-nav"><nav>
+  <a href="/"><span class="ico">🏠</span>{{ t('home', lang) }}</a>
+  <a href="/games"><span class="ico">🎮</span>{{ t('games', lang) }}</a>
+  <a href="/marketplace"><span class="ico">🛒</span>{{ t('marketplace', lang) }}</a>
+  <a href="/orders"><span class="ico">📦</span>{{ t('orders_tab', lang) }}</a>
+  <a href="/profile"><span class="ico">👤</span>{{ t('profile_tab', lang) }}</a>
+  {% if is_admin %}<a href="/admin"><span class="ico">⚙️</span>{{ t('admin', lang) }}</a>{% endif %}
+</nav></div>
+<footer class="footer"><div class="container footer-grid">
+  <div><b>VYRON</b><br><small>© 2026 VYRON. {{ t('footer_rights', lang) }}</small></div>
+  <div><a href="/about">{{ t('about', lang) }}</a> · <a href="/terms">{{ t('terms', lang) }}</a> · <a href="/privacy">{{ t('privacy', lang) }}</a> · <a href="/refund">{{ t('refund', lang) }}</a></div>
+</div></footer>
+<script src="/static/js/app.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

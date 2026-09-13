@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="panel" style="max-width:760px;margin:20px auto">
+  <h1>{{ seo.title }}</h1>
+  <p>{{ t(page + '_text', lang) }}</p>
+  <a class="btn btn-soft" href="/">{{ t('back', lang) }}</a>
+</div>
+{% endblock %}

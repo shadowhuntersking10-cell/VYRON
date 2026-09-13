@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="checkout-grid">
+  <div class="panel">
+    <img src="{{ listing.images[0].url if listing.images else '/static/images/fallback.svg' }}" alt="{{ listing.title }}" style="width:100%;border-radius:16px" onerror="this.src='/static/images/fallback.svg'">
+    <h1>{{ listing.title }}</h1>
+    <p>{{ listing.description }}</p>
+    {% if seller %}<p>{{ t('sellers', lang) }}: <a href="/seller/{{ seller.slug }}">{{ seller.shop_name }}</a> ★ {{ seller.rating }}</p>{% endif %}
+  </div>
+  <div class="panel">
+    <div class="price-row"><span class="price" style="font-size:32px">{{ money(listing.price) }}</span></div>
+    <div class="kv"><span>{{ t('stock', lang) }}</span><b>{{ listing.stock }}</b></div>
+    <div class="kv"><span>{{ t('rating', lang) }}</span><b>★ {{ listing.rating }} ({{ listing.reviews_count }})</b></div>
+    <div style="margin-top:16px"><a class="btn btn-primary btn-block" href="/checkout?listing={{ listing.id }}">{{ t('buy_now', lang) }}</a></div>
+    <div style="margin-top:10px"><button class="btn btn-soft btn-block" data-fav="listing:{{ listing.id }}">♥ {{ t('favorites', lang) }}</button></div>
+  </div>
+</div>
+<section class="section">
+  <h2>{{ t('reviews', lang) }}</h2>
+  {% for r in reviews %}<div class="panel" style="margin-bottom:10px">★ {{ r.rating }}<br>{{ r.comment }}</div>{% endfor %}
+  {% if user %}
+  <form id="review-form" data-listing="{{ listing.id }}" class="panel" style="max-width:520px">
+    <h3>{{ t('write_review', lang) }}</h3>
+    <div class="field"><label>{{ t('order_id', lang) }} ID</label><input class="input" name="order_id" type="number" required></div>
+    <div class="field"><label>{{ t('rating', lang) }} (1-5)</label><input class="input" name="rating" type="number" min="1" max="5" required></div>
+    <div class="field"><label>{{ t('comment', lang) }}</label><textarea class="input" name="comment"></textarea></div>
+    <button class="btn btn-primary" type="submit">{{ t('submit_review', lang) }}</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

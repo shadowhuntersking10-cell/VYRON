@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>💳 {{ t('checkout', lang) }}</h1>
+{% if not settings.SALES_ENABLED %}
+<div class="panel"><b>{{ t('sales_disabled', lang) }}</b></div>
+{% elif not product and not listing %}
+<div class="panel">{{ t('empty_cart', lang) }} <a href="/games">{{ t('games', lang) }}</a></div>
+{% else %}
+<div class="checkout-grid" id="checkout-root" data-items='[{% if product %}{"product_id": {{ product.id }}, "quantity": 1}{% endif %}{% if listing %}{"listing_id": {{ listing.id }}, "quantity": 1}{% endif %}]'>
+  <div class="panel">
+    <h3>{{ t('order_items', lang) }}</h3>
+    {% if product %}
+    <div class="kv"><span>{{ product.name }}</span><b>{{ money(product.customer_price) }}</b></div>
+    {% for f in fields %}
+    <div class="field"><label>{{ f.label }}{% if f.required %} *{% endif %}</label><input class="input" data-cfield="{{ f.key }}" placeholder="{{ f.placeholder }}" {% if f.required %}required{% endif %}></div>
+    {% endfor %}
+    {% endif %}
+    {% if listing %}
+    <div class="kv"><span>{{ listing.title }}</span><b>{{ money(listing.price) }}</b></div>
+    {% endif %}
+    <div class="field"><label>{{ t('coupon', lang) }}</label><input class="input" id="coupon-input" placeholder="WELCOME10"></div>
+    <h3>{{ t('payment_method', lang) }}</h3>
+    <div class="provider-grid">
+      <div class="provider selected" data-provider="payme">Payme</div>
+      <div class="provider" data-provider="click">Click</div>
+      <div class="provider" data-provider="stripe">Stripe</div>
+      <div class="provider" data-provider="wallet">{{ t('wallet', lang) }}</div>
+    </div>
+    <p><small>{{ t('payment_pending', lang) }}</small></p>
+  </div>
+  <div class="panel">
+    <h3>{{ t('total', lang) }}</h3>
+    <div class="kv"><span>{{ t('subtotal', lang) }}</span><b>{{ money(product.customer_price if product else listing.price) }}</b></div>
+    <div class="kv"><span>{{ t('discount_label', lang) }}</span><b>—</b></div>
+    <div class="kv total"><span>{{ t('total', lang) }}</span><span>{{ money(product.customer_price if product else listing.price) }}</span></div>
+    {% if user %}
+    <button class="btn btn-primary btn-block" id="place-order">{{ t('place_order', lang) }}</button>
+    {% else %}
+    <p>{{ t('login_required', lang) }}</p>
+    <a class="btn btn-primary btn-block" href="/login?next=/checkout">{{ t('login', lang) }}</a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>🎁 {{ t('promotions_title', lang) }}</h1>
+{% if promos %}
+{% for p in promos %}
+<a class="promo-banner card" style="display:block" href="{{ p.target_url or '#' }}">
+  <img src="{{ p.banner or '/static/images/fallback.svg' }}" alt="{{ p.title }}" loading="lazy" onerror="this.src='/static/images/fallback.svg'">
+  <div class="card-body"><h3 style="margin:0">{{ p.title }}</h3><p>{{ p.description }}</p></div>
+</a>
+{% endfor %}
+{% else %}<div class="panel">{{ t('empty', lang) }}</div>{% endif %}
+{% endblock %}

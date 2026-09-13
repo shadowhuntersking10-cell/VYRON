@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" data-theme="{{ theme }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VYRON Mini App</title>
+<link rel="stylesheet" href="/static/css/main.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>.bottom-nav{display:block} .page{padding-bottom:110px}</style>
+</head>
+<body>
+<header class="header"><div class="header-inner">
+  <a class="logo" href="/tg-miniapp">VYRON</a>
+  <div class="header-actions">
+    <select class="mini-select" onchange="setLang(this.value)">
+      <option value="uz" {% if lang=='uz' %}selected{% endif %}>O'Z</option>
+      <option value="en" {% if lang=='en' %}selected{% endif %}>EN</option>
+      <option value="ru" {% if lang=='ru' %}selected{% endif %}>RU</option>
+    </select>
+  </div>
+</div></header>
+<main class="container page">
+  <section class="hero"><h1>{{ t('tg_welcome', lang) }}</h1><p>{{ t('hero_sub', lang) }}</p></section>
+  <div id="mini-home"><div class="skeleton" style="height:120px"></div></div>
+</main>
+<div class="bottom-nav"><nav>
+  <a href="/tg-miniapp" class="active"><span class="ico">🏠</span>{{ t('home', lang) }}</a>
+  <a href="/games"><span class="ico">🎮</span>{{ t('games', lang) }}</a>
+  <a href="/marketplace"><span class="ico">🛒</span>{{ t('marketplace', lang) }}</a>
+  <a href="/orders"><span class="ico">📦</span>{{ t('orders_tab', lang) }}</a>
+  <a href="/profile"><span class="ico">👤</span>{{ t('profile_tab', lang) }}</a>
+  {% if is_admin %}<a href="/admin"><span class="ico">⚙️</span>{{ t('admin', lang) }}</a>{% endif %}
+</nav></div>
+<script src="/static/js/app.js"></script>
+<script>
+fetch("/api/games?per_page=12").then(r=>r.json()).then(d=>{
+  document.getElementById("mini-home").innerHTML =
+    '<div class="section-head"><h2>🎮</h2><a href="/games">→</a></div><div class="grid games">' +
+    d.items.map(g=>'<a class="card game-card" href="/games/'+g.slug+'"><img src="'+(g.logo||'/static/images/fallback.svg')+'" alt="'+g.name+'" loading="lazy" onerror="this.src=\'/static/images/fallback.svg\'"><h3>'+g.name+'</h3></a>').join("") + "</div>";
+}).catch(()=>{document.getElementById("mini-home").innerHTML="<p>Error</p>"});
+</script>
+</body>
+</html>

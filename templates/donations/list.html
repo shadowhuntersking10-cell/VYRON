@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>💜 {{ t('donations', lang) }}</h1>
+{% if profiles %}
+<div class="grid cols-4">
+  {% for p in profiles %}
+  <a class="card" href="/donations/{{ p.username }}" style="color:inherit;text-decoration:none">
+    <img src="{{ p.cover or '/static/images/fallback.svg' }}" alt="{{ p.display_name }}" style="width:100%;height:140px;object-fit:cover" loading="lazy" onerror="this.src='/static/images/fallback.svg'">
+    <div class="card-body"><b>{{ p.display_name }}</b><br><small>@{{ p.username }}</small>
+    <div class="progress" style="margin-top:8px"><div style="width:{{ (p.raised_amount / p.goal_amount * 100) if p.goal_amount else 0 }}%"></div></div>
+    <small>{{ money(p.raised_amount) }} / {{ money(p.goal_amount) }}</small></div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}<div class="panel">{{ t('empty', lang) }}</div>{% endif %}
+{% endblock %}

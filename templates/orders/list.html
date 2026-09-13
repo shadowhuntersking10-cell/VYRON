@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📦 {{ t('my_orders', lang) }}</h1>
+{% if orders %}
+<div class="table-wrap"><table class="tbl"><thead><tr><th>{{ t('order_id', lang) }}</th><th>{{ t('date', lang) }}</th><th>{{ t('kind', lang) }}</th><th>{{ t('status', lang) }}</th><th>{{ t('total', lang) }}</th></tr></thead>
+<tbody>{% for o in orders %}<tr>
+<td data-l="ID"><a href="/orders/{{ o.public_id }}">{{ o.public_id }}</a></td>
+<td data-l="{{ t('date', lang) }}">{{ o.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+<td data-l="{{ t('kind', lang) }}">{{ o.kind }}</td>
+<td data-l="{{ t('status', lang) }}"><span class="badge">{{ o.status }}</span></td>
+<td data-l="{{ t('total', lang) }}">{{ money(o.total) }}</td>
+</tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="panel">{{ t('no_orders', lang) }} <a href="/games">{{ t('games', lang) }}</a></div>{% endif %}
+{% endblock %}
