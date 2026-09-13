@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Profile - VYRON{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: 32px;">
+    <div style="display: grid; grid-template-columns: 280px 1fr; gap: 32px;">
+        <div>
+            <div class="card" style="padding: 24px; text-align: center;">
+                <img src="{{ current_user.avatar_url or '/static/images/avatars/default.png' }}" alt="Avatar" style="width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px; object-fit: cover;">
+                <h2 style="font-weight: 700; margin-bottom: 4px;">{{ current_user.display_name or current_user.username }}</h2>
+                <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 16px;">@{{ current_user.username }}</p>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <a href="/orders" class="btn btn-ghost btn-sm">📦 My Orders</a>
+                    <a href="/api/auth/logout" class="btn btn-ghost btn-sm">Logout</a>
+                </div>
+            </div>
+            
+            <div class="card" style="padding: 16px; margin-top: 16px;">
+                <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); margin-bottom: 12px;">Menu</h3>
+                <a href="/profile" class="mobile-nav-link" style="background: var(--bg-tertiary);">👤 Profile</a>
+                <a href="/orders" class="mobile-nav-link">📦 Orders</a>
+                <a href="/support" class="mobile-nav-link">🎧 Support</a>
+            </div>
+        </div>
+        
+        <div>
+            <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 24px;">Profile Settings</h1>
+            
+            <div class="card" style="padding: 24px; margin-bottom: 24px;">
+                <h3 style="font-weight: 700; margin-bottom: 16px;">Personal Info</h3>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-input" value="{{ current_user.username }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" value="{{ current_user.email }}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Display Name</label>
+                        <input type="text" id="displayName" class="form-input" value="{{ current_user.display_name or '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Language</label>
+                        <select id="language" class="form-input">
+                            <option value="uz" {% if current_user.language == 'uz' %}selected{% endif %}>Uzbek</option>
+                            <option value="ru" {% if current_user.language == 'ru' %}selected{% endif %}>Russian</option>
+                            <option value="en" {% if current_user.language == 'en' %}selected{% endif %}>English</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Theme</label>
+                        <select id="theme" class="form-input">
+                            <option value="system" {% if current_user.theme == 'system' %}selected{% endif %}>System</option>
+                            <option value="light" {% if current_user.theme == 'light' %}selected{% endif %}>Light</option>
+                            <option value="dark" {% if current_user.theme == 'dark' %}selected{% endif %}>Dark</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+            
+            <div class="card" style="padding: 24px;">
+                <h3 style="font-weight: 700; margin-bottom: 16px;">Wallet</h3>
+                <div id="walletInfo">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('profileForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const res = await fetch('/api/users/me', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            display_name: document.getElementById('displayName').value,
+            language: document.getElementById('language').value,
+            theme: document.getElementById('theme').value
+        })
+    });
+    const data = await res.json();
+    if (data.success) {
+        alert('Saved');
+        location.reload();
+    }
+});
+
+fetch('/api/wallet/').then(r => r.json()).then(data => {
+    document.getElementById('walletInfo').innerHTML = `
+        <div style="font-size: 24px; font-weight: 800; margin-bottom: 8px;">${data.balance} ${data.currency}</div>
+        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;">${data.transactions?.length || 0} transactions</div>
+        <div style="max-height: 200px; overflow-y: auto;">
+            ${data.transactions?.map(t => `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border-light); font-size:13px;"><span>${t.type}</span><span style="font-weight:600;">${t.amount > 0 ? '+' : ''}${t.amount}</span></div>`).join('') || 'No transactions'}
+        </div>
+    `;
+}).catch(() => {
+    document.getElementById('walletInfo').innerHTML = 'Failed to load wallet';
+});
+</script>
+{% endblock %}

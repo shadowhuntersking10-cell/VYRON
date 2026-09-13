@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}VYRON Mini App{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: 20px;">
+    <div style="text-align: center; padding: 40px 20px;">
+        <div style="font-size: 48px; margin-bottom: 16px;">🚀</div>
+        <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 8px;">VYRON Telegram Mini App</h1>
+        <p style="color: var(--text-secondary);">Premium gaming commerce in Telegram</p>
+        
+        <div style="margin-top: 32px; display: grid; gap: 12px; max-width: 400px; margin-left: auto; margin-right: auto;">
+            <a href="/games" class="btn btn-primary" style="padding: 16px;">🎮 Games</a>
+            <a href="/marketplace" class="btn btn-ghost" style="padding: 16px;">🛒 Marketplace</a>
+            <a href="/donations" class="btn btn-ghost" style="padding: 16px;">💝 Donations</a>
+            <a href="/orders" class="btn btn-ghost" style="padding: 16px;">📦 Orders</a>
+        </div>
+        
+        <div style="margin-top: 32px; padding: 16px; background: var(--bg-tertiary); border-radius: var(--radius-xl); font-size: 12px; color: var(--text-secondary);">
+            <p>Telegram WebApp API integrated</p>
+            <p id="tgInfo">Checking Telegram...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+if (window.Telegram && window.Telegram.WebApp) {
+    const tg = window.Telegram.WebApp;
+    document.getElementById('tgInfo').innerHTML = `
+        Platform: ${tg.platform}<br>
+        Version: ${tg.version}<br>
+        User: ${tg.initDataUnsafe?.user?.first_name || 'Unknown'}<br>
+        ColorScheme: ${tg.colorScheme}
+    `;
+} else {
+    document.getElementById('tgInfo').innerText = 'Not in Telegram (web preview)';
+}
+</script>
+{% endblock %}

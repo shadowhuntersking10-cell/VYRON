@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ listing.title }} - Marketplace{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: 32px;">
+    <a href="/marketplace" style="color: var(--text-secondary); text-decoration: none;">← Back to Marketplace</a>
+    <div class="card" style="padding: 24px; margin-top: 16px;">
+        <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 16px;">{{ listing.title }}</h1>
+        <p style="color: var(--text-secondary); margin-bottom: 16px;">{{ listing.description or 'No description' }}</p>
+        <div style="font-size: 20px; font-weight: 800;">{{ "{:,.0f}".format(listing.price) }} {{ listing.currency }}</div>
+        <button class="btn btn-primary" style="margin-top: 16px; width: 100%;">Buy Now</button>
+    </div>
+</div>
+{% endblock %}

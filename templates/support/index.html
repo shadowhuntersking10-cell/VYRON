@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Support - VYRON{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: 32px; max-width: 800px;">
+    <h1 class="section-title">🎧 Support Center</h1>
+    <p style="color: var(--text-secondary); margin-bottom: 32px;">Need help? We're here for you 24/7</p>
+    
+    <div class="grid grid-2" style="margin-bottom: 32px;">
+        <div class="card" style="padding: 20px;">
+            <h3 style="font-weight: 700; margin-bottom: 8px;">💬 Telegram</h3>
+            <p style="font-size: 13px; color: var(--text-secondary);">@vyron_support</p>
+        </div>
+        <div class="card" style="padding: 20px;">
+            <h3 style="font-weight: 700; margin-bottom: 8px;">📧 Email</h3>
+            <p style="font-size: 13px; color: var(--text-secondary);">support@vyron.uz</p>
+        </div>
+    </div>
+    
+    <div class="card" style="padding: 24px;">
+        <h3 style="font-weight: 700; margin-bottom: 16px;">Create Support Ticket</h3>
+        <form id="ticketForm">
+            <div class="form-group">
+                <label class="form-label">Subject</label>
+                <input type="text" id="subject" class="form-input" placeholder="Brief description of issue" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <select id="category" class="form-input">
+                    <option value="GENERAL">General</option>
+                    <option value="PAYMENT">Payment</option>
+                    <option value="ORDER">Order</option>
+                    <option value="TECHNICAL">Technical</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Message</label>
+                <textarea id="message" class="form-input" rows="5" placeholder="Describe your issue in detail..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Ticket</button>
+        </form>
+    </div>
+    
+    <div style="margin-top: 32px;">
+        <h3 style="font-weight: 700; margin-bottom: 16px;">My Tickets</h3>
+        <div id="ticketsList">Loading...</div>
+    </div>
+</div>
+
+<script>
+document.getElementById('ticketForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const res = await fetch('/api/support/tickets', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            subject: document.getElementById('subject').value,
+            category: document.getElementById('category').value,
+            message: document.getElementById('message').value
+        })
+    });
+    const data = await res.json();
+    if (data.success) {
+        alert('Ticket created: ' + data.ticket.ticket_number);
+        location.reload();
+    } else {
+        alert(data.detail || 'Failed');
+    }
+});
+
+fetch('/api/support/tickets').then(r => r.json()).then(data => {
+    const container = document.getElementById('ticketsList');
+    if (!data.length) {
+        container.innerHTML = '<p style="color: var(--text-secondary);">No tickets yet</p>';
+        return;
+    }
+    container.innerHTML = data.map(t => `
+        <div class="card" style="padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <div style="font-weight: 600;">${t.ticket_number} - ${t.subject}</div>
+                <div style="font-size: 12px; color: var(--text-secondary);">${t.category} • ${new Date(t.created_at).toLocaleDateString()}</div>
+            </div>
+            <span class="ticket-status ${t.status.toLowerCase()}">${t.status}</span>
+        </div>
+    `).join('');
+}).catch(() => {
+    document.getElementById('ticketsList').innerHTML = 'Login required to view tickets';
+});
+</script>
+{% endblock %}

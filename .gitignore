@@ -1,0 +1,55 @@
+# Environment
+.env
+.venv
+venv/
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.log
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Media uploads (local)
+uploads/
+media_uploads/
+static/uploads/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS
+Thumbs.db
+
+# Secrets
+secrets/
+*.pem
+*.key
+
+# Alembic
+migrations/__pycache__/
+
+# Testing
+.coverage
+htmlcov/

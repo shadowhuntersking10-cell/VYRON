@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Register - VYRON{% endblock %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">Create account</h1>
+        <p class="auth-desc">Join thousands of gamers on VYRON</p>
+        
+        {% if error %}
+        <div class="alert alert-error">{{ error }}</div>
+        {% endif %}
+        
+        <form method="post" action="/api/auth/register">
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-input" placeholder="gamer_uz" required value="{{ username or '' }}" minlength="3" maxlength="30">
+                <small style="font-size: 11px; color: var(--text-tertiary);">Letters, numbers, underscore only. Min 3 chars.</small>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-input" placeholder="your@email.com" required value="{{ email or '' }}">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Display Name (optional)</label>
+                <input type="text" name="display_name" class="form-input" placeholder="Your display name">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-input" placeholder="••••••••" required minlength="8">
+                <small style="font-size: 11px; color: var(--text-tertiary);">Min 8 chars, uppercase, lowercase, digit.</small>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" name="password_confirm" class="form-input" placeholder="••••••••" required>
+            </div>
+            
+            <div class="form-group">
+                <label style="display: flex; gap: 8px; font-size: 13px;">
+                    <input type="checkbox" required> I agree to <a href="/terms" style="color: var(--blue);">Terms</a> and <a href="/privacy" style="color: var(--blue);">Privacy Policy</a>
+                </label>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px;">Create Account</button>
+        </form>
+        
+        <div class="auth-footer">
+            Already have an account? <a href="/login">Login</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

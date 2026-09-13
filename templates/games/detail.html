@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ game.name }} - VYRON{% endblock %}
+{% block content %}
+<div style="background: var(--bg-secondary); border-bottom: 1px solid var(--border);">
+    <div class="container" style="padding-top: 0;">
+        <div style="position: relative; height: 280px; overflow: hidden; border-radius: 0 0 var(--radius-2xl) var(--radius-2xl); margin-bottom: 24px;">
+            <img src="{{ game.banner_url or game.cover_url or '/static/images/games/default-cover.jpg' }}" alt="{{ game.name }} banner" style="width: 100%; height: 100%; object-fit: cover;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(transparent, rgba(7,20,38,0.8));"></div>
+            <div style="position: absolute; bottom: 20px; left: 20px; display: flex; gap: 16px; align-items: end;">
+                <img src="{{ game.logo_url or '/static/images/games/default-logo.png' }}" alt="{{ game.name }}" style="width: 80px; height: 80px; border-radius: var(--radius-xl); border: 3px solid white; box-shadow: var(--shadow-lg);">
+                <div style="color: white;">
+                    <h1 style="font-size: 32px; font-weight: 800;">{{ game.name }}</h1>
+                    <p style="opacity: 0.9;">{{ game.short_description or '' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div style="display: grid; grid-template-columns: 1fr 320px; gap: 32px; margin-top: 32px;">
+        <div>
+            <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">Products</h2>
+            <div class="grid grid-3">
+                {% for product in products %}
+                <a href="/products/{{ product.id }}" class="product-card">
+                    <div class="product-card-image">
+                        <img src="{{ product.image_url or game.logo_url or '/static/images/products/default.png' }}" alt="{{ product.name }}">
+                    </div>
+                    <div class="product-card-title">{{ product.name }}</div>
+                    <div class="product-card-pricing">
+                        <span class="product-card-price">{{ "{:,.0f}".format(product.customer_price) }} UZS</span>
+                        {% if product.old_price %}<span class="product-card-old">{{ "{:,.0f}".format(product.old_price) }}</span>{% endif %}
+                    </div>
+                    <button class="btn btn-primary btn-sm product-card-buy">Buy Now</button>
+                </a>
+                {% else %}
+                <div class="card" style="grid-column: 1/-1; padding: 40px; text-align: center;">
+                    <p>No products available for this game yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div>
+            <div class="card" style="padding: 20px; position: sticky; top: calc(var(--header-height) + 20px);">
+                <h3 style="font-weight: 700; margin-bottom: 12px;">About {{ game.name }}</h3>
+                <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">{{ game.description or game.short_description or 'Premium game top-up service' }}</p>
+                
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-light);">
+                    <h4 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); margin-bottom: 12px;">How to top-up</h4>
+                    <ol style="font-size: 13px; color: var(--text-secondary); padding-left: 16px; line-height: 1.8;">
+                        <li>Select product</li>
+                        <li>Enter Player ID</li>
+                        <li>Pay securely</li>
+                        <li>Receive instantly</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

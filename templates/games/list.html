@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Games - VYRON{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: 40px;">
+    <h1 class="section-title">🎮 All Games</h1>
+    <p style="color: var(--text-secondary); margin-bottom: 32px;">Choose your game and top-up instantly</p>
+    
+    <div class="grid grid-4">
+        {% for game in games %}
+        <a href="/games/{{ game.slug }}" class="game-card">
+            <div class="game-card-cover">
+                <img src="{{ game.cover_url or '/static/images/games/default-cover.jpg' }}" alt="{{ game.name }}" loading="lazy" onerror="this.src='/static/images/games/default-cover.jpg'">
+                <div class="game-card-logo">
+                    <img src="{{ game.logo_url or '/static/images/games/default-logo.png' }}" alt="{{ game.name }}" onerror="this.src='/static/images/games/default-logo.png'">
+                </div>
+            </div>
+            <div class="game-card-body">
+                <div class="game-card-title">{{ game.name }}</div>
+                <div class="game-card-desc">{{ game.short_description or '' }}</div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

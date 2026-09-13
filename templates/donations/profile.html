@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}{{ profile.display_name }} - Donate{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: 0;">
+    <div style="height: 200px; background: linear-gradient(135deg, var(--blue), var(--light-blue)); border-radius: 0 0 var(--radius-2xl) var(--radius-2xl); position: relative; overflow: hidden;">
+        {% if profile.cover_url %}<img src="{{ profile.cover_url }}" style="width: 100%; height: 100%; object-fit: cover;">{% endif %}
+    </div>
+    
+    <div style="margin-top: -40px; position: relative; z-index: 1; padding: 0 20px;">
+        <div class="card" style="padding: 24px; max-width: 600px; margin: 0 auto;">
+            <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 20px;">
+                <img src="{{ profile.avatar_url or '/static/images/avatars/default.png' }}" style="width: 72px; height: 72px; border-radius: 50%; border: 3px solid var(--bg-card);">
+                <div>
+                    <h1 style="font-size: 22px; font-weight: 800;">{{ profile.display_name }}</h1>
+                    <p style="color: var(--text-secondary); font-size: 13px;">@{{ profile.username }}</p>
+                </div>
+            </div>
+            
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">{{ profile.bio or '' }}</p>
+            
+            {% if profile.goal_amount %}
+            <div style="margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">{{ "{:,.0f}".format(profile.current_amount) }} UZS raised</span>
+                    <span style="color: var(--text-secondary);">Goal: {{ "{:,.0f}".format(profile.goal_amount) }} UZS</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ (profile.current_amount / profile.goal_amount * 100) if profile.goal_amount > 0 else 0 }}%"></div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <h3 style="font-weight: 700; margin-bottom: 12px;">Choose amount</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px;" id="presetAmounts">
+                <button class="btn btn-ghost" onclick="setAmount(10000)">10K</button>
+                <button class="btn btn-ghost" onclick="setAmount(25000)">25K</button>
+                <button class="btn btn-ghost" onclick="setAmount(50000)">50K</button>
+                <button class="btn btn-ghost" onclick="setAmount(100000)">100K</button>
+                <button class="btn btn-ghost" onclick="setAmount(250000)">250K</button>
+                <button class="btn btn-ghost" onclick="setAmount(500000)">500K</button>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Custom Amount (UZS)</label>
+                <input type="number" id="customAmount" class="form-input" placeholder="Enter amount">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Message (optional)</label>
+                <textarea id="donationMessage" class="form-input" rows="3" placeholder="Your message to {{ profile.display_name }}"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label style="display: flex; gap: 8px; font-size: 13px;"><input type="checkbox" id="anonymous"> Donate anonymously</label>
+            </div>
+            
+            <button class="btn btn-primary" style="width: 100%; padding: 14px;" onclick="donate()">💝 Donate Now</button>
+            
+            <p style="font-size: 11px; color: var(--text-tertiary); text-align: center; margin-top: 12px;">Secure payment • Platform fee 5%</p>
+        </div>
+    </div>
+</div>
+
+<script>
+function setAmount(amt) {
+    document.getElementById('customAmount').value = amt;
+}
+
+async function donate() {
+    const amount = document.getElementById('customAmount').value;
+    if (!amount || amount <= 0) {
+        alert('Enter amount');
+        return;
+    }
+    
+    const res = await fetch('/api/donations/donate/{{ profile.username }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            amount: parseInt(amount),
+            message: document.getElementById('donationMessage').value,
+            is_anonymous: document.getElementById('anonymous').checked
+        })
+    });
+    const data = await res.json();
+    if (data.success) {
+        alert('Donation created! Proceed to payment.');
+    } else {
+        alert(data.detail || 'Failed');
+    }
+}
+</script>
+{% endblock %}

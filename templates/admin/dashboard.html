@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - VYRON{% endblock %}
+{% block content %}
+<div class="admin-layout">
+    <div class="admin-sidebar">
+        <div style="padding: 0 20px 20px; font-weight: 800; font-size: 18px;">VYRON Admin</div>
+        <a href="/admin" class="admin-nav-item active">📊 Dashboard</a>
+        <a href="/admin/users" class="admin-nav-item">👥 Users</a>
+        <a href="/admin/games" class="admin-nav-item">🎮 Games</a>
+        <a href="/admin/products" class="admin-nav-item">📦 Products</a>
+        <a href="/admin/orders" class="admin-nav-item">📋 Orders</a>
+        <a href="/admin/payments" class="admin-nav-item">💳 Payments</a>
+        <a href="/admin/marketplace" class="admin-nav-item">🛒 Marketplace</a>
+        <a href="/admin/donations" class="admin-nav-item">💝 Donations</a>
+        <a href="/admin/revenue" class="admin-nav-item">💰 Revenue</a>
+        <a href="/admin/media" class="admin-nav-item">🖼️ Media</a>
+        <a href="/admin/support" class="admin-nav-item">🎧 Support</a>
+        <a href="/admin/settings" class="admin-nav-item">⚙️ Settings</a>
+    </div>
+    
+    <div class="admin-content">
+        <h1 style="font-size: 24px; font-weight: 800; margin-bottom: 24px;">Dashboard</h1>
+        
+        <div id="dashboardMetrics" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px;">
+            <div class="card" style="padding: 20px;"><div style="font-size: 12px; color: var(--text-tertiary); text-transform: uppercase;">Total Orders</div><div style="font-size: 24px; font-weight: 800;" id="totalOrders">-</div></div>
+            <div class="card" style="padding: 20px;"><div style="font-size: 12px; color: var(--text-tertiary); text-transform: uppercase;">Gross Revenue</div><div style="font-size: 24px; font-weight: 800;" id="grossRevenue">-</div></div>
+            <div class="card" style="padding: 20px;"><div style="font-size: 12px; color: var(--text-tertiary); text-transform: uppercase;">Total Users</div><div style="font-size: 24px; font-weight: 800;" id="totalUsers">-</div></div>
+            <div class="card" style="padding: 20px;"><div style="font-size: 12px; color: var(--text-tertiary); text-transform: uppercase;">Products</div><div style="font-size: 24px; font-weight: 800;" id="totalProducts">-</div></div>
+        </div>
+        
+        <div class="card" style="padding: 20px;">
+            <h3 style="font-weight: 700; margin-bottom: 16px;">System Status</h3>
+            <div id="systemStatus">Loading...</div>
+        </div>
+        
+        <div class="card" style="padding: 20px; margin-top: 16px;">
+            <h3 style="font-weight: 700; margin-bottom: 16px;">Pricing Calculator</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label class="form-label">Supplier Cost</label>
+                    <input type="number" id="calcCost" class="form-input" value="40000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Customer Price (optional)</label>
+                    <input type="number" id="calcPrice" class="form-input" placeholder="Leave empty for preview">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="calculatePricing()">Calculate</button>
+            <div id="pricingResult" style="margin-top: 16px; padding: 16px; background: var(--bg-tertiary); border-radius: var(--radius-lg);"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function loadDashboard() {
+    try {
+        const res = await fetch('/api/admin/dashboard');
+        const data = await res.json();
+        document.getElementById('totalOrders').textContent = data.metrics.total_orders;
+        document.getElementById('grossRevenue').textContent = data.metrics.gross_revenue.toLocaleString() + ' UZS';
+        document.getElementById('totalUsers').textContent = data.metrics.total_users;
+        document.getElementById('totalProducts').textContent = data.metrics.total_products;
+        
+        const healthRes = await fetch('/health');
+        const health = await healthRes.json();
+        document.getElementById('systemStatus').innerHTML = `
+            <div style="display: grid; gap: 8px; font-size: 13px;">
+                <div>Database: ${health.database} (${health.database_url})</div>
+                <div>Payments: ${JSON.stringify(health.payments)}</div>
+                <div>Suppliers: ${JSON.stringify(health.suppliers)}</div>
+                <div>Sales: ${health.sales_enabled ? '✅ Enabled' : '❌ Disabled'}</div>
+            </div>
+        `;
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function calculatePricing() {
+    const cost = document.getElementById('calcCost').value;
+    const price = document.getElementById('calcPrice').value;
+    let url = `/api/admin/pricing/preview?supplier_cost=${cost}`;
+    if (price) url += `&customer_price=${price}`;
+    
+    const res = await fetch(url);
+    const data = await res.json();
+    document.getElementById('pricingResult').innerHTML = `<pre style="font-size: 12px; white-space: pre-wrap;">${JSON.stringify(data, null, 2)}</pre>`;
+}
+
+loadDashboard();
+</script>
+{% endblock %}

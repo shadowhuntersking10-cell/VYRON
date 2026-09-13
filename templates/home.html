@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}VYRON - Gaming Commerce Platform | O'yinlar, Market, Donatlar{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-inner">
+            <h1 class="hero-title">Gaming.<br><span>Digital.</span><br>Marketplace.</h1>
+            <p class="hero-desc">Premium gaming top-ups, digital products, marketplace and donations. Secure, fast, trusted by thousands of gamers in Uzbekistan.</p>
+            <div class="hero-actions">
+                <a href="/games" class="btn btn-primary btn-lg">🎮 Explore Games</a>
+                <a href="/marketplace" class="btn btn-ghost btn-lg">🛒 Browse Marketplace</a>
+            </div>
+            
+            <div style="margin-top: 32px; display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; font-size: 13px; color: var(--text-secondary);">
+                <span>🔒 Secure Payments</span>
+                <span>⚡ Instant Delivery</span>
+                <span>💬 24/7 Support</span>
+                <span>✅ Trusted</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Games -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">🔥 Popular Games</h2>
+            <a href="/games" class="section-link">View all →</a>
+        </div>
+        
+        <div class="grid grid-4">
+            {% for game in popular_games %}
+            <a href="/games/{{ game.slug }}" class="game-card">
+                <div class="game-card-cover">
+                    <img src="{{ game.cover_url or '/static/images/games/default-cover.jpg' }}" alt="{{ game.name }}" loading="lazy" onerror="this.src='/static/images/games/default-cover.jpg'">
+                    <div class="game-card-logo">
+                        <img src="{{ game.logo_url or '/static/images/games/default-logo.png' }}" alt="{{ game.name }} logo" onerror="this.src='/static/images/games/default-logo.png'">
+                    </div>
+                </div>
+                <div class="game-card-body">
+                    <div class="game-card-title">{{ game.name }}</div>
+                    <div class="game-card-desc">{{ game.short_description or game.description[:80] }}</div>
+                </div>
+            </a>
+            {% else %}
+            <div class="card" style="grid-column: 1/-1; padding: 40px; text-align: center;">
+                <p>Games loading... Please ensure database is seeded.</p>
+                <p style="font-size: 12px; color: var(--text-tertiary); margin-top: 8px;">Run: python main.py will auto-seed</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="section" style="background: var(--bg-secondary);">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">⭐ Featured Products</h2>
+            <a href="/games" class="section-link">View all →</a>
+        </div>
+        
+        <div class="grid grid-4">
+            {% for product in featured_products %}
+            <a href="/products/{{ product.id }}" class="product-card">
+                {% if product.old_price and product.old_price > product.customer_price %}
+                <div class="product-card-badge">-{{ ((product.old_price - product.customer_price) / product.old_price * 100)|int }}%</div>
+                {% endif %}
+                {% if product.popular %}
+                <div class="product-card-badge popular" style="left: auto; right: 12px;">🔥 Popular</div>
+                {% endif %}
+                <div class="product-card-image">
+                    <img src="{{ product.image_url or '/static/images/products/default.png' }}" alt="{{ product.name }}" loading="lazy">
+                </div>
+                <div class="product-card-title">{{ product.name }}</div>
+                <div class="product-card-game">
+                    {% if product.game_id %}🎮 Game Product{% endif %}
+                </div>
+                <div class="product-card-pricing">
+                    <span class="product-card-price">{{ "{:,.0f}".format(product.customer_price) }} UZS</span>
+                    {% if product.old_price %}
+                    <span class="product-card-old">{{ "{:,.0f}".format(product.old_price) }}</span>
+                    {% endif %}
+                </div>
+                <button class="btn btn-primary btn-sm product-card-buy">Buy Now</button>
+            </a>
+            {% else %}
+            {% for i in range(8) %}
+            <div class="product-card">
+                <div class="product-card-image skeleton" style="height: 160px;"></div>
+                <div class="skeleton" style="height: 16px; width: 80%; margin-bottom: 8px;"></div>
+                <div class="skeleton" style="height: 12px; width: 50%; margin-bottom: 12px;"></div>
+                <div class="skeleton" style="height: 20px; width: 60%; margin-bottom: 12px;"></div>
+                <div class="skeleton" style="height: 32px; width: 100%;"></div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- How it works -->
+<section class="section">
+    <div class="container">
+        <h2 class="section-title text-center" style="margin-bottom: 40px;">How VYRON Works</h2>
+        
+        <div class="grid grid-3">
+            <div class="card-soft text-center">
+                <div style="font-size: 40px; margin-bottom: 16px;">🎮</div>
+                <h3 style="font-weight: 700; margin-bottom: 8px;">1. Choose Game & Product</h3>
+                <p style="color: var(--text-secondary); font-size: 14px;">Select your favorite game and the product you need - UC, Robux, Gems, Diamonds and more.</p>
+            </div>
+            
+            <div class="card-soft text-center">
+                <div style="font-size: 40px; margin-bottom: 16px;">💳</div>
+                <h3 style="font-weight: 700; margin-bottom: 8px;">2. Secure Payment</h3>
+                <p style="color: var(--text-secondary); font-size: 14px;">Pay securely via Payme, Click, Stripe or Wallet. All transactions are protected.</p>
+            </div>
+            
+            <div class="card-soft text-center">
+                <div style="font-size: 40px; margin-bottom: 16px;">⚡</div>
+                <h3 style="font-weight: 700; margin-bottom: 8px;">3. Instant Delivery</h3>
+                <p style="color: var(--text-secondary); font-size: 14px;">Get your product instantly or within minutes. Track order status in real-time.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Marketplace Featured -->
+{% if marketplace_featured %}
+<section class="section" style="background: var(--bg-secondary);">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">🛒 Featured Marketplace</h2>
+            <a href="/marketplace" class="section-link">Browse marketplace →</a>
+        </div>
+        
+        <div class="grid grid-3">
+            {% for listing in marketplace_featured %}
+            <a href="/marketplace/{{ listing.id }}" class="listing-card">
+                <div class="listing-image">
+                    <img src="/static/images/marketplace/default.jpg" alt="{{ listing.title }}">
+                </div>
+                <div class="listing-body">
+                    <div class="listing-title">{{ listing.title }}</div>
+                    <div class="listing-meta">
+                        <span>{{ listing.sales_count }} sold</span>
+                        <span>⭐ {{ listing.rating }}</span>
+                    </div>
+                    <div class="listing-price">{{ "{:,.0f}".format(listing.price) }} UZS</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Donations -->
+{% if donation_profiles %}
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">💝 Support Creators</h2>
+            <a href="/donations" class="section-link">View all →</a>
+        </div>
+        
+        <div class="grid grid-3">
+            {% for profile in donation_profiles %}
+            <a href="/donations/{{ profile.username }}" class="card" style="padding: 20px; text-decoration: none; color: inherit;">
+                <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+                    <img src="{{ profile.avatar_url or '/static/images/avatars/default.png' }}" alt="{{ profile.display_name }}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                    <div>
+                        <div style="font-weight: 700;">{{ profile.display_name }}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">@{{ profile.username }}</div>
+                    </div>
+                </div>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ profile.bio or 'Support this creator' }}</p>
+                {% if profile.goal_amount %}
+                <div class="progress-bar" style="margin-bottom: 8px;">
+                    <div class="progress-fill" style="width: {{ (profile.current_amount / profile.goal_amount * 100) if profile.goal_amount > 0 else 0 }}%"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                    <span>{{ "{:,.0f}".format(profile.current_amount) }} UZS</span>
+                    <span style="color: var(--text-secondary);">of {{ "{:,.0f}".format(profile.goal_amount) }}</span>
+                </div>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Promotions -->
+{% if promotions %}
+<section class="section" style="background: var(--bg-secondary);">
+    <div class="container">
+        <h2 class="section-title" style="margin-bottom: 24px;">🎁 Promotions</h2>
+        <div class="grid grid-3">
+            {% for promo in promotions %}
+            <div class="card" style="padding: 24px; background: linear-gradient(135deg, var(--bg-card), var(--soft-blue)); border: none;">
+                <h3 style="font-weight: 700; margin-bottom: 8px;">{{ promo.title }}</h3>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">{{ promo.description }}</p>
+                <a href="/promotions" class="btn btn-primary btn-sm">View Details</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Trust -->
+<section class="section">
+    <div class="container">
+        <div class="card-soft">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; text-align: center;">
+                <div>
+                    <div style="font-size: 32px; font-weight: 800; color: var(--blue);">10K+</div>
+                    <div style="font-size: 14px; color: var(--text-secondary);">Happy Gamers</div>
+                </div>
+                <div>
+                    <div style="font-size: 32px; font-weight: 800; color: var(--blue);">99.9%</div>
+                    <div style="font-size: 14px; color: var(--text-secondary);">Uptime</div>
+                </div>
+                <div>
+                    <div style="font-size: 32px; font-weight: 800; color: var(--blue);">24/7</div>
+                    <div style="font-size: 14px; color: var(--text-secondary);">Support</div>
+                </div>
+                <div>
+                    <div style="font-size: 32px; font-weight: 800; color: var(--blue);">⚡</div>
+                    <div style="font-size: 14px; color: var(--text-secondary);">Instant Delivery</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

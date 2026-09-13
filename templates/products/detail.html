@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} - VYRON{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: 32px;">
+    <a href="/games/{{ game.slug if game else '' }}" style="color: var(--text-secondary); text-decoration: none; font-size: 14px;">← Back to {{ game.name if game else 'Games' }}</a>
+    
+    <div style="display: grid; grid-template-columns: 1fr 400px; gap: 40px; margin-top: 24px;">
+        <div>
+            <div class="card" style="padding: 24px;">
+                <div style="display: flex; gap: 24px;">
+                    <img src="{{ product.image_url or '/static/images/products/default.png' }}" alt="{{ product.name }}" style="width: 120px; height: 120px; border-radius: var(--radius-xl); object-fit: cover; background: var(--bg-tertiary);">
+                    <div>
+                        <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">{{ product.name }}</h1>
+                        <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 12px;">{{ product.description or '' }}</p>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-size: 24px; font-weight: 800;">{{ "{:,.0f}".format(product.customer_price) }} {{ product.currency }}</span>
+                            {% if product.old_price %}<span style="text-decoration: line-through; color: var(--text-tertiary);">{{ "{:,.0f}".format(product.old_price) }}</span>{% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 32px;">
+                    <h3 style="font-weight: 700; margin-bottom: 16px;">Enter Game Details</h3>
+                    <div id="gameFields">
+                        <div class="form-group">
+                            <label class="form-label">Player ID *</label>
+                            <input type="text" class="form-input" placeholder="Enter your Player ID" data-game-field="player_id" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Region (optional)</label>
+                            <input type="text" class="form-input" placeholder="e.g., Asia, Europe" data-game-field="region">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <div class="checkout-summary">
+                <h3 style="font-weight: 700; margin-bottom: 16px;">Order Summary</h3>
+                <div class="checkout-row">
+                    <span>Product</span>
+                    <span>{{ product.name }}</span>
+                </div>
+                <div class="checkout-row">
+                    <span>Price</span>
+                    <span>{{ "{:,.0f}".format(product.customer_price) }} UZS</span>
+                </div>
+                <div class="checkout-row">
+                    <span>Service Fee</span>
+                    <span>0 UZS</span>
+                </div>
+                <div class="checkout-row total">
+                    <span>Total</span>
+                    <span>{{ "{:,.0f}".format(product.customer_price) }} UZS</span>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <h4 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">Payment Method</h4>
+                    <label style="display: flex; align-items: center; gap: 8px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 8px; cursor: pointer;">
+                        <input type="radio" name="payment_provider" value="PAYME" checked> <span>💳 Payme</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 8px; cursor: pointer;">
+                        <input type="radio" name="payment_provider" value="CLICK"> <span>📱 Click</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 8px; cursor: pointer;">
+                        <input type="radio" name="payment_provider" value="WALLET"> <span>👛 Wallet</span>
+                    </label>
+                </div>
+                
+                <div class="form-group" style="margin-top: 16px;">
+                    <label class="form-label">Coupon (optional)</label>
+                    <input type="text" id="couponCode" class="form-input" placeholder="Enter coupon code">
+                </div>
+                
+                <button class="btn btn-primary" style="width: 100%; margin-top: 20px; padding: 14px;" onclick="buyNow({{ product.id }})">Buy Now - {{ "{:,.0f}".format(product.customer_price) }} UZS</button>
+                
+                <p style="font-size: 11px; color: var(--text-tertiary); text-align: center; margin-top: 12px;">Secure payment • Instant delivery • 24/7 support</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function buyNow(productId) {
+    const gameData = {};
+    document.querySelectorAll('[data-game-field]').forEach(input => {
+        if (input.value) gameData[input.dataset.gameField] = input.value;
+    });
+    
+    if (!gameData.player_id) {
+        alert('Please enter Player ID');
+        return;
+    }
+    
+    const provider = document.querySelector('input[name="payment_provider"]:checked')?.value || 'PAYME';
+    const coupon = document.getElementById('couponCode')?.value || null;
+    
+    try {
+        const res = await fetch('/api/orders/checkout', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                items: [{product_id: productId, quantity: 1, game_data: gameData}],
+                payment_provider: provider,
+                game_data: gameData,
+                coupon_code: coupon
+            })
+        });
+        const data = await res.json();
+        if (data.success) {
+            window.location.href = '/orders';
+        } else {
+            alert(data.detail || 'Failed to create order');
+        }
+    } catch (e) {
+        alert('Error: ' + e.message);
+    }
+}
+</script>
+{% endblock %}

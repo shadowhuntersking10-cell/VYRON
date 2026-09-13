@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Promotions - VYRON{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: 32px;">
+    <h1 class="section-title">🎁 Promotions</h1>
+    <div class="grid grid-2" style="margin-top: 24px;">
+        {% for promo in promotions %}
+        <div class="card" style="padding: 24px;">
+            <h3 style="font-weight: 700; margin-bottom: 8px;">{{ promo.title }}</h3>
+            <p style="color: var(--text-secondary); font-size: 14px;">{{ promo.description }}</p>
+        </div>
+        {% else %}
+        <div class="card" style="grid-column: 1/-1; padding: 40px; text-align: center;">
+            <p>No active promotions. Check back soon!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

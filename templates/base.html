@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="uz" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>{% block title %}VYRON - Gaming Commerce Platform{% endblock %}</title>
+    <meta name="description" content="{% block description %}Premium gaming marketplace, top-ups, donations, and digital products{% endblock %}">
+    <meta name="theme-color" content="#071426">
+    <link rel="canonical" href="{{ request.url }}">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{% block og_title %}VYRON{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Premium gaming commerce platform{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/static/icons/favicon.svg">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Telegram WebApp -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <script>
+        // Theme handling
+        (function() {
+            const saved = localStorage.getItem('vyron-theme');
+            const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            let theme = saved || 'system';
+            let effective = theme;
+            if (theme === 'system') effective = systemDark ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', effective);
+            document.documentElement.setAttribute('data-theme-choice', theme);
+        })();
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-inner">
+                <a href="/" class="logo">
+                    <div class="logo-icon">V</div>
+                    <span class="logo-text">VYRON</span>
+                </a>
+                
+                <nav class="nav-desktop">
+                    <a href="/games" class="nav-link">Games</a>
+                    <a href="/marketplace" class="nav-link">Marketplace</a>
+                    <a href="/donations" class="nav-link">Donations</a>
+                    <a href="/promotions" class="nav-link">Promotions</a>
+                    <a href="/support" class="nav-link">Support</a>
+                </nav>
+                
+                <div class="header-actions">
+                    <button class="btn-icon" id="themeToggle" aria-label="Toggle theme">
+                        <span class="icon-sun">☀️</span>
+                        <span class="icon-moon">🌙</span>
+                    </button>
+                    
+                    <div class="lang-switcher">
+                        <button class="btn-icon lang-btn" data-lang="uz">UZ</button>
+                        <button class="btn-icon lang-btn" data-lang="ru">RU</button>
+                        <button class="btn-icon lang-btn" data-lang="en">EN</button>
+                    </div>
+                    
+                    {% if current_user %}
+                    <div class="user-menu">
+                        <a href="/profile" class="btn btn-ghost">
+                            <img src="{{ current_user.avatar_url or '/static/images/avatars/default.png' }}" alt="Avatar" class="avatar-sm">
+                            <span>{{ current_user.username }}</span>
+                        </a>
+                        {% if current_user.is_admin %}
+                        <a href="/admin" class="btn btn-primary">Admin</a>
+                        {% endif %}
+                        <a href="/api/auth/logout" class="btn btn-ghost">Logout</a>
+                    </div>
+                    {% else %}
+                    <div class="auth-actions">
+                        <a href="/login" class="btn btn-ghost">Login</a>
+                        <a href="/register" class="btn btn-primary">Register</a>
+                    </div>
+                    {% endif %}
+                    
+                    <button class="btn-icon mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile nav -->
+        <div class="mobile-nav" id="mobileNav">
+            <a href="/games" class="mobile-nav-link">🎮 Games</a>
+            <a href="/marketplace" class="mobile-nav-link">🛒 Marketplace</a>
+            <a href="/donations" class="mobile-nav-link">💝 Donations</a>
+            <a href="/promotions" class="mobile-nav-link">🎁 Promotions</a>
+            <a href="/orders" class="mobile-nav-link">📦 Orders</a>
+            <a href="/profile" class="mobile-nav-link">👤 Profile</a>
+            <a href="/support" class="mobile-nav-link">🎧 Support</a>
+            {% if current_user and current_user.is_admin %}
+            <a href="/admin" class="mobile-nav-link">⚙️ Admin</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <div class="logo-icon">V</div>
+                        <span class="logo-text">VYRON</span>
+                    </div>
+                    <p class="footer-desc">Premium gaming commerce platform. Top-ups, marketplace, donations.</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link">Telegram</a>
+                        <a href="#" class="social-link">Instagram</a>
+                        <a href="#" class="social-link">Twitter</a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Platform</h4>
+                    <a href="/games">Games</a>
+                    <a href="/marketplace">Marketplace</a>
+                    <a href="/donations">Donations</a>
+                    <a href="/promotions">Promotions</a>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Support</h4>
+                    <a href="/support">Help Center</a>
+                    <a href="/about">About Us</a>
+                    <a href="/terms">Terms</a>
+                    <a href="/privacy">Privacy</a>
+                    <a href="/refund">Refund Policy</a>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Business</h4>
+                    <p class="footer-info">Secure payments: Payme, Click, Stripe</p>
+                    <p class="footer-info">24/7 Support</p>
+                    <p class="footer-info">Instant delivery</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2024 VYRON. All rights reserved. Made with ❤️ for gamers.</p>
+                <div class="footer-badges">
+                    <span class="badge">🔒 Secure</span>
+                    <span class="badge">⚡ Fast</span>
+                    <span class="badge">🎮 Gaming</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile bottom nav -->
+    <nav class="bottom-nav">
+        <a href="/" class="bottom-nav-item" data-active="/">
+            <span class="bottom-nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="/games" class="bottom-nav-item" data-active="/games">
+            <span class="bottom-nav-icon">🎮</span>
+            <span>Games</span>
+        </a>
+        <a href="/marketplace" class="bottom-nav-item" data-active="/marketplace">
+            <span class="bottom-nav-icon">🛒</span>
+            <span>Market</span>
+        </a>
+        <a href="/orders" class="bottom-nav-item" data-active="/orders">
+            <span class="bottom-nav-icon">📦</span>
+            <span>Orders</span>
+        </a>
+        <a href="/profile" class="bottom-nav-item" data-active="/profile">
+            <span class="bottom-nav-icon">👤</span>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <!-- Toast container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="/static/js/theme.js"></script>
+    <script src="/static/js/i18n.js"></script>
+    <script src="/static/js/main.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

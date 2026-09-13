@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Refund Policy - VYRON{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: 40px; max-width: 800px;">
+    <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 24px;">Refund Policy</h1>
+    <div class="card" style="padding: 32px; line-height: 1.8; color: var(--text-secondary);">
+        <p>We strive for customer satisfaction.</p>
+        <h3 style="color: var(--text-primary); margin: 24px 0 12px;">Eligible for Refund</h3>
+        <ul style="padding-left: 20px;">
+            <li>Order failed to deliver and supplier cannot fulfill</li>
+            <li>Duplicate payment</li>
+            <li>Technical error on our side</li>
+        </ul>
+        <h3 style="color: var(--text-primary); margin: 24px 0 12px;">Not Eligible</h3>
+        <ul style="padding-left: 20px;">
+            <li>Digital products already delivered and used</li>
+            <li>Incorrect Player ID provided by customer</li>
+            <li>Change of mind after delivery</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

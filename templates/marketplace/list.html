@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Marketplace - VYRON{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: 32px;">
+    <h1 class="section-title">🛒 Marketplace</h1>
+    <p style="color: var(--text-secondary); margin-bottom: 24px;">Buy and sell gaming accounts, skins, items</p>
+    
+    <div class="grid grid-4">
+        {% for listing in listings %}
+        <a href="/marketplace/{{ listing.id }}" class="listing-card">
+            <div class="listing-image">
+                <img src="/static/images/marketplace/default.jpg" alt="{{ listing.title }}">
+            </div>
+            <div class="listing-body">
+                <div class="listing-title">{{ listing.title }}</div>
+                <div class="listing-price">{{ "{:,.0f}".format(listing.price) }} UZS</div>
+            </div>
+        </a>
+        {% else %}
+        <div class="card" style="grid-column: 1/-1; padding: 40px; text-align: center;">
+            <p>Marketplace coming soon - sellers can list soon!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
